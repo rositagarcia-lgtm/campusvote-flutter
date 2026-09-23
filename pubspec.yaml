@@ -1,0 +1,50 @@
+name: campusvote_flutter
+publish_to: "none"
+version: 1.0.0+1
+
+description: >
+  Cliente móvil Flutter del sistema académico de votación CampusVote.
+  Consume la API REST del backend y ofrece el flujo completo de votación.
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Estado / DI
+  flutter_riverpod: ^2.5.1
+
+  # Routing
+  go_router: ^14.6.2
+
+  # Network
+  dio: ^5.7.0
+
+  # Storage seguro
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.3
+
+  # Branding dinámico / tipografía
+  google_fonts: ^6.2.1
+
+  # Utilidades
+  intl: ^0.20.0
+  crypto: ^3.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  # Cobertura
+  coverage: ^1.10.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/branding/
+    - assets/branding/organizations/
