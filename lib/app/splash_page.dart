@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../core/branding/branding_controller.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/widgets/app_logo.dart';
 import '../core/widgets/fade_slide.dart';
 
-/// Pantalla de bienvenida: punto de entrada único de la app.
-///
-/// No es un splash de carga (el bloqueo de arranque vive en
-/// `AuthState.initializing` + el redirect del router), sino el selector de
-/// acceso. Cada panel abre un flujo DISTINTO:
-///
-/// - Estudiante → solicita un código de un solo uso por correo (sin
-///   contraseña).
-/// - Jurado → correo + contraseña, credencial que el administrador le envía
-///   por correo.
+/// Bienvenida y selección del flujo de acceso según el rol.
 class SplashPage extends ConsumerWidget {
   const SplashPage({super.key});
 
@@ -25,147 +17,161 @@ class SplashPage extends ConsumerWidget {
     final branding = ref.watch(brandingControllerProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardBg = isDark ? AppColors.darkSurface : AppColors.surface;
+    final studentColor = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final juryColor = isDark ? AppColors.accentLight : const Color(0xFF80600E);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        bottom: false,
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding:
-              const EdgeInsets.symmetric(horizontal: AppSpacing.xl).copyWith(
-            top: AppSpacing.xl,
-            bottom: AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.l,
+            AppSpacing.l,
+            AppSpacing.l,
+            AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // LOGO DE CAMPUSVOTE: identidad de la app, no de la
-              // organización, por eso es un asset local y no branding.logoUrl.
-              FadeSlide(
-                delay: Duration.zero,
-                offset: 30,
-                child: Center(
-                  child: AppLogo.asset(size: 110),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.l),
-
-              FadeSlide(
-                delay: const Duration(milliseconds: 150),
-                offset: 20,
-                child: Text(
-                  branding.name,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontFamily: 'serif',
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FadeSlide(
+                    child: _WelcomeHeader(name: branding.name),
                   ),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.s),
-
-              FadeSlide(
-                delay: const Duration(milliseconds: 250),
-                offset: 20,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.m,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primarySoft,
-                      borderRadius: AppRadii.rMedium,
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.20),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Text(
-                      'Votación y rendición académica',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.2,
-                      ),
+                  const SizedBox(height: AppSpacing.xxl),
+                  FadeSlide(
+                    delay: const Duration(milliseconds: 120),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Elige cómo participar',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Selecciona tu perfil para continuar.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: isDark
+                                ? AppColors.darkInkMuted
+                                : AppColors.inkMuted,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.xxl),
-
-              FadeSlide(
-                delay: const Duration(milliseconds: 350),
-                offset: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '¿Qué panel quieres abrir?',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.3,
-                      ),
+                  const SizedBox(height: AppSpacing.l),
+                  FadeSlide(
+                    delay: const Duration(milliseconds: 220),
+                    child: _AccessCard(
+                      icon: Icons.school_rounded,
+                      actionIcon: Icons.mail_outline_rounded,
+                      accent: studentColor,
+                      title: 'Estudiante',
+                      subtitle:
+                          'Evalúa a tus docentes con un código enviado a tu correo. No necesitas contraseña.',
+                      action: 'Continuar con mi correo',
+                      onTap: () => context.go('/auth/email-request'),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Elige tu perfil. Cada panel entra a su manera.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.textTheme.bodyMedium?.color
-                            ?.withValues(alpha: 0.75),
-                        height: 1.4,
-                      ),
+                  ),
+                  const SizedBox(height: AppSpacing.m),
+                  FadeSlide(
+                    delay: const Duration(milliseconds: 320),
+                    child: _AccessCard(
+                      icon: Icons.gavel_rounded,
+                      actionIcon: Icons.lock_outline_rounded,
+                      accent: juryColor,
+                      title: 'Jurado',
+                      subtitle:
+                          'Califica proyectos e ingresa con las credenciales enviadas por el administrador.',
+                      action: 'Ingresar como jurado',
+                      onTap: () => context.go('/auth/jury/login'),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: AppSpacing.l),
-
-              // ── ESTUDIANTE: código por correo (verde CampusVote) ──────────
-              FadeSlide(
-                delay: const Duration(milliseconds: 450),
-                offset: 30,
-                child: _AccessCard(
-                  icon: Icons.school_rounded,
-                  accent: AppColors.primary,
-                  title: 'Panel del estudiante',
-                  subtitle:
-                      'Te enviamos un código a tu correo. Sin contraseña.',
-                  tags: const ['Docentes', 'Código por correo'],
-                  backgroundColor: cardBg,
-                  onTap: () => context.go('/auth/email-request'),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.m),
-
-              // ── JURADO: correo + contraseña (dorado CampusVote) ───────────
-              FadeSlide(
-                delay: const Duration(milliseconds: 550),
-                offset: 30,
-                child: _AccessCard(
-                  icon: Icons.gavel_rounded,
-                  accent: AppColors.accent,
-                  title: 'Panel del jurado',
-                  subtitle:
-                      'Correo y contraseña que te envió el administrador, más un código de seguridad.',
-                  tags: const ['Rúbrica', 'Votación final'],
-                  backgroundColor: cardBg,
-                  onTap: () => context.go('/auth/jury/login'),
-                ),
-              ),
-
-              const SizedBox(height: AppSpacing.xxl),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _WelcomeHeader extends StatelessWidget {
+  const _WelcomeHeader({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.l,
+        vertical: AppSpacing.xl,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [AppColors.darkPrimarySoft, AppColors.darkSurface]
+              : [AppColors.primarySoft, AppColors.primarySubtle],
+        ),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.primarySoft,
+        ),
+      ),
+      child: Column(
+        children: [
+          // La base blanca mantiene legible el asset transparente en ambos temas.
+          Semantics(
+            image: true,
+            label: 'Logo de CampusVote',
+            child: Container(
+              width: 116,
+              height: 116,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: AppColors.primarySoft, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primaryDark.withValues(alpha: 0.14),
+                    blurRadius: 18,
+                    offset: const Offset(0, 7),
+                  ),
+                ],
+              ),
+              child: AppLogo.asset(size: 96),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.l),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: isDark ? AppColors.darkInk : AppColors.primaryDark,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Votación y evaluación académica',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: isDark ? AppColors.darkInkMuted : AppColors.inkMuted,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -174,38 +180,40 @@ class SplashPage extends ConsumerWidget {
 class _AccessCard extends StatelessWidget {
   const _AccessCard({
     required this.icon,
+    required this.actionIcon,
     required this.accent,
     required this.title,
     required this.subtitle,
-    required this.tags,
-    required this.backgroundColor,
+    required this.action,
     required this.onTap,
   });
 
   final IconData icon;
+  final IconData actionIcon;
   final Color accent;
   final String title;
   final String subtitle;
-  final List<String> tags;
-  final Color backgroundColor;
+  final String action;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final tint = accent.withValues(alpha: isDark ? 0.14 : 0.08);
 
     return Material(
-      color: backgroundColor,
+      color: theme.colorScheme.surface,
+      elevation: 2,
+      shadowColor: accent.withValues(alpha: 0.18),
       shape: RoundedRectangleBorder(
-        borderRadius: AppRadii.rXLarge,
-        side: BorderSide(color: accent.withValues(alpha: 0.30), width: 1.0),
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: accent.withValues(alpha: 0.32)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        splashColor: accent.withValues(alpha: 0.08),
-        highlightColor: accent.withValues(alpha: 0.04),
+        splashColor: tint,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.l),
           child: Column(
@@ -217,83 +225,59 @@ class _AccessCard extends StatelessWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          accent,
-                          Color.lerp(accent, Colors.black, 0.15)!
-                        ],
-                      ),
+                      color: tint,
                       borderRadius: AppRadii.rLarge,
-                      boxShadow: [
-                        BoxShadow(
-                          color: accent.withValues(alpha: 0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
-                    child: Icon(icon, color: Colors.white, size: 26),
+                    child: Icon(icon, color: accent, size: 28),
                   ),
                   const SizedBox(width: AppSpacing.m),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.textTheme.bodySmall?.color
-                                ?.withValues(alpha: 0.75),
-                            height: 1.3,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                  Icon(Icons.arrow_forward_rounded, color: accent, size: 24),
+                  Icon(Icons.arrow_forward_ios_rounded,
+                      color: accent, size: 18),
                 ],
               ),
               const SizedBox(height: AppSpacing.m),
-              Wrap(
-                spacing: AppSpacing.s,
-                runSpacing: AppSpacing.xs,
-                children: [
-                  for (final tag in tags)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.s,
-                        vertical: AppSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? accent.withValues(alpha: 0.15)
-                            : accent.withValues(alpha: 0.08),
-                        borderRadius: AppRadii.rSmall,
-                        border: Border.all(
-                          color: accent.withValues(alpha: 0.15),
-                          width: 0.5,
-                        ),
-                      ),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: isDark ? AppColors.darkInkMuted : AppColors.inkMuted,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.l),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.m,
+                  vertical: AppSpacing.m,
+                ),
+                decoration: BoxDecoration(
+                  color: tint,
+                  borderRadius: AppRadii.rMedium,
+                ),
+                child: Row(
+                  children: [
+                    Icon(actionIcon, size: 20, color: accent),
+                    const SizedBox(width: AppSpacing.s),
+                    Expanded(
                       child: Text(
-                        tag,
-                        style: theme.textTheme.labelSmall?.copyWith(
+                        action,
+                        style: theme.textTheme.labelLarge?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 0.2,
                         ),
                       ),
                     ),
-                ],
+                    Icon(Icons.arrow_forward_rounded, color: accent, size: 20),
+                  ],
+                ),
               ),
             ],
           ),
