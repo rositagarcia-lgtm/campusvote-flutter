@@ -15,15 +15,18 @@ import '../../features/auth/presentation/pages/totp_page.dart';
 import '../../features/auth/presentation/pages/totp_setup_page.dart';
 import '../../features/auth/presentation/state/auth_controller.dart';
 import '../../features/auth/presentation/state/auth_events.dart';
-import 'role_landing.dart';
-import '../../features/fair_voting/presentation/pages/fair_projects_page.dart';
-import '../../features/fair_voting/presentation/pages/my_fairs_page.dart';
-import '../../features/fair_voting/presentation/pages/rubric_page.dart';
-import '../../features/fair_voting/presentation/pages/voting_page.dart';
-import '../../features/fair_voting/presentation/pages/voting_success_page.dart';
+import '../../features/jury/presentation/pages/fair_projects_page.dart';
+import '../../features/jury/presentation/pages/jury_dashboard_page.dart';
+import '../../features/jury/presentation/pages/jury_declaration_page.dart';
+import '../../features/jury/presentation/pages/jury_progress_page.dart';
+import '../../features/jury/presentation/pages/jury_results_page.dart';
+import '../../features/jury/presentation/pages/rubric_evaluation_page.dart';
+import '../../features/jury/presentation/pages/voting_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
+import 'legacy_jury_routes.dart';
+import 'role_landing.dart';
 
 /// Router global.
 ///
@@ -44,6 +47,11 @@ GoRouter buildAppRouter(
     redirect: (context, state) {
       final auth = ref.read(authControllerProvider);
       final loc = state.matchedLocation;
+
+      // El panel de jurado se renombró de `/juries/**` a `/jury/**`; los
+      // enlaces guardados siguen funcionando gracias a esta traducción.
+      final legacy = legacyJuryRedirect(loc);
+      if (legacy != null) return legacy;
 
       if (auth.initializing) {
         return loc == '/splash' ? null : '/splash';
@@ -78,7 +86,7 @@ GoRouter buildAppRouter(
       // No renderizar un panel ajeno. El backend sigue siendo la autoridad
       // (rechaza las peticiones), pero evita mostrar la UI de otro rol.
       if (auth.authenticated) {
-        final opensJuryPanel = loc.startsWith('/juries');
+        final opensJuryPanel = isJuryPanelPath(loc);
         final opensStudentPanel = loc.startsWith('/teaching');
         final isJury = auth.user?.role == AuthRole.jury;
         if (opensJuryPanel != isJury && (opensJuryPanel || opensStudentPanel)) {
@@ -143,42 +151,43 @@ GoRouter buildAppRouter(
       ),
 
       // ── Votación de feria (JURY) ─────────────────────────────────────
+      // Árbol canónico del panel de jurado. Las rutas `/juries/**` se
+      // resuelven por el redirect global de `legacyJuryRedirect`.
       GoRoute(
-        path: '/juries',
-        redirect: (context, state) {
-          return '/juries/fairs';
-        },
-      ),
-      GoRoute(
-        path: '/juries/fairs',
-        builder: (_, __) => const MyFairsPage(),
+        path: '/jury',
+        builder: (_, __) => const JuryDashboardPage(),
         routes: [
           GoRoute(
-            path: ':fairId/projects',
-            builder: (_, s) => FairProjectsPage(
-              fairId: s.pathParameters['fairId']!,
-            ),
+            path: 'fair/:fairId',
+            builder: (_, s) =>
+                FairProjectsPage(fairId: s.pathParameters['fairId']!),
             routes: [
               GoRoute(
-                path: ':projectId/rubric',
-                builder: (_, s) => RubricPage(
+                path: 'project/:projectId/rubric',
+                builder: (_, s) => RubricEvaluationPage(
                   fairId: s.pathParameters['fairId']!,
                   projectId: s.pathParameters['projectId']!,
                 ),
               ),
-            ],
-          ),
-          GoRoute(
-            path: ':fairId/voting',
-            builder: (_, s) => VotingPage(
-              fairId: s.pathParameters['fairId']!,
-            ),
-            routes: [
               GoRoute(
-                path: 'success',
-                builder: (_, s) => VotingSuccessPage(
-                  fairId: s.pathParameters['fairId']!,
-                ),
+                path: 'progress',
+                builder: (_, s) =>
+                    JuryProgressPage(fairId: s.pathParameters['fairId']!),
+              ),
+              GoRoute(
+                path: 'declaration',
+                builder: (_, s) =>
+                    JuryDeclarationPage(fairId: s.pathParameters['fairId']!),
+              ),
+              GoRoute(
+                path: 'vote',
+                builder: (_, s) =>
+                    VotingPage(fairId: s.pathParameters['fairId']!),
+              ),
+              GoRoute(
+                path: 'results',
+                builder: (_, s) =>
+                    JuryResultsPage(fairId: s.pathParameters['fairId']!),
               ),
             ],
           ),

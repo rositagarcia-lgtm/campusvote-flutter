@@ -42,7 +42,7 @@ class AppBottomNav extends ConsumerWidget {
           onDestinationSelected: (i) {
             if (i == selectedIndex) return;
             if (i == 0) {
-              context.go(isJury ? '/juries/fairs' : '/teaching');
+              context.go(isJury ? '/jury' : '/teaching');
             } else {
               context.go('/account');
             }

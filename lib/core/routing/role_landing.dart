@@ -10,4 +10,4 @@ import '../../features/auth/domain/entities/auth_role.dart';
 /// (`user.role`), nunca con el panel que el usuario tocó en el splash: el
 /// cliente no es la autoridad sobre el rol.
 String landingPathForRole(String? role) =>
-    role == AuthRole.jury ? '/juries/fairs' : '/teaching';
+    role == AuthRole.jury ? '/jury' : '/teaching';

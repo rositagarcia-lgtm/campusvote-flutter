@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('landingPathForRole', () {
     test('JURY aterriza en sus ferias asignadas', () {
-      expect(landingPathForRole(AuthRole.jury), '/juries/fairs');
+      expect(landingPathForRole(AuthRole.jury), '/jury');
     });
 
     test('STUDENT aterriza en la evaluación docente', () {

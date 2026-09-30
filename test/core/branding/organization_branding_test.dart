@@ -1,6 +1,5 @@
 import 'package:campusvote_flutter/core/branding/organization_branding.dart';
-import 'package:campusvote_flutter/features/fair_voting/data/models/fair_assignment_model.dart';
-import 'package:campusvote_flutter/features/fair_voting/domain/entities/fair_assignment.dart';
+import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -81,11 +80,16 @@ void main() {
       expect(m.fairId, 'fair-1');
       expect(m.organizationId, 'org-1');
       expect(m.name, 'Feria de Ingeniería');
-      expect(m.status, FairAssignmentStatus.open);
+      expect(m.status, FairStatus.open);
       expect(m.isOpen, isTrue);
       expect(m.organizationName, 'Universidad Demo');
       expect(m.siteName, 'Sede Norte');
-      expect(m.assignedAt, DateTime.utc(2026, 2, 1, 10));
+      // El modelo normaliza a hora local para comparar con los `DateTime`
+      // que produce el cliente al pintar.
+      expect(
+        m.assignedAt,
+        DateTime.utc(2026, 2, 1, 10).toLocal(),
+      );
     });
 
     test('omite organization_name / site_name cuando llegan null', () {
@@ -101,7 +105,7 @@ void main() {
       });
       expect(m.organizationName, isNull);
       expect(m.siteName, isNull);
-      expect(m.status, FairAssignmentStatus.closed);
+      expect(m.status, FairStatus.closed);
     });
   });
 }

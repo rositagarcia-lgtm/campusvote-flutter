@@ -52,3 +52,27 @@ class ApiEndpoints {
       '/api/fairs/$fairId/voting/status';
   static String fairVotingCast(String fairId) => '/api/fairs/$fairId/votes';
 }
+
+/// Rutas del panel de votación del jurado (`lib/features/jury/`).
+///
+/// Todas exigen `authenticate` + `authorize(JURY)`. El orden de montaje en el
+/// backend importa: `juryAssignment.routes.js` se registra antes que
+/// `fair.routes.js`, que exige `ADMIN` a nivel de router; por eso el jurado
+/// solo tiene `/fairs/my-assignments` y nunca `GET /fairs`.
+class JuryEndpoints {
+  const JuryEndpoints._();
+
+  static const String myAssignments = '/api/fairs/my-assignments';
+  static const String myEvaluations = '/api/fairs/my-evaluations';
+
+  static String myProgress(String fairId) => '/api/fairs/my-progress/$fairId';
+  static String projects(String fairId) => '/api/fairs/$fairId/projects';
+  static String projectRubric(String fairId, String projectId) =>
+      '/api/fairs/$fairId/projects/$projectId/rubric';
+  static String votingStatus(String fairId) =>
+      '/api/fairs/$fairId/voting/status';
+  static String castVote(String fairId) => '/api/fairs/$fairId/votes';
+  static String declaration(String fairId) =>
+      '/api/fairs/$fairId/jury/declaration';
+  static String results(String fairId) => '/api/fairs/$fairId/results';
+}
