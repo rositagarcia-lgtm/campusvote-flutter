@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/role_landing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -31,12 +32,14 @@ class _TotpPageState extends ConsumerState<TotpPage> {
       );
       return;
     }
-    final ok =
-        await ref.read(authControllerProvider.notifier).verifyTotp(_codeCtrl.text);
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .verifyTotp(_codeCtrl.text);
     if (!mounted) return;
     if (ok) {
-      // El router re-dirige por rol (JURY → ferias, STUDENT → docentes).
-      context.go('/teaching');
+      // El destino sale del rol que devolvió el backend, no de una ruta fija.
+      context
+          .go(landingPathForRole(ref.read(authControllerProvider).user?.role));
     }
   }
 
@@ -46,13 +49,20 @@ class _TotpPageState extends ConsumerState<TotpPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Verificación en dos pasos')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.l),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.l,
+            AppSpacing.l,
+            AppSpacing.l,
+            AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.l),
-              const Icon(Icons.security_rounded, size: 64, color: AppColors.primary),
+              const Icon(Icons.security_rounded,
+                  size: 64, color: AppColors.primary),
               const SizedBox(height: AppSpacing.l),
               Text(
                 'Verificación 2FA',

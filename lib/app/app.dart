@@ -14,6 +14,7 @@ class CampusVoteApp extends ConsumerStatefulWidget {
 }
 
 class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
+  late final GoRouterRefreshNotifier _refreshNotifier;
   late final GoRouter _router;
 
   @override
@@ -22,7 +23,15 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     // El router se construye UNA sola vez. Reconstruirlo en cada `build` (o
     // cuando cambia el branding) reiniciaba el GoRouter y perdía el estado de
     // navegación —el usuario quedaba de vuelta en el splash tras cada login.
-    _router = buildAppRouter(ref);
+    _refreshNotifier = GoRouterRefreshNotifier(ref);
+    _router = buildAppRouter(ref, refreshListenable: _refreshNotifier);
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _refreshNotifier.dispose();
+    super.dispose();
   }
 
   @override

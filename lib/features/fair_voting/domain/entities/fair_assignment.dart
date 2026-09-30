@@ -25,6 +25,10 @@ class FairAssignment {
   final DateTime? endsAt;
   final DateTime? assignedAt;
 
+  /// El backend los incluye en `mapMyFair`; son `null` si la relación no existe.
+  final String? organizationName;
+  final String? siteName;
+
   const FairAssignment({
     required this.fairId,
     required this.organizationId,
@@ -34,6 +38,8 @@ class FairAssignment {
     this.startsAt,
     this.endsAt,
     this.assignedAt,
+    this.organizationName,
+    this.siteName,
   });
 
   bool get isOpen => status == FairAssignmentStatus.open;

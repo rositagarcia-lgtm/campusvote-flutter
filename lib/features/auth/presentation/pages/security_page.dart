@@ -60,7 +60,8 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
     );
     if (!confirm || !mounted) return;
     await ref.read(authControllerProvider.notifier).logout();
-    if (mounted) context.go('/login');
+    // Al selector de acceso: cualquier rol vuelve a elegir su panel.
+    if (mounted) context.go('/splash');
   }
 
   @override

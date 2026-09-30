@@ -29,6 +29,22 @@ class AuthSessionDataSource {
     return UnknownFailure(message: message, code: err?.code);
   }
 
+  /// El flag llega en camelCase en el nivel superior (`/login`) pero en
+  /// snake_case dentro de `user` (`formatUserResponse` →
+  /// `must_change_password`), que es lo que devuelve `/email/login-verify`.
+  /// Importa para el jurado: la contraseña que envía el administrador es
+  /// temporal y debe forzarse su cambio.
+  static bool _mustChangePassword(Map<String, dynamic> data) {
+    final top = data['mustChangePassword'];
+    if (top is bool) return top;
+    final user = data['user'];
+    if (user is Map) {
+      final nested = user['must_change_password'] ?? user['mustChangePassword'];
+      if (nested is bool) return nested;
+    }
+    return false;
+  }
+
   Future<Result<LoginResult>> login({
     required String email,
     required String password,
@@ -50,6 +66,31 @@ class AuthSessionDataSource {
       if (data['requiresOnboarding'] == true) {
         return Success(LoginResult.onboarding(data['tempToken'] as String));
       }
+      // JURY / STUDENT / TEACHER: la contraseña es válida, pero el backend
+      // exige además un código de un solo uso al correo y NO emite sesión
+      // (`auth.session.service.js`: `if ([JURY, STUDENT, TEACHER].includes(role))
+      // return { requiresEmailOtp: true, tempToken, ... }`). Sin esta rama el
+      // cliente caía en "Respuesta inesperada del servidor".
+      if (data['requiresEmailOtp'] == true) {
+        final tempToken = data['tempToken'] as String?;
+        if (tempToken == null) {
+          return const FailureResult(UnknownFailure(
+            message: 'Respuesta inesperada del servidor',
+          ));
+        }
+        final org =
+            data['organization'] is Map ? _asMap(data['organization']) : null;
+        return Success(LoginResult.emailOtpPending(
+          tempToken: tempToken,
+          email: (data['email'] ?? email).toString(),
+          mustChangePassword: _mustChangePassword(data),
+          organization: org == null
+              ? null
+              : OrganizationBranding.fromOrganizationJson(org),
+        ));
+      }
+      // Sesión directa: solo SUPERADMIN (el resto de roles pasa por un
+      // segundo factor antes de recibir `token`).
       final token = data['token'] as String?;
       final refresh = data['refreshToken'] as String?;
       if (token == null || refresh == null) {
@@ -66,7 +107,7 @@ class AuthSessionDataSource {
       return Success(LoginResult.ok(
         token: token,
         refreshToken: refresh,
-        mustChangePassword: (data['mustChangePassword'] ?? false) as bool,
+        mustChangePassword: _mustChangePassword(data),
       ));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
@@ -105,15 +146,17 @@ class AuthSessionDataSource {
       return Success(LoginResult.ok(
         token: token,
         refreshToken: refresh,
-        mustChangePassword: (data['mustChangePassword'] ?? false) as bool,
+        mustChangePassword: _mustChangePassword(data),
       ));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
     }
   }
 
-  /// Acceso sin contraseña (estudiantes y jurados): solicita un código OTP al
-  /// correo. La respuesta incluye el branding de la organización pre-login.
+  /// Acceso del estudiante: solicita un código OTP al correo. El payload es
+  /// solo `{email}` — el rol NO se envía: lo resuelve el backend a partir de la
+  /// cuenta y lo devuelve en `user.role` al completar el acceso.
+  /// La respuesta incluye el branding de la organización pre-login.
   Future<Result<LoginResult>> requestEmailLogin({required String email}) async {
     try {
       final res = await _client.post(
@@ -142,10 +185,9 @@ class AuthSessionDataSource {
       return Success(LoginResult.emailOtpPending(
         tempToken: tempToken,
         email: (data['email'] ?? email).toString(),
-        mustChangePassword: (data['mustChangePassword'] ?? false) as bool,
-        organization: org == null
-            ? null
-            : OrganizationBranding.fromOrganizationJson(org),
+        mustChangePassword: _mustChangePassword(data),
+        organization:
+            org == null ? null : OrganizationBranding.fromOrganizationJson(org),
       ));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
@@ -185,7 +227,7 @@ class AuthSessionDataSource {
       return Success(LoginResult.ok(
         token: token,
         refreshToken: refresh,
-        mustChangePassword: (data['mustChangePassword'] ?? false) as bool,
+        mustChangePassword: _mustChangePassword(data),
       ));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));

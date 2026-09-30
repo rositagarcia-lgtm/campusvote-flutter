@@ -36,13 +36,20 @@ class OrganizationBranding {
   ///
   /// Campos esperados (con fallback seguro si faltan):
   /// `id`, `name`, `logo`, `primary_color`, `secondary_color`.
+  ///
+  /// `GET /api/organizations/:id` serializa el registro crudo de Prisma, así
+  /// que devuelve `primaryColor` / `secondaryColor` en camelCase; el login sí
+  /// devuelve `primary_color` / `secondary_color`. Se aceptan ambos.
   factory OrganizationBranding.fromOrganizationJson(Map<String, dynamic> json) {
     final id = (json['id'] ?? 'campusvote').toString();
     final name = (json['name'] ?? 'CampusVote').toString();
     final logo = (json['logo'] as String?)?.trim();
-    final primary = _tryParseHex(json['primary_color']) ?? AppColors.primary;
+    final primary =
+        _tryParseHex(json['primary_color'] ?? json['primaryColor']) ??
+            AppColors.primary;
     final secondary =
-        _tryParseHex(json['secondary_color']) ?? AppColors.accent;
+        _tryParseHex(json['secondary_color'] ?? json['secondaryColor']) ??
+            AppColors.accent;
     return OrganizationBranding(
       id: id,
       name: name,

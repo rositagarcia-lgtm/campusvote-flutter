@@ -53,6 +53,8 @@ class FairAssignmentModel extends FairAssignment {
     super.startsAt,
     super.endsAt,
     super.assignedAt,
+    super.organizationName,
+    super.siteName,
   });
 
   static DateTime? _parseDate(dynamic v) {
@@ -74,7 +76,18 @@ class FairAssignmentModel extends FairAssignment {
       startsAt: _parseDate(fair['starts_at'] ?? fair['startsAt']),
       endsAt: _parseDate(fair['ends_at'] ?? fair['endsAt']),
       assignedAt: _parseDate(json['assigned_at'] ?? json['assignedAt']),
+      organizationName: _parseName(fair['organization_name'] ??
+          fair['organizationName'] ??
+          json['organization_name']),
+      siteName: _parseName(fair['site_name'] ?? fair['siteName']),
     );
+  }
+
+  /// `organization_name` / `site_name` llegan como `null` cuando la feria no
+  /// tiene relación; en ese caso se omite en vez de pintar un "null".
+  static String? _parseName(dynamic value) {
+    final text = value?.toString().trim();
+    return (text == null || text.isEmpty) ? null : text;
   }
 
   FairAssignment toEntity() => this;

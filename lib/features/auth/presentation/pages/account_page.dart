@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../domain/entities/auth_role.dart';
 import '../state/auth_controller.dart';
 
 /// "Sobre mí": foto de perfil, datos de la cuenta y de la organización,
@@ -65,7 +66,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             _AccountInfoCard(
               name: user?.displayName ?? '—',
               email: user?.email ?? '—',
-              role: _roleLabel(user?.role),
+              role: AuthRole.label(user?.role),
             ),
             const SizedBox(height: AppSpacing.l),
             AppButton.outlined(
@@ -85,15 +86,6 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       bottomNavigationBar: const AppBottomNav(selectedIndex: 1),
     );
   }
-
-  static String _roleLabel(String? role) => switch (role) {
-        'JURY' => 'Jurado',
-        'TEACHER' => 'Docente',
-        'STUDENT' => 'Estudiante',
-        'ADMIN' => 'Administrador',
-        'SUPERADMIN' => 'Super administrador',
-        _ => 'Miembro',
-      };
 
   Future<void> _confirmLogout() async {
     final confirm = await AppDialog.confirm(
@@ -209,7 +201,8 @@ class _IdentityCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: primary,
                       shape: BoxShape.circle,
-                      border: Border.all(color: theme.colorScheme.surface, width: 2),
+                      border: Border.all(
+                          color: theme.colorScheme.surface, width: 2),
                     ),
                     child: const Icon(
                       Icons.photo_camera_rounded,
@@ -224,11 +217,13 @@ class _IdentityCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.m),
           Text(
             displayName,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(email, style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
+          Text(email,
+              style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.m),
           OutlinedButton.icon(
             onPressed: uploading ? null : onPickPhoto,
@@ -292,7 +287,8 @@ class _Avatar extends StatelessWidget {
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => fallback,
         loadingBuilder: (context, child, progress) =>
-            progress == null ? child : fallback,      ),
+            progress == null ? child : fallback,
+      ),
     );
   }
 }
@@ -323,7 +319,8 @@ class _OrganizationCard extends StatelessWidget {
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 2),
-                Text('Organización de tu cuenta', style: theme.textTheme.bodySmall),
+                Text('Organización de tu cuenta',
+                    style: theme.textTheme.bodySmall),
               ],
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/domain/entities/auth_role.dart';
 import '../../features/auth/presentation/state/auth_controller.dart';
 
 /// Barra de navegación inferior compartida por los paneles.
@@ -16,7 +17,7 @@ class AppBottomNav extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isJury = ref.watch(
-      authControllerProvider.select((s) => s.user?.role == 'JURY'),
+      authControllerProvider.select((s) => s.user?.role == AuthRole.jury),
     );
     final theme = Theme.of(context);
 

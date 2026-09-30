@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/role_landing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
@@ -15,8 +16,7 @@ class ChangePasswordPage extends ConsumerStatefulWidget {
   const ChangePasswordPage({super.key, this.required = false});
 
   @override
-  ConsumerState<ChangePasswordPage> createState() =>
-      _ChangePasswordPageState();
+  ConsumerState<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
 class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
@@ -45,10 +45,13 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
         const SnackBar(content: Text('Contraseña actualizada correctamente')),
       );
       if (widget.required) {
-        // Si era obligatorio, mandamos al setup de 2FA.
-        context.go('/security/totp/setup');
-      } else {
-        if (context.canPop()) context.pop();
+        // El 2FA no lo exige el backend para jurado/estudiante (tras el acceso
+        // por correo `two_factor_enabled` ya queda activo), así que el cambio
+        // obligatorio devuelve a su panel en vez de forzar el setup de TOTP.
+        context.go(
+            landingPathForRole(ref.read(authControllerProvider).user?.role));
+      } else if (context.canPop()) {
+        context.pop();
       }
     } else {
       final msg = ref.read(authControllerProvider).errorMessage;

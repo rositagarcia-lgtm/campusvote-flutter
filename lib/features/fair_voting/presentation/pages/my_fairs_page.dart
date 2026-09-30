@@ -192,7 +192,22 @@ class _FairTile extends StatelessWidget {
                         ),
                       ],
                       const SizedBox(height: AppSpacing.s),
-                      _StatusChip(status: fair.status),
+                      Row(
+                        children: [
+                          _StatusChip(status: fair.status),
+                          if (fair.siteName != null) ...[
+                            const SizedBox(width: AppSpacing.s),
+                            Flexible(
+                              child: Text(
+                                fair.siteName!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ),

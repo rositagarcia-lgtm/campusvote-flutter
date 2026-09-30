@@ -124,29 +124,11 @@ class PanelHero extends StatelessWidget {
                   const SizedBox(height: AppSpacing.s),
                   Row(
                     children: [
-                      if (organizationLogoUrl != null &&
-                          organizationLogoUrl!.isNotEmpty)
-                        Container(
-                          width: 26,
-                          height: 26,
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: AppRadii.rSmall,
-                          ),
-                          child: Image.network(
-                            organizationLogoUrl!,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) =>
-                                const SizedBox.shrink(),
-                          ),
-                        )
-                      else
-                        Icon(
-                          Icons.account_balance_rounded,
-                          size: AppDimensions.iconSmall,
-                          color: onPrimary.withValues(alpha: 0.9),
-                        ),
+                      _OrgBadge(
+                        logoUrl: organizationLogoUrl,
+                        name: organizationName!,
+                        onPrimary: onPrimary,
+                      ),
                       const SizedBox(width: AppSpacing.s),
                       Flexible(
                         child: Text(
@@ -200,6 +182,71 @@ class PanelHero extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: base.withValues(alpha: alpha),
+      ),
+    );
+  }
+}
+
+/// Identidad de la organización dentro del panel.
+///
+/// Muestra el logo institucional y, si la organización todavía no tiene logo
+/// o la URL falla, cae a sus iniciales: el panel nunca queda sin identidad.
+class _OrgBadge extends StatelessWidget {
+  const _OrgBadge({
+    required this.logoUrl,
+    required this.name,
+    required this.onPrimary,
+  });
+
+  final String? logoUrl;
+  final String name;
+  final Color onPrimary;
+
+  static String _initials(String value) {
+    final words =
+        value.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    if (words.isEmpty) return '?';
+    if (words.length == 1) {
+      return words.first.substring(0, 1).toUpperCase();
+    }
+    return (words[0].substring(0, 1) + words[1].substring(0, 1)).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final url = logoUrl;
+    return Container(
+      width: 28,
+      height: 28,
+      padding: const EdgeInsets.all(3),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: AppRadii.rSmall,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: (url == null || url.isEmpty)
+          ? _initialsBox(context)
+          : Image.network(
+              url,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => _initialsBox(context),
+            ),
+    );
+  }
+
+  Widget _initialsBox(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: onPrimary.withValues(alpha: 0.18),
+        borderRadius: AppRadii.rSmall,
+      ),
+      child: Text(
+        _initials(name),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: onPrimary,
+              fontWeight: FontWeight.w800,
+            ),
       ),
     );
   }

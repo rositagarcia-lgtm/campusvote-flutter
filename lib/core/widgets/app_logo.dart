@@ -86,7 +86,7 @@ class AppLogo extends StatelessWidget {
         width: size,
         height: size,
         child: Image.asset(
-          'assets/logo.png',
+          kCampusVoteLogoAsset,
           fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => _initials(bg, initials),
         ),

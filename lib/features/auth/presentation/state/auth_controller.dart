@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/branding/organization_branding.dart';
+import '../../../../core/branding/organization_branding_repository.dart';
+import '../../domain/entities/auth_role.dart';
 import '../../domain/entities/auth_user.dart';
 import 'auth_events.dart';
 import 'auth_providers.dart';
@@ -58,12 +61,51 @@ class AuthState {
   }
 }
 
+/// Qué hacer tras un intento de acceso con contraseña en el panel de jurado.
+///
+/// El backend es la autoridad del rol: si la contraseña es válida pero la
+/// cuenta no es de jurado, se cierra la sesión en vez de dejar al usuario
+/// dentro de un panel ajeno.
+enum JuryLoginOutcome {
+  /// Sesión iniciada y la cuenta es de jurado.
+  granted,
+
+  /// Credenciales válidas pero la cuenta no es de jurado: hay que cerrar la
+  /// sesión y avisar.
+  notJury,
+
+  /// La cuenta exige además un código enviado al correo.
+  needsEmailCode,
+
+  /// La cuenta exige el código de la app autenticadora.
+  needsTotp,
+
+  /// Credenciales incorrectas u otro error (ver `AuthState.errorMessage`).
+  failed,
+}
+
+JuryLoginOutcome resolveJuryLoginOutcome({
+  required bool ok,
+  required AuthState state,
+}) {
+  if (ok) {
+    return state.user?.role == AuthRole.jury
+        ? JuryLoginOutcome.granted
+        : JuryLoginOutcome.notJury;
+  }
+  if (state.tempToken == null) return JuryLoginOutcome.failed;
+  return state.requiresEmailOtp
+      ? JuryLoginOutcome.needsEmailCode
+      : JuryLoginOutcome.needsTotp;
+}
+
 class AuthController extends StateNotifier<AuthState> {
   AuthController(this._ref) : super(const AuthState()) {
     _bootstrap();
     // Escucha logout forzado (401 → refresh fallido).
     _ref.listen<AuthEvents?>(authEventsProvider, (prev, next) {
       if (next != null && prev != null && next.logoutCount > prev.logoutCount) {
+        _resetBranding();
         state = const AuthState(initializing: false, authenticated: false);
       }
     });
@@ -86,6 +128,9 @@ class AuthController extends StateNotifier<AuthState> {
           authenticated: true,
           user: user,
         );
+        // La sesión persistida solo guarda el `organizationId`; sin esto el
+        // panel abriría con la marca CampusVote en vez de la organización.
+        unawaited(_loadBranding(user.organizationId));
       } else {
         state = state.copyWith(initializing: false, authenticated: false);
       }
@@ -178,8 +223,10 @@ class AuthController extends StateNotifier<AuthState> {
     return true;
   }
 
-  /// Paso 1 del acceso sin contraseña (estudiantes y jurados): solicita el
-  /// código OTP al correo y guarda el tempToken EMAIL_PENDING para el paso 2.
+  /// Acceso del ESTUDIANTE (paso 1): solicita el código OTP al correo y guarda
+  /// el tempToken EMAIL_PENDING para el paso 2.
+  ///
+  /// El flujo con contraseña (jurado) usa [login] en su lugar.
   Future<bool> requestEmailLogin({required String email}) async {
     state = state.copyWith(submitting: true, clearError: true);
     final result =
@@ -204,7 +251,7 @@ class AuthController extends StateNotifier<AuthState> {
     return true;
   }
 
-  /// Paso 2 del acceso sin contraseña: verifica el código recibido por correo.
+  /// Paso 2 del acceso del estudiante: verifica el código recibido por correo.
   Future<bool> verifyEmailLogin(String code) async {
     final temp = state.tempToken;
     if (temp == null || !state.requiresEmailOtp) {
@@ -240,7 +287,7 @@ class AuthController extends StateNotifier<AuthState> {
     return true;
   }
 
-  /// Reenvía el código OTP del flujo de acceso sin contraseña en curso.
+  /// Reenvía el código OTP del flujo del estudiante en curso.
   Future<bool> resendEmailLogin() async {
     final temp = state.tempToken;
     if (temp == null || !state.requiresEmailOtp) return false;
@@ -256,6 +303,28 @@ class AuthController extends StateNotifier<AuthState> {
   void _applyBranding(OrganizationBranding? org) {
     if (org == null) return;
     _ref.read(brandingControllerProvider.notifier).apply(org);
+  }
+
+  /// Consulta la organización del usuario autenticado y pinta su identidad.
+  ///
+  /// Silencioso a propósito: si falla (sin red, organización borrada) el panel
+  /// se queda con la marca CampusVote en vez de bloquear la sesión.
+  Future<void> _loadBranding(String? organizationId) async {
+    if (organizationId == null || organizationId.isEmpty) return;
+    final res = await _ref
+        .read(organizationBrandingRepositoryProvider)
+        .fetch(organizationId);
+    if (res.isSuccess) _applyBranding(res.dataOrNull);
+  }
+
+  /// Vuelve a la identidad de CampusVote.
+  ///
+  /// Sin esto los colores y el nombre de la organización de la sesión anterior
+  /// se quedaban pintados en el tema global: el siguiente usuario entraba
+  /// viendo la marca de otro tenant, y el splash se quedaba con el nombre
+  /// viejo. Se llama también en el logout forzado por 401.
+  void _resetBranding() {
+    _ref.read(brandingControllerProvider.notifier).reset();
   }
 
   Future<void> _hydrateProfile() async {
@@ -303,6 +372,7 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await _ref.read(logoutUseCaseProvider)();
+    _resetBranding();
     state = const AuthState(initializing: false, authenticated: false);
   }
 
