@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
-import '../theme/app_shadows.dart';
+import 'app_palette.dart';
 
+/// Tarjeta plana: superficie limpia con borde fino de 1 px y radio contenido.
+///
+/// No lleva sombra: el sistema reserva la elevación para la barra de
+/// navegación flotante. [elevated] se conserva por compatibilidad y ya no
+/// añade sombra.
 class AppCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final VoidCallback? onTap;
-  final Color? color;
-  final bool bordered;
-  final bool elevated;
-
   const AppCard({
     super.key,
     required this.child,
@@ -21,26 +19,25 @@ class AppCard extends StatelessWidget {
     this.elevated = false,
   });
 
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final VoidCallback? onTap;
+  final Color? color;
+  final bool bordered;
+
+  /// Ignorado a propósito: las tarjetas del sistema son planas.
+  final bool elevated;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final bg = color ?? theme.colorScheme.surface;
-    final border = bordered
-        ? Border.all(
-            color: isDark
-                ? const Color(0xFF29403D)
-                : const Color(0xFFE2E8F0),
-          )
-        : null;
-
     final card = Container(
       decoration: BoxDecoration(
-        color: bg,
+        color: color ?? theme.colorScheme.surface,
         borderRadius: AppRadii.rLarge,
-        border: border,
-        boxShadow: elevated ? AppShadows.card : AppShadows.none,
+        border: bordered ? Border.all(color: appBorder(isDark)) : null,
       ),
       padding: padding ??
           const EdgeInsets.symmetric(

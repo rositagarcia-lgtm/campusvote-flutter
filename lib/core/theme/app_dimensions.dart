@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 /// Radios estándar.
 class AppRadii {
   const AppRadii._();

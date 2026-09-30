@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 
 /// Estado del proyecto dentro de la feria (`APPROVED`, `SUBMITTED`, …).
+///
+/// Traduce el código del backend a la etiqueta en español y al tono del sistema;
+/// el chip y sus colores son los de [StatusChip], así que el estado se lee igual
+/// en toda la app y en modo oscuro.
 class ProjectStatusChip extends StatelessWidget {
   const ProjectStatusChip({super.key, required this.status});
 
@@ -11,27 +14,14 @@ class ProjectStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, bg, fg) = switch (status.toUpperCase()) {
-      'APPROVED' => ('Aprobado', AppColors.successSoft, AppColors.success),
-      'SUBMITTED' => ('En revisión', AppColors.warningSoft, AppColors.warning),
-      'IN_REVIEW' => ('En revisión', AppColors.warningSoft, AppColors.warning),
-      'REJECTED' => ('Rechazado', AppColors.dangerSoft, AppColors.danger),
-      'DRAFT' => ('Borrador', AppColors.background, AppColors.inkFaint),
-      _ => (status, AppColors.background, AppColors.inkFaint),
+    final (label, tone) = switch (status.toUpperCase()) {
+      'APPROVED' => ('Aprobado', AppTone.success),
+      'SUBMITTED' => ('En revisión', AppTone.warning),
+      'IN_REVIEW' => ('En revisión', AppTone.warning),
+      'REJECTED' => ('Rechazado', AppTone.danger),
+      _ => (status, AppTone.neutral),
     };
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.s,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(color: bg, borderRadius: AppRadii.rSmall),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: fg,
-              fontWeight: FontWeight.w600,
-            ),
-      ),
-    );
+
+    return StatusChip(label: label, tone: tone, showDot: true);
   }
 }

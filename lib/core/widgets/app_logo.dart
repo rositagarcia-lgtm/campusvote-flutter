@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_dimensions.dart';
+import 'app_palette.dart';
+
 /// Logo oficial de CampusVote como asset local.
 const kCampusVoteLogoAsset = 'assets/logo.png';
 
+/// Identidad visual de la marca o de la organización.
+///
+/// Si no hay URL, o la imagen falla, cae a las iniciales sobre fondo tintado:
+/// nunca queda un hueco.
 class AppLogo extends StatelessWidget {
-  final String? networkUrl;
-  final String fallbackLabel;
-  final double size;
-  final Color? backgroundColor;
-
   const AppLogo({
     super.key,
     this.networkUrl,
@@ -55,10 +57,16 @@ class AppLogo extends StatelessWidget {
     );
   }
 
+  final String? networkUrl;
+  final String fallbackLabel;
+  final double size;
+  final Color? backgroundColor;
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final bg = backgroundColor ?? colorScheme.primary;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final brand = backgroundColor ?? theme.colorScheme.primary;
     final code = fallbackLabel.trim();
     final initials =
         code.length <= 2 ? code.toUpperCase() : code[0].toUpperCase();
@@ -69,13 +77,13 @@ class AppLogo extends StatelessWidget {
         height: size,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: bg.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(size / 4),
+          color: brand.withValues(alpha: isDark ? 0.18 : 0.10),
+          borderRadius: AppRadii.rMedium,
         ),
         child: Image.network(
           networkUrl!,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _initials(bg, initials),
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => _initials(context, brand, initials),
         ),
       );
     }
@@ -88,31 +96,34 @@ class AppLogo extends StatelessWidget {
         child: Image.asset(
           kCampusVoteLogoAsset,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => _initials(bg, initials),
+          errorBuilder: (_, __, ___) => _initials(context, brand, initials),
         ),
       );
     }
 
-    return _initials(bg, initials);
+    return _initials(context, brand, initials);
   }
 
-  Widget _initials(Color bg, String initials) {
+  /// Placeholder con la inicial sobre fondo tintado y borde fino.
+  Widget _initials(BuildContext context, Color brand, String initials) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: bg.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(size / 4),
-        border: Border.all(color: bg.withValues(alpha: 0.4)),
-      ),
       alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: brand.withValues(alpha: isDark ? 0.18 : 0.10),
+        borderRadius: AppRadii.rMedium,
+        border: Border.all(color: appBorder(isDark)),
+      ),
       child: Text(
         initials,
-        style: TextStyle(
-          color: bg,
+        style: theme.textTheme.titleMedium?.copyWith(
+          color: brand,
           fontWeight: FontWeight.w700,
           fontSize: size * 0.36,
-          letterSpacing: 0.5,
         ),
       ),
     );

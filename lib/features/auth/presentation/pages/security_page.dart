@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_dialog.dart';
+import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_section_header.dart';
 import '../state/auth_controller.dart';
 import '../state/auth_providers.dart';
 import '../state/two_factor_controller.dart';
@@ -72,28 +74,36 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Seguridad'),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.l),
-          children: [
-            AccountHeaderCard(
-              displayName: auth.user?.displayName ?? 'Usuario',
-              email: auth.user?.email ?? '',
-            ),
-            const SizedBox(height: AppSpacing.l),
-            PasswordCard(
-              onPressed: () => context.push('/security/password'),
-            ),
-            const SizedBox(height: AppSpacing.l),
-            TwoFactorCard(
-              status: tf.status,
-              loading: tf.loading,
-              errorMessage: tf.errorMessage,
-              onSetup: () => context.push('/security/totp/setup'),
-              onDisable: _onDisableTotp,
-            ),
-            const SizedBox(height: AppSpacing.l),
-            SessionCard(onLogout: _onLogout),
-          ],
+        child: PageScrollBody(
+          maxWidth: kFormMaxWidth,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SectionHeader(label: 'Cuenta'),
+              AccountHeaderCard(
+                displayName: auth.user?.displayName ?? 'Usuario',
+                email: auth.user?.email ?? '',
+                avatarUrl: auth.user?.avatarUrl,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              const SectionHeader(label: 'Contraseña'),
+              PasswordCard(
+                onPressed: () => context.push('/security/password'),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              const SectionHeader(label: 'Verificación en dos pasos'),
+              TwoFactorCard(
+                status: tf.status,
+                loading: tf.loading,
+                errorMessage: tf.errorMessage,
+                onSetup: () => context.push('/security/totp/setup'),
+                onDisable: _onDisableTotp,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              const SectionHeader(label: 'Sesión'),
+              SessionCard(onLogout: _onLogout),
+            ],
+          ),
         ),
       ),
     );

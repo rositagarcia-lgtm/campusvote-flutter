@@ -19,6 +19,7 @@ class AuthState {
   final String? tempToken; // para 2FA / EMAIL_PENDING
   final bool requiresEmailOtp; // acceso sin contraseña (email + código)
   final String? pendingEmail; // correo del flujo OTP en curso
+  final String? pendingQrCode; // QR opcional como segunda vía del OTP
   final String? errorMessage;
   final bool mustChangePassword;
 
@@ -30,6 +31,7 @@ class AuthState {
     this.tempToken,
     this.requiresEmailOtp = false,
     this.pendingEmail,
+    this.pendingQrCode,
     this.errorMessage,
     this.mustChangePassword = false,
   });
@@ -42,10 +44,12 @@ class AuthState {
     String? tempToken,
     bool? requiresEmailOtp,
     String? pendingEmail,
+    String? pendingQrCode,
     String? errorMessage,
     bool? mustChangePassword,
     bool clearTempToken = false,
     bool clearError = false,
+    bool clearPendingQrCode = false,
   }) {
     return AuthState(
       initializing: initializing ?? this.initializing,
@@ -55,6 +59,8 @@ class AuthState {
       tempToken: clearTempToken ? null : (tempToken ?? this.tempToken),
       requiresEmailOtp: requiresEmailOtp ?? this.requiresEmailOtp,
       pendingEmail: pendingEmail ?? this.pendingEmail,
+      pendingQrCode:
+          clearPendingQrCode ? null : (pendingQrCode ?? this.pendingQrCode),
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       mustChangePassword: mustChangePassword ?? this.mustChangePassword,
     );
@@ -165,6 +171,7 @@ class AuthController extends StateNotifier<AuthState> {
         tempToken: data.tempToken,
         requiresEmailOtp: true,
         pendingEmail: data.email,
+        pendingQrCode: data.qrCode,
         mustChangePassword: data.mustChangePassword,
         authenticated: false,
       );
@@ -201,8 +208,8 @@ class AuthController extends StateNotifier<AuthState> {
       return false;
     }
     state = state.copyWith(submitting: true, clearError: true);
-    final result =
-        await _ref.read(verifyLoginTotpUseCaseProvider)(tempToken: temp, code: code);
+    final result = await _ref.read(verifyLoginTotpUseCaseProvider)(
+        tempToken: temp, code: code);
     final ok = result.when(
       success: (_) => true,
       failure: (f) {
@@ -245,6 +252,7 @@ class AuthController extends StateNotifier<AuthState> {
       tempToken: data.tempToken,
       requiresEmailOtp: true,
       pendingEmail: data.email,
+      pendingQrCode: data.qrCode,
       mustChangePassword: data.mustChangePassword,
       authenticated: false,
     );
@@ -263,8 +271,8 @@ class AuthController extends StateNotifier<AuthState> {
       return false;
     }
     state = state.copyWith(submitting: true, clearError: true);
-    final result = await _ref
-        .read(verifyEmailLoginUseCaseProvider)(tempToken: temp, code: code);
+    final result = await _ref.read(verifyEmailLoginUseCaseProvider)(
+        tempToken: temp, code: code);
     final data = result.when(
       success: (d) => d,
       failure: (f) {
@@ -280,6 +288,7 @@ class AuthController extends StateNotifier<AuthState> {
       user: user,
       requiresEmailOtp: false,
       pendingEmail: null,
+      clearPendingQrCode: true,
       mustChangePassword: data.mustChangePassword,
       clearTempToken: true,
     );

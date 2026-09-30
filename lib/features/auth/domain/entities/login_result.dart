@@ -18,6 +18,11 @@ class LoginResult {
   final String? refreshToken;
   final bool mustChangePassword;
 
+  /// Código QR como data URL `data:image/png;base64,...` para el paso de
+  /// verificación del correo. Es opcional: si el backend no lo envía, la
+  /// pantalla de verificación solo ofrece el código escrito y el reenvío.
+  final String? qrCode;
+
   const LoginResult({
     this.requiresTotp = false,
     this.requiresOnboarding = false,
@@ -28,6 +33,7 @@ class LoginResult {
     this.token,
     this.refreshToken,
     this.mustChangePassword = false,
+    this.qrCode,
   });
 
   factory LoginResult.totpPending(String tempToken) =>
@@ -41,12 +47,14 @@ class LoginResult {
 
   /// Acceso sin contraseña: se envió un código al correo y el login queda en
   /// espera del OTP. La respuesta trae el branding de la organización para
-  /// pintar el splash/OTP con la identidad de la institución.
+  /// pintar el splash/OTP con la identidad de la institución, y opcionalmente
+  /// un QR como segunda vía de verificación.
   factory LoginResult.emailOtpPending({
     required String tempToken,
     required String email,
     required bool mustChangePassword,
     OrganizationBranding? organization,
+    String? qrCode,
   }) {
     return LoginResult(
       requiresEmailOtp: true,
@@ -54,6 +62,7 @@ class LoginResult {
       email: email,
       organization: organization,
       mustChangePassword: mustChangePassword,
+      qrCode: qrCode,
     );
   }
 

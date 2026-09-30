@@ -317,6 +317,15 @@ class FairResultsNotifier
   Future<FairResultsModel> build(String fairId) {
     return ref.read(juryRepositoryProvider).getResults(fairId);
   }
+
+  /// Reintento manual de la pantalla de resultados: sin esto el botón de
+  /// reintentar no dispara nada y la pantalla se queda en el mismo error.
+  Future<void> reload() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(juryRepositoryProvider).getResults(arg),
+    );
+  }
 }
 
 // ── 8. Mis evaluaciones ─────────────────────────────────────────────────

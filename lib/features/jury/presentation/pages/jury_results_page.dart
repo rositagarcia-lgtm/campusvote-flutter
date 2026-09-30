@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 
@@ -23,39 +27,31 @@ class JuryResultsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final results = ref.watch(fairResultsProvider(fairId));
+    final reload = ref.read(fairResultsProvider(fairId).notifier).reload;
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Resultados'),
-      body: _bodyFor(results),
+      body: _bodyFor(results, reload),
     );
   }
 }
 
-Widget _bodyFor(AsyncValue<FairResultsModel> results) {
+Widget _bodyFor(
+  AsyncValue<FairResultsModel> results,
+  VoidCallback onRetry,
+) {
   switch (results) {
     case AsyncLoading():
       return const AppLoader();
     case AsyncError(:final error):
-      return _ResultsError(
+      return AppErrorView(
         message: describeJuryError(error),
-        onRetry: () => const SizedBox.shrink(),
+        onRetry: onRetry,
       );
     case AsyncData(:final value):
       return _Ranking(results: value);
     default:
       return const AppLoader();
-  }
-}
-
-class _ResultsError extends StatelessWidget {
-  const _ResultsError({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppErrorView(message: message, onRetry: onRetry);
   }
 }
 
@@ -70,35 +66,36 @@ class _Ranking extends StatelessWidget {
     final entries = results.ranking.where((e) => e.position != null).toList()
       ..sort((a, b) => a.position!.compareTo(b.position!));
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      children: [
-        if (!results.published)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.m),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: AppRadii.rMedium,
+    return PageScrollBody(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!results.published)
+            const NoticeBanner(
+              message:
+                  'El organizer todavía no publica los resultados de esta feria.',
+              tone: AppTone.warning,
             ),
-            child: Text(
-              'El organizer todavía no publica los resultados de esta feria.',
+          if (results.published) ...[
+            Text(
+              'Publicado el ${results.publishedAt?.toLocal() ?? ''}'
+              '${results.publishedByName != null ? ' por ${results.publishedByName}' : ''}',
               style: theme.textTheme.bodySmall,
             ),
-          ),
-        if (results.published) ...[
-          Text(
-            'Publicado el ${results.publishedAt?.toLocal() ?? ''}'
-            '${results.publishedByName != null ? ' por ${results.publishedByName}' : ''}',
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.l),
+            const SizedBox(height: AppSpacing.m),
+          ],
+          if (entries.isEmpty)
+            const NoticeBanner(
+              message: 'Todavía no hay puestos publicados para esta feria.',
+              tone: AppTone.info,
+              liveRegion: true,
+            ),
+          for (final entry in entries) ...[
+            _RankTile(entry: entry),
+            const SizedBox(height: AppSpacing.s),
+          ],
         ],
-        for (final entry in entries) ...[
-          _RankTile(entry: entry),
-          const SizedBox(height: AppSpacing.s),
-        ],
-      ],
+      ),
     );
   }
 }
@@ -111,30 +108,15 @@ class _RankTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: BoxDecoration(
-        color: entry.winner
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.surface,
-        borderRadius: AppRadii.rMedium,
+    return AppCard(
+      color: entry.winner ? theme.colorScheme.primaryContainer : null,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.l,
+        vertical: AppSpacing.m,
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor:
-                entry.winner ? theme.colorScheme.primary : theme.dividerColor,
-            child: Text(
-              '${entry.position}',
-              style: theme.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: entry.winner
-                    ? theme.colorScheme.onPrimary
-                    : theme.textTheme.bodySmall?.color,
-              ),
-            ),
-          ),
+          _PositionBadge(entry: entry),
           const SizedBox(width: AppSpacing.m),
           Expanded(
             child: Text(
@@ -143,9 +125,46 @@ class _RankTile extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
-          Text('${entry.votes} voto${entry.votes == 1 ? '' : 's'}',
-              style: theme.textTheme.bodySmall),
+          StatusChip(
+            label: '${entry.votes} voto${entry.votes == 1 ? '' : 's'}',
+            tone: entry.winner ? AppTone.primary : AppTone.neutral,
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// Círculo con la posición; el ganador se marca además con tono primario para
+/// que el estado no dependa solo del número.
+class _PositionBadge extends StatelessWidget {
+  const _PositionBadge({required this.entry});
+
+  final FairResultEntryModel entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final winner = entry.winner;
+
+    return Semantics(
+      label: 'Puesto ${entry.position}${winner ? ', ganador' : ''}',
+      excludeSemantics: true,
+      child: Container(
+        width: AppDimensions.iconLarge * 1.5,
+        height: AppDimensions.iconLarge * 1.5,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: winner ? theme.colorScheme.primary : theme.dividerColor,
+        ),
+        child: Text(
+          '${entry.position}',
+          style: theme.textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: winner ? theme.colorScheme.onPrimary : null,
+          ),
+        ),
       ),
     );
   }

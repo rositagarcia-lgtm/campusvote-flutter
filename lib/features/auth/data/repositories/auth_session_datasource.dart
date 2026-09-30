@@ -45,6 +45,17 @@ class AuthSessionDataSource {
     return false;
   }
 
+  /// QR opcional del paso de verificación por correo, como data URL
+  /// `data:image/png;base64,...`.
+  ///
+  /// Acepta las dos grafías que usa el backend (`qrCode` en el modelo de TOTP,
+  /// `qr_code` en los endpoints de sesión). Si no viene, se devuelve `null` y
+  /// la pantalla de verificación omite la segunda vía.
+  static String? _qrCode(Map<String, dynamic> data) {
+    final raw = (data['qrCode'] ?? data['qr_code'] ?? '').toString().trim();
+    return raw.isEmpty ? null : raw;
+  }
+
   Future<Result<LoginResult>> login({
     required String email,
     required String password,
@@ -87,6 +98,7 @@ class AuthSessionDataSource {
           organization: org == null
               ? null
               : OrganizationBranding.fromOrganizationJson(org),
+          qrCode: _qrCode(data),
         ));
       }
       // Sesión directa: solo SUPERADMIN (el resto de roles pasa por un
@@ -188,6 +200,7 @@ class AuthSessionDataSource {
         mustChangePassword: _mustChangePassword(data),
         organization:
             org == null ? null : OrganizationBranding.fromOrganizationJson(org),
+        qrCode: _qrCode(data),
       ));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));

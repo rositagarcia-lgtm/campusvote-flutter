@@ -4,8 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/jury_progress_bar.dart';
@@ -22,26 +27,30 @@ class JuryProgressPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(juryProgressProvider(fairId));
+    final reload = ref.read(juryProgressProvider(fairId).notifier).reload;
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Mi progreso'),
       body: RefreshIndicator(
-        onRefresh: () =>
-            ref.read(juryProgressProvider(fairId).notifier).reload(),
-        child: _bodyFor(fairId, progress),
+        onRefresh: reload,
+        child: _bodyFor(fairId, progress, reload),
       ),
     );
   }
 }
 
-Widget _bodyFor(String fairId, AsyncValue<JuryProgressModel> progress) {
+Widget _bodyFor(
+  String fairId,
+  AsyncValue<JuryProgressModel> progress,
+  VoidCallback onRetry,
+) {
   switch (progress) {
     case AsyncLoading():
       return const AppLoader();
     case AsyncError(:final error):
       return AppErrorView(
         message: describeJuryError(error),
-        onRetry: () => const AppLoader(),
+        onRetry: onRetry,
       );
     case AsyncData(:final value):
       return _ProgressBody(fairId: fairId, progress: value);
@@ -59,22 +68,28 @@ class _ProgressBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final signed = progress.declaration != null;
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      children: [
-        if (progress.fairName != null) ...[
-          Text(
-            progress.fairName!,
-            style: theme.textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: AppSpacing.l),
-        ],
-        Card(
-          margin: EdgeInsets.zero,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
+    return PageScrollBody(
+      // Siempre desplazable para que el pull-to-refresh funcione con poco
+      // contenido.
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: ClampingScrollPhysics(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (progress.fairName != null) ...[
+            Text(
+              progress.fairName!,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontFamily: 'serif',
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.l),
+          ],
+          AppCard(
             child: JuryProgressBar(
               completed: progress.completedProjects,
               total: progress.totalProjects,
@@ -82,56 +97,43 @@ class _ProgressBody extends StatelessWidget {
               label: 'Evaluaciones finalizadas',
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.l),
-        _StatusRow(
-          icon: progress.hasVoted
-              ? Icons.how_to_vote_rounded
-              : Icons.pending_actions_rounded,
-          title: 'Votación',
-          value: progress.hasVoted ? 'Voto emitido' : 'Pendiente',
-          done: progress.hasVoted,
-        ),
-        const SizedBox(height: AppSpacing.s),
-        _StatusRow(
-          icon: progress.declaration != null
-              ? Icons.assignment_turned_in_rounded
-              : Icons.assignment_rounded,
-          title: 'Declaración de jurado',
-          value: progress.declaration != null ? 'Firmada' : 'Sin firmar',
-          done: progress.declaration != null,
-        ),
-        const SizedBox(height: AppSpacing.l),
-        if (progress.declaration != null) ...[
-          Text(
-            'Declaración registrada',
-            style: theme.textTheme.titleSmall
-                ?.copyWith(fontWeight: FontWeight.w700),
+          const SizedBox(height: AppSpacing.m),
+          _StatusRow(
+            icon: progress.hasVoted
+                ? Icons.how_to_vote_rounded
+                : Icons.pending_actions_rounded,
+            title: 'Votación',
+            value: progress.hasVoted ? 'Voto emitido' : 'Pendiente',
+            done: progress.hasVoted,
           ),
           const SizedBox(height: AppSpacing.s),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.m),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: AppRadii.rMedium,
-            ),
-            child: Text(
-              progress.declaration!.statement,
-              style: theme.textTheme.bodySmall,
-            ),
+          _StatusRow(
+            icon: signed
+                ? Icons.assignment_turned_in_rounded
+                : Icons.assignment_rounded,
+            title: 'Declaración de jurado',
+            value: signed ? 'Firmada' : 'Sin firmar',
+            done: signed,
           ),
+          if (signed) ...[
+            const SizedBox(height: AppSpacing.l),
+            const SectionHeader(label: 'Declaración registrada'),
+            AppCard(
+              child: Text(
+                progress.declaration!.statement,
+                style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.l),
-        ],
-        FilledButton.tonal(
-          onPressed: () => context.push('/jury/fair/$fairId/declaration'),
-          child: Text(
-            progress.declaration != null
-                ? 'Ver mi declaración'
-                : 'Firmar declaración de jurado',
+          AppButton.outlined(
+            label:
+                signed ? 'Ver mi declaración' : 'Firmar declaración de jurado',
+            icon: signed ? Icons.description_outlined : Icons.draw_outlined,
+            onPressed: () => context.push('/jury/fair/$fairId/declaration'),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -152,27 +154,23 @@ class _StatusRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: AppRadii.rMedium,
+    return AppCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.l,
+        vertical: AppSpacing.m,
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            size: 20,
+            size: AppDimensions.iconMedium,
             color: done ? theme.colorScheme.primary : theme.disabledColor,
           ),
           const SizedBox(width: AppSpacing.m),
           Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
-          Text(
-            value,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: done ? theme.colorScheme.primary : theme.disabledColor,
-            ),
+          StatusChip(
+            label: value,
+            tone: done ? AppTone.primary : AppTone.neutral,
           ),
         ],
       ),

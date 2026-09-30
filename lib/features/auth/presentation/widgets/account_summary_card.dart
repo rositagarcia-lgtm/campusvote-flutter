@@ -1,51 +1,61 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_palette.dart';
+import 'account_identity.dart';
 
-/// Tarjeta con la información de la cuenta (avatar + nombre + email).
+/// Identidad de la cuenta: avatar, nombre y correo.
+///
+/// No repite el título de la sección que la envuelve: el encabezado ya dice de
+/// qué bloque se trata.
 class AccountHeaderCard extends StatelessWidget {
   final String displayName;
   final String email;
+  final String? avatarUrl;
 
   const AccountHeaderCard({
     super.key,
     required this.displayName,
     required this.email,
+    this.avatarUrl,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final initials = displayName.trim().isNotEmpty
-        ? displayName.trim()[0].toUpperCase()
-        : 'C';
+    final isDark = theme.brightness == Brightness.dark;
 
     return AppCard(
       child: Row(
         children: [
-          CircleAvatar(
-            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-            radius: 24,
-            child: Text(
-              initials,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-            ),
+          AccountAvatar(
+            avatarUrl: avatarUrl,
+            displayName: displayName,
+            accent: theme.colorScheme.primary,
           ),
           const SizedBox(width: AppSpacing.m),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(displayName, style: theme.textTheme.titleMedium),
-                const SizedBox(height: 2),
-                Text(email, style: theme.textTheme.bodySmall),
+                Text(
+                  displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  email,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: appMuted(isDark),
+                  ),
+                ),
               ],
             ),
           ),
@@ -55,7 +65,7 @@ class AccountHeaderCard extends StatelessWidget {
   }
 }
 
-/// Tarjeta de cambio de contraseña (CTA simple).
+/// Aviso de contraseña y acción para actualizarla.
 class PasswordCard extends StatelessWidget {
   final VoidCallback onPressed;
   const PasswordCard({super.key, required this.onPressed});
@@ -63,22 +73,29 @@ class PasswordCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.lock_outline, color: AppColors.primary),
+              Icon(Icons.lock_outline, color: theme.colorScheme.primary),
               const SizedBox(width: AppSpacing.s),
-              Text('Contraseña', style: theme.textTheme.titleMedium),
+              Expanded(
+                child: Text(
+                  'Tu contraseña',
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
             'Mantén tu contraseña fuerte. Se requieren 8+ caracteres con '
             'mayúscula, minúscula, número y símbolo.',
-            style: theme.textTheme.bodySmall,
+            style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
           ),
           const SizedBox(height: AppSpacing.m),
           AppButton.outlined(
@@ -92,7 +109,7 @@ class PasswordCard extends StatelessWidget {
   }
 }
 
-/// Tarjeta de sesión con CTA de logout.
+/// Estado de la sesión y acción de cierre.
 class SessionCard extends StatelessWidget {
   final VoidCallback onLogout;
   const SessionCard({super.key, required this.onLogout});
@@ -100,22 +117,29 @@ class SessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.logout_rounded, color: AppColors.danger),
+              Icon(Icons.logout_rounded, color: theme.colorScheme.error),
               const SizedBox(width: AppSpacing.s),
-              Text('Sesión', style: theme.textTheme.titleMedium),
+              Expanded(
+                child: Text(
+                  'Sesión activa',
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
             'Cerrar la sesión invalidará los tokens guardados en este '
             'dispositivo.',
-            style: theme.textTheme.bodySmall,
+            style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
           ),
           const SizedBox(height: AppSpacing.m),
           AppButton.danger(

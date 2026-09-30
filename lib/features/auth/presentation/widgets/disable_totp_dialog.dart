@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 
 /// Diálogo de confirmación para deshabilitar 2FA (incluye input de contraseña).
 class DisableTotpDialog extends StatefulWidget {
@@ -53,19 +54,9 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
             ),
           ),
           const SizedBox(height: AppSpacing.s),
-          Row(
-            children: [
-              const Icon(Icons.warning_amber_rounded,
-                  color: AppColors.warning, size: 16),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'Tu cuenta será menos segura.',
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: AppColors.warning),
-                ),
-              ),
-            ],
+          const NoticeBanner(
+            tone: AppTone.warning,
+            message: 'Tu cuenta será menos segura.',
           ),
         ],
       ),

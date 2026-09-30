@@ -3,52 +3,111 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_button.dart';
+import 'app_page_layout.dart';
+import 'app_palette.dart';
+import 'app_status_chip.dart';
 
+/// Estado de error con reintento.
+///
+/// El mensaje explica el fallo y la acción de reintento siempre está
+/// disponible; el cuerpo es desplazable para que el gesto de recargar del
+/// contenedor siga funcionando.
 class AppErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback? onRetry;
-  final IconData icon;
-
   const AppErrorView({
     super.key,
     required this.message,
     this.onRetry,
     this.icon = Icons.cloud_off_rounded,
+    this.title = 'No pudimos cargar la información',
+    this.overline = 'ESTADO DE ERROR',
+    this.retryLabel = 'Reintentar',
   });
+
+  final String message;
+  final VoidCallback? onRetry;
+  final IconData icon;
+  final String title;
+
+  /// Etiqueta en versalitas sobre el mensaje.
+  final String overline;
+
+  /// Texto del botón de reintento.
+  final String retryLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                size: 56, color: AppColors.danger.withValues(alpha: 0.8)),
-            const SizedBox(height: AppSpacing.m),
-            Text(
-              'Algo salió mal',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            if (onRetry != null) ...[
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final tone = appToneColors(AppTone.danger, isDark: isDark);
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: ClampingScrollPhysics(),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: kFormMaxWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: AppDimensions.touchTarget,
+                height: AppDimensions.touchTarget,
+                decoration: BoxDecoration(
+                  color: tone.bg,
+                  borderRadius: AppRadii.rMedium,
+                ),
+                child: Icon(
+                  icon,
+                  // Microajuste: la ilustración necesita respirar dentro del
+                  // cuadro táctil de 44.
+                  size: AppDimensions.iconLarge * 1.25,
+                  color: isDark ? tone.fg : AppColors.danger,
+                ),
+              ),
               const SizedBox(height: AppSpacing.l),
-              SizedBox(
-                width: 200,
-                child: AppButton(
-                  label: 'Reintentar',
+              Semantics(
+                header: true,
+                child: Column(
+                  children: [
+                    Text(
+                      overline,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: appMuted(isDark),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontFamily: 'serif',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+              ),
+              if (onRetry != null) ...[
+                const SizedBox(height: AppSpacing.xl),
+                AppButton.outlined(
+                  label: retryLabel,
                   icon: Icons.refresh_rounded,
                   onPressed: onRetry,
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

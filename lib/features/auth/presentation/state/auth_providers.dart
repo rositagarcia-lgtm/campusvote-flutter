@@ -36,14 +36,14 @@ final authRefresherOverrideProvider = Provider<AuthRefresher>((ref) {
 final loginUseCaseProvider =
     Provider((ref) => LoginUseCase(ref.watch(authRepositoryProvider)));
 
-final verifyLoginTotpUseCaseProvider =
-    Provider((ref) => VerifyLoginTotpUseCase(ref.watch(authRepositoryProvider)));
+final verifyLoginTotpUseCaseProvider = Provider(
+    (ref) => VerifyLoginTotpUseCase(ref.watch(authRepositoryProvider)));
 
-final requestEmailLoginUseCaseProvider =
-    Provider((ref) => RequestEmailLoginUseCase(ref.watch(authRepositoryProvider)));
+final requestEmailLoginUseCaseProvider = Provider(
+    (ref) => RequestEmailLoginUseCase(ref.watch(authRepositoryProvider)));
 
-final verifyEmailLoginUseCaseProvider =
-    Provider((ref) => VerifyEmailLoginUseCase(ref.watch(authRepositoryProvider)));
+final verifyEmailLoginUseCaseProvider = Provider(
+    (ref) => VerifyEmailLoginUseCase(ref.watch(authRepositoryProvider)));
 
 final refreshTokenUseCaseProvider =
     Provider((ref) => RefreshTokenUseCase(ref.watch(authRepositoryProvider)));

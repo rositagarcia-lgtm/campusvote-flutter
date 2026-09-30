@@ -1,35 +1,52 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
+import 'app_palette.dart';
 
-/// Loader institucional (CampusVote spinner).
+/// Loader institucional: spinner fino con mensaje en tono secundario.
 class AppLoader extends StatelessWidget {
+  const AppLoader({super.key, this.message, this.size = 36, this.color});
+
   final String? message;
   final double size;
   final Color? color;
 
-  const AppLoader({super.key, this.message, this.size = 36, this.color});
-
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: size,
-            height: size,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              valueColor: AlwaysStoppedAnimation(color ?? colorScheme.primary),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: size,
+              height: size,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation(
+                  color ?? theme.colorScheme.primary,
+                ),
+              ),
             ),
-          ),
-          if (message != null) ...[
-            const SizedBox(height: AppSpacing.m),
-            Text(message!, style: Theme.of(context).textTheme.bodyMedium),
+            if (message != null) ...[
+              const SizedBox(height: AppSpacing.m),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 280),
+                child: Text(
+                  message!,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: appMuted(isDark),
+                  ),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

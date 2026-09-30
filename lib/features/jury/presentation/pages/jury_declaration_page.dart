@@ -4,7 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_palette.dart';
+import '../../../../core/widgets/app_status_chip.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
 
@@ -57,50 +63,39 @@ class _BodyState extends State<_Body> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final state = widget.state;
     final controller = widget.controller;
 
     if (state.signed && state.status?.declaration != null) {
       final declaration = state.status!.declaration!;
-      return ListView(
-        padding: const EdgeInsets.all(AppSpacing.l),
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.l),
-            decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              borderRadius: AppRadii.rMedium,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.verified_rounded, color: Colors.green.shade800),
-                    const SizedBox(width: AppSpacing.s),
-                    Text(
-                      'Declaración firmada',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.green.shade900,
-                      ),
-                    ),
-                  ],
-                ),
+      return PageScrollBody(
+        child: AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const StatusChip(
+                label: 'Declaración firmada',
+                tone: AppTone.success,
+                icon: Icons.verified_rounded,
+              ),
+              const SizedBox(height: AppSpacing.m),
+              Text(
+                declaration.statement,
+                style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+              ),
+              if (declaration.signedAt != null) ...[
                 const SizedBox(height: AppSpacing.m),
-                Text(declaration.statement, style: theme.textTheme.bodyMedium),
-                if (declaration.signedAt != null) ...[
-                  const SizedBox(height: AppSpacing.m),
-                  Text(
-                    'Registrada el ${declaration.signedAt!.toLocal()}',
-                    style: theme.textTheme.bodySmall,
+                Text(
+                  'Registrada el ${declaration.signedAt!.toLocal()}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: appMuted(isDark),
                   ),
-                ],
+                ),
               ],
-            ),
+            ],
           ),
-        ],
+        ),
       );
     }
 
@@ -117,33 +112,22 @@ class _BodyState extends State<_Body> {
               ),
               const SizedBox(height: AppSpacing.l),
               if (state.errorMessage != null) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(AppSpacing.m),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer,
-                    borderRadius: AppRadii.rMedium,
-                  ),
-                  child: Text(
-                    state.errorMessage!,
-                    style: theme.textTheme.bodySmall,
-                  ),
+                NoticeBanner(
+                  message: state.errorMessage!,
+                  tone: AppTone.danger,
+                  liveRegion: true,
                 ),
                 const SizedBox(height: AppSpacing.m),
               ],
-              TextField(
+              AppTextField(
+                label: 'Declaración',
+                hint: 'Declaro que no tengo conflicto de interés con los '
+                    'proyectos de esta feria…',
                 controller: _text,
                 maxLines: 8,
                 maxLength: JuryDeclarationPage.maxLength,
                 enabled: !state.submitting,
                 onChanged: controller.updateStatement,
-                decoration: const InputDecoration(
-                  labelText: 'Declaración',
-                  alignLabelWithHint: true,
-                  border: OutlineInputBorder(),
-                  hintText: 'Declaro que no tengo conflicto de interés con los '
-                      'proyectos de esta feria…',
-                ),
               ),
             ],
           ),

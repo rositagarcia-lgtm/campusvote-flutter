@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,7 +6,11 @@ import '../../../../core/routing/role_landing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/auth_appbar.dart';
+import '../../../../core/widgets/fade_slide.dart';
+import '../../../../core/widgets/otp_code_field.dart';
 import '../state/auth_controller.dart';
+import '../widgets/auth_form_widgets.dart';
 
 class TotpPage extends ConsumerStatefulWidget {
   const TotpPage({super.key});
@@ -46,67 +49,77 @@ class _TotpPageState extends ConsumerState<TotpPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final error = state.errorMessage;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Verificación en dos pasos')),
+      appBar: buildAuthAppBar(context, onBack: () => context.go('/splash')),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const ClampingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             AppSpacing.l,
-            AppSpacing.l,
+            AppSpacing.s,
             AppSpacing.l,
             AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: AppSpacing.l),
-              const Icon(Icons.security_rounded,
-                  size: 64, color: AppColors.primary),
-              const SizedBox(height: AppSpacing.l),
-              Text(
-                'Verificación 2FA',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                'Ingresa el código de 6 dígitos de tu aplicación autenticadora.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              TextField(
-                controller: _codeCtrl,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(6),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FadeSlide(
+                    child: AuthHeader(
+                      accent: accent,
+                      icon: Icons.security_rounded,
+                      overline: 'Verificación en dos pasos',
+                      title: 'Ingresa tu código',
+                      subtitle:
+                          'Ingresa el código de 6 dígitos de tu aplicación autenticadora.',
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  FadeSlide(
+                    delay: const Duration(milliseconds: 120),
+                    child: AuthFormCard(
+                      accent: accent,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OtpCodeField(
+                            controller: _codeCtrl,
+                            label: 'Código de verificación',
+                            onSubmitted: _submit,
+                          ),
+                          if (error != null) ...[
+                            const SizedBox(height: AppSpacing.l),
+                            AuthErrorBanner(message: error),
+                          ],
+                          const SizedBox(height: AppSpacing.l),
+                          const AuthInfoNote(
+                            icon: Icons.timer_outlined,
+                            text:
+                                'Usa el código vigente: tu aplicación lo renueva cada pocos segundos.',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.l),
+                  FadeSlide(
+                    delay: const Duration(milliseconds: 220),
+                    child: AppButton(
+                      label: 'Verificar',
+                      icon: Icons.verified_outlined,
+                      isLoading: state.submitting,
+                      onPressed: state.submitting ? null : _submit,
+                    ),
+                  ),
                 ],
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 28,
-                  letterSpacing: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-                decoration: const InputDecoration(hintText: '000000'),
               ),
-              if (state.errorMessage != null) ...[
-                const SizedBox(height: AppSpacing.m),
-                Text(
-                  state.errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.danger),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.xl),
-              AppButton(
-                label: 'Verificar',
-                icon: Icons.verified_outlined,
-                isLoading: state.submitting,
-                onPressed: state.submitting ? null : _submit,
-              ),
-            ],
+            ),
           ),
         ),
       ),

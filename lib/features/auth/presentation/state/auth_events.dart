@@ -4,6 +4,7 @@
 /// Implementado como un contador simple: cada vez que se incrementa, los
 /// listeners (auth controller, router) reaccionan y limpian su estado.
 library;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AuthEvents {

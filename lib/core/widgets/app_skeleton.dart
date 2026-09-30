@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 
+/// Bloque de carga sin esqueleto: pulso suave de opacidad sobre una superficie
+/// tenue. El sistema no usa degradados decorativos.
 class AppSkeleton extends StatefulWidget {
-  final double width;
-  final double height;
-  final BorderRadius? borderRadius;
-
   const AppSkeleton({
     super.key,
     this.width = double.infinity,
@@ -15,22 +13,20 @@ class AppSkeleton extends StatefulWidget {
     this.borderRadius,
   });
 
+  final double width;
+  final double height;
+  final BorderRadius? borderRadius;
+
   @override
   State<AppSkeleton> createState() => _AppSkeletonState();
 }
 
 class _AppSkeletonState extends State<AppSkeleton>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
-  }
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  )..repeat(reverse: true);
 
   @override
   void dispose() {
@@ -42,31 +38,17 @@ class _AppSkeletonState extends State<AppSkeleton>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final base = isDark ? AppColors.darkBorder : AppColors.border;
-    final highlight = isDark
-        ? AppColors.darkBorderStrong
-        : AppColors.borderStrong;
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        return Container(
-          width: widget.width,
-          height: widget.height,
-          decoration: BoxDecoration(
-            borderRadius: widget.borderRadius ?? AppRadii.rSmall,
-            gradient: LinearGradient(
-              begin: const Alignment(-1, 0),
-              end: const Alignment(1, 0),
-              colors: [base, highlight, base],
-              stops: [
-                (_controller.value - 0.3).clamp(0.0, 1.0),
-                _controller.value.clamp(0.0, 1.0),
-                (_controller.value + 0.3).clamp(0.0, 1.0),
-              ],
-            ),
-          ),
-        );
-      },
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.4, end: 1).animate(_controller),
+      child: Container(
+        width: widget.width,
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: base,
+          borderRadius: widget.borderRadius ?? AppRadii.rSmall,
+        ),
+      ),
     );
   }
 }

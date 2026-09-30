@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 
 /// Cuenta regresiva hasta el cierre de la votación.
 ///
@@ -68,6 +68,14 @@ class _VotingCountdownState extends State<VotingCountdown> {
     final hours = _remaining.inHours % 24;
     final minutes = _remaining.inMinutes % 60;
     final seconds = _remaining.inSeconds % 60;
+    // Cerrado = aviso; abierta = acento de marca. Los tonos traen su propia
+    // variante oscura, así que el contador no se apaga en modo oscuro.
+    final tone = closed ? AppTone.neutral : AppTone.primary;
+    final colors = appToneColors(
+      tone,
+      isDark: Theme.of(context).brightness == Brightness.dark,
+      primary: context.brandPrimary,
+    );
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -75,15 +83,15 @@ class _VotingCountdownState extends State<VotingCountdown> {
         vertical: AppSpacing.s,
       ),
       decoration: BoxDecoration(
-        color: closed ? AppColors.background : context.brandPrimarySoft,
+        color: colors.bg,
         borderRadius: AppRadii.rMedium,
       ),
       child: Row(
         children: [
           Icon(
             closed ? Icons.timer_off_rounded : Icons.timer_rounded,
-            size: AppDimensions.iconSmall + 2,
-            color: closed ? AppColors.inkFaint : context.brandPrimary,
+            size: AppDimensions.iconMedium,
+            color: colors.fg,
           ),
           const SizedBox(width: AppSpacing.s),
           Expanded(
@@ -96,7 +104,7 @@ class _VotingCountdownState extends State<VotingCountdown> {
                           '${_pad(hours)}:${_pad(minutes)}:${_pad(seconds)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: closed ? AppColors.inkFaint : null,
+                    color: colors.fg,
                   ),
             ),
           ),

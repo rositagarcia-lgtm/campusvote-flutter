@@ -7,8 +7,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/fade_slide.dart';
 import '../state/auth_controller.dart';
+import '../widgets/auth_form_widgets.dart';
+import '../widgets/change_password_widgets.dart';
 
 class ChangePasswordPage extends ConsumerStatefulWidget {
   /// Si es `true`, el cambio es OBLIGATORIO (primer login / mustChangePassword).
@@ -24,6 +29,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   final _newCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _obscure = true;
 
   @override
   void dispose() {
@@ -75,86 +81,136 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     return null;
   }
 
+  Widget _visibilityToggle() => IconButton(
+        tooltip: _obscure ? 'Mostrar contraseñas' : 'Ocultar contraseñas',
+        icon: Icon(
+          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          size: AppDimensions.iconMedium,
+        ),
+        onPressed: () => setState(() => _obscure = !_obscure),
+      );
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
 
-    return Scaffold(
-      appBar: buildCampusVoteAppBar(
-        context,
-        title: widget.required ? 'Cambiar contraseña' : 'Mi contraseña',
-        leading: widget.required ? const SizedBox.shrink() : null,
-      ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            children: [
-              if (widget.required) ...[
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.m),
-                  decoration: const BoxDecoration(
-                    color: AppColors.warningSoft,
-                    borderRadius: AppRadii.rMedium,
-                  ),
-                  child: Row(
+    return PopScope(
+      // En el cambio obligatorio no se puede salir sin actualizar la clave.
+      canPop: !widget.required,
+      child: Scaffold(
+        appBar: buildCampusVoteAppBar(
+          context,
+          title: widget.required ? 'Cambiar contraseña' : 'Mi contraseña',
+          leading: widget.required ? const SizedBox.shrink() : null,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.l,
+              AppSpacing.l,
+              AppSpacing.l,
+              AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(Icons.priority_high_rounded,
-                          color: AppColors.warning),
-                      const SizedBox(width: AppSpacing.s),
-                      Expanded(
-                        child: Text(
-                          'Tu contraseña es temporal. Cámbiala para continuar.',
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.warning),
+                      if (widget.required) ...[
+                        const FadeSlide(
+                          child: NoticeBanner(
+                            tone: AppTone.warning,
+                            liveRegion: true,
+                            message:
+                                'Tu contraseña es temporal. Cámbiala para continuar.',
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.l),
+                      ],
+                      FadeSlide(
+                        delay: const Duration(milliseconds: 100),
+                        child: AuthFormCard(
+                          accent: accent,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              AppTextField(
+                                label: 'Contraseña actual',
+                                obscureText: _obscure,
+                                controller: _currentCtrl,
+                                enabled: !state.submitting,
+                                textInputAction: TextInputAction.next,
+                                prefixIcon: Icons.lock_outline_rounded,
+                                suffix: _visibilityToggle(),
+                                validator: (v) => (v ?? '').isEmpty
+                                    ? 'Escribe tu contraseña actual'
+                                    : null,
+                              ),
+                              const SizedBox(height: AppSpacing.xl),
+                              AppTextField(
+                                label: 'Nueva contraseña',
+                                obscureText: _obscure,
+                                controller: _newCtrl,
+                                enabled: !state.submitting,
+                                textInputAction: TextInputAction.next,
+                                prefixIcon: Icons.lock_rounded,
+                                validator: _passwordValidator,
+                              ),
+                              const SizedBox(height: AppSpacing.m),
+                              ValueListenableBuilder<TextEditingValue>(
+                                valueListenable: _newCtrl,
+                                builder: (_, value, __) => PasswordRequirements(
+                                  password: value.text,
+                                  accent: accent,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.l),
+                              AppTextField(
+                                label: 'Confirmar nueva contraseña',
+                                obscureText: _obscure,
+                                controller: _confirmCtrl,
+                                enabled: !state.submitting,
+                                textInputAction: TextInputAction.done,
+                                onSubmitted: (_) => _submit(),
+                                prefixIcon: Icons.lock_rounded,
+                                validator: (v) => v != _newCtrl.text
+                                    ? 'Las contraseñas no coinciden'
+                                    : null,
+                              ),
+                              const SizedBox(height: AppSpacing.l),
+                              const AuthInfoNote(
+                                icon: Icons.shield_outlined,
+                                text:
+                                    'Usa una contraseña única que no compartas con otros servicios.',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.l),
+                      FadeSlide(
+                        delay: const Duration(milliseconds: 200),
+                        child: AppButton(
+                          label: widget.required
+                              ? 'Cambiar y continuar'
+                              : 'Actualizar contraseña',
+                          icon: Icons.check_rounded,
+                          isLoading: state.submitting,
+                          onPressed: state.submitting ? null : _submit,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.l),
-              ],
-              AppTextField(
-                label: 'Contraseña actual',
-                obscureText: true,
-                controller: _currentCtrl,
-                prefixIcon: Icons.lock_outline_rounded,
               ),
-              const SizedBox(height: AppSpacing.l),
-              AppTextField(
-                label: 'Nueva contraseña',
-                obscureText: true,
-                controller: _newCtrl,
-                prefixIcon: Icons.lock_rounded,
-                helperText:
-                    'Mín. 8 caracteres: mayúscula, minúscula, número y símbolo.',
-                validator: _passwordValidator,
-              ),
-              const SizedBox(height: AppSpacing.l),
-              AppTextField(
-                label: 'Confirmar nueva contraseña',
-                obscureText: true,
-                controller: _confirmCtrl,
-                prefixIcon: Icons.lock_rounded,
-                validator: (v) {
-                  if (v != _newCtrl.text) {
-                    return 'Las contraseñas no coinciden';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              AppButton(
-                label: widget.required
-                    ? 'Cambiar y continuar'
-                    : 'Actualizar contraseña',
-                icon: Icons.check_rounded,
-                isLoading: state.submitting,
-                onPressed: state.submitting ? null : _submit,
-              ),
-            ],
+            ),
           ),
         ),
       ),

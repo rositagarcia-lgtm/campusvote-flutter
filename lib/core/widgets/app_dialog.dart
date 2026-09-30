@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'app_button.dart';
 
+/// Diálogos de confirmación e información con la misma jerarquía que el resto
+/// de la app: título claro, mensaje en tono secundario y acciones compactas.
 class AppDialog {
   const AppDialog._();
 
@@ -16,29 +18,29 @@ class AppDialog {
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: true,
-      builder: (ctx) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(cancelLabel),
-            ),
-            destructive
-                ? AppButton.danger(
-                    label: confirmLabel,
-                    expand: false,
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                  )
-                : AppButton(
-                    label: confirmLabel,
-                    expand: false,
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                  ),
-          ],
-        );
-      },
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message, style: Theme.of(ctx).textTheme.bodyMedium),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(cancelLabel),
+          ),
+          destructive
+              ? AppButton.danger(
+                  label: confirmLabel,
+                  expand: false,
+                  dense: true,
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                )
+              : AppButton(
+                  label: confirmLabel,
+                  expand: false,
+                  dense: true,
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                ),
+        ],
+      ),
     );
     return result ?? false;
   }
@@ -53,11 +55,12 @@ class AppDialog {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(title),
-        content: Text(message),
+        content: Text(message, style: Theme.of(ctx).textTheme.bodyMedium),
         actions: [
           AppButton(
             label: buttonLabel,
             expand: false,
+            dense: true,
             onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],

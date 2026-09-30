@@ -9,10 +9,12 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/otp_code_field.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../domain/entities/totp.dart';
 import '../state/auth_providers.dart';
 import '../state/two_factor_controller.dart';
-import '../widgets/totp_code_input.dart';
 import '../widgets/totp_qr_card.dart';
 import '../widgets/totp_secret_card.dart';
 
@@ -80,8 +82,7 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
       success: (data) {
         ref.read(twoFactorControllerProvider.notifier).markEnabled();
         setState(() => _verifying = false);
-        context.go('/security/totp/backup-codes',
-            extra: data.backupCodes);
+        context.go('/security/totp/backup-codes', extra: data.backupCodes);
       },
       failure: (f) {
         setState(() => _verifying = false);
@@ -94,8 +95,6 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Configurar 2FA'),
       body: SafeArea(
@@ -106,27 +105,11 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
                 : ListView(
                     padding: const EdgeInsets.all(AppSpacing.l),
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.m),
-                        decoration: const BoxDecoration(
-                          color: AppColors.infoSoft,
-                          borderRadius: AppRadii.rMedium,
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.info_outline,
-                                color: AppColors.info),
-                            const SizedBox(width: AppSpacing.s),
-                            Expanded(
-                              child: Text(
-                                'Escanea este QR con Google Authenticator, '
-                                'Microsoft Authenticator o similar.',
-                                style: theme.textTheme.bodyMedium
-                                    ?.copyWith(color: AppColors.info),
-                              ),
-                            ),
-                          ],
-                        ),
+                      const NoticeBanner(
+                        icon: Icons.info_outline_rounded,
+                        tone: AppTone.info,
+                        message: 'Escanea este QR con Google Authenticator, '
+                            'Microsoft Authenticator o similar.',
                       ),
                       const SizedBox(height: AppSpacing.l),
                       TotpQrCard(
@@ -136,10 +119,13 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
                       const SizedBox(height: AppSpacing.l),
                       TotpSecretCard(secret: _setup!.secret),
                       const SizedBox(height: AppSpacing.l),
-                      Text('Verifica el código',
-                          style: theme.textTheme.titleMedium),
-                      const SizedBox(height: AppSpacing.s),
-                      TotpCodeInput(controller: _codeCtrl),
+                      OtpCodeField(
+                        controller: _codeCtrl,
+                        label: 'Código de la aplicación',
+                        // Sin autofocus: primero hay que escanear el QR con el
+                        // teléfono y el teclado taparía la imagen.
+                        autofocus: false,
+                      ),
                       const SizedBox(height: AppSpacing.l),
                       AppButton(
                         label: 'Activar 2FA',

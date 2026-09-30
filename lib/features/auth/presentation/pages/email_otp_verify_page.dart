@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,8 +7,12 @@ import '../../../../core/routing/role_landing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/auth_appbar.dart';
+import '../../../../core/widgets/fade_slide.dart';
+import '../../../../core/widgets/otp_code_field.dart';
 import '../state/auth_controller.dart';
+import '../widgets/auth_form_widgets.dart';
+import '../widgets/email_otp_widgets.dart';
 
 /// Paso 2 del acceso del estudiante: verifica el código enviado al correo.
 class EmailOtpVerifyPage extends ConsumerStatefulWidget {
@@ -68,96 +71,105 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final error = state.errorMessage;
+    final email = state.pendingEmail;
+    final qrCode = state.pendingQrCode;
 
     return CampusVoteTheme(
       child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            tooltip: 'Volver',
-            // Este paso es común a estudiante (pidió un código) y jurado (validó
-            // su contraseña): volver siempre al selector, no a un panel concreto.
-            onPressed: () => context.go('/splash'),
-          ),
-        ),
+        appBar: buildAuthAppBar(context, onBack: () => context.go('/splash')),
         body: SafeArea(
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(
               AppSpacing.l,
-              AppSpacing.l,
+              AppSpacing.s,
               AppSpacing.l,
               AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: AppSpacing.l),
-                Center(
-                  // Pre-login la identidad es la de CampusVote, no la del tenant.
-                  child: AppLogo.asset(size: 64),
-                ),
-                const SizedBox(height: AppSpacing.l),
-                Text(
-                  'Verifica tu correo',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineSmall,
-                ),
-                const SizedBox(height: AppSpacing.s),
-                Text(
-                  'Ingresa el código de 6 dígitos que enviamos a tu correo.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium,
-                ),
-                if (state.pendingEmail != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    state.pendingEmail!,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.primary,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FadeSlide(
+                      child: AuthHeader(
+                        accent: accent,
+                        icon: Icons.verified_user_outlined,
+                        overline: 'Verificación',
+                        title: 'Verifica tu correo',
+                        subtitle:
+                            'Ingresa el código de 6 dígitos que enviamos a tu correo.',
+                      ),
                     ),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.xl),
-                TextField(
-                  controller: _codeCtrl,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(6),
+                    const SizedBox(height: AppSpacing.xl),
+                    FadeSlide(
+                      delay: const Duration(milliseconds: 120),
+                      child: AuthFormCard(
+                        accent: accent,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (email != null) ...[
+                              SentToEmailRow(email: email, accent: accent),
+                              const SizedBox(height: AppSpacing.l),
+                            ],
+                            OtpCodeField(
+                              controller: _codeCtrl,
+                              label: 'Código de verificación',
+                              onSubmitted: _submit,
+                            ),
+                            if (error != null) ...[
+                              const SizedBox(height: AppSpacing.l),
+                              AuthErrorBanner(message: error),
+                            ],
+                            const SizedBox(height: AppSpacing.l),
+                            const AuthInfoNote(
+                              icon: Icons.mark_email_read_outlined,
+                              text:
+                                  'Si no lo recibes, revisa tu carpeta de spam o solicita uno nuevo.',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.l),
+                    FadeSlide(
+                      delay: const Duration(milliseconds: 220),
+                      child: AppButton(
+                        label: 'Verificar',
+                        icon: Icons.verified_outlined,
+                        isLoading: state.submitting,
+                        onPressed: state.submitting ? null : _submit,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.m),
+                    FadeSlide(
+                      delay: const Duration(milliseconds: 300),
+                      child: AppButton.outlined(
+                        label: 'Reenviar código',
+                        icon: Icons.refresh_rounded,
+                        isLoading: _resending,
+                        onPressed:
+                            _resending || state.submitting ? null : _resend,
+                      ),
+                    ),
+                    // Segunda vía de verificación: solo aparece si el backend
+                    // devolvió un QR en el paso anterior.
+                    if (qrCode != null) ...[
+                      const SizedBox(height: AppSpacing.l),
+                      FadeSlide(
+                        delay: const Duration(milliseconds: 380),
+                        child:
+                            EmailOtpQrOption(dataUrl: qrCode, accent: accent),
+                      ),
+                    ],
                   ],
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    letterSpacing: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  decoration: const InputDecoration(hintText: '000000'),
                 ),
-                if (state.errorMessage != null) ...[
-                  const SizedBox(height: AppSpacing.m),
-                  Text(
-                    state.errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.danger),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.xl),
-                AppButton(
-                  label: 'Verificar',
-                  icon: Icons.verified_outlined,
-                  isLoading: state.submitting,
-                  onPressed: state.submitting ? null : _submit,
-                ),
-                const SizedBox(height: AppSpacing.l),
-                AppButton.outlined(
-                  label: 'Reenviar código',
-                  icon: Icons.refresh_rounded,
-                  isLoading: _resending,
-                  onPressed: _resending || state.submitting ? null : _resend,
-                ),
-              ],
+              ),
             ),
           ),
         ),

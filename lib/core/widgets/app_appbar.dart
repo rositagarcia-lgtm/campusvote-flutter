@@ -13,8 +13,15 @@ PreferredSizeWidget buildCampusVoteAppBar(
   Widget? leading,
 }) {
   return AppBar(
-    title: Text(title),
+    title: Text(
+      title,
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+    ),
     centerTitle: false,
+    surfaceTintColor: Colors.transparent,
+    scrolledUnderElevation: 0,
     leading: leading,
     actions: actions,
   );

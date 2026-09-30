@@ -9,11 +9,15 @@ import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_stats.dart';
+import '../../../../core/widgets/fade_slide.dart';
 import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
-import '../widgets/voting_countdown.dart';
+import '../widgets/jury_fair_card.dart';
 
 /// `/jury` — dashboard de ferias asignadas (`GET /fairs/my-assignments`).
 class JuryDashboardPage extends ConsumerWidget {
@@ -91,152 +95,72 @@ class _FairsList extends ConsumerWidget {
     final open = fairs.where((f) => f.isOpen).toList(growable: false);
     final others = fairs.where((f) => !f.isOpen).toList(growable: false);
 
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      children: [
-        PanelHero(
-          title: 'Panel del jurado',
-          subtitle: 'Evalúa proyectos y vota en tus ferias asignadas',
-          icon: Icons.gavel_rounded,
-          badge: open.isNotEmpty
-              ? '${open.length} feria${open.length == 1 ? '' : 's'} abierta${open.length == 1 ? '' : 's'}'
-              : 'Sin ferias abiertas',
-          organizationLogoUrl: branding.logoUrl,
-          organizationName: branding.name,
-        ),
-        const SizedBox(height: AppSpacing.l),
-        if (open.isNotEmpty) ...[
-          const _SectionLabel('Abiertas · evaluar y votar'),
-          for (final fair in open) _FairCard(fair: fair),
-        ],
-        if (others.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.l),
-          const _SectionLabel('Otras ferias'),
-          for (final fair in others) _FairCard(fair: fair),
-        ],
-      ],
-    );
-  }
-}
-
-class _FairCard extends StatelessWidget {
-  const _FairCard({required this.fair});
-
-  final FairAssignmentModel fair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final enabled = fair.isOpen;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: Card(
-        margin: EdgeInsets.zero,
-        child: InkWell(
-          borderRadius: AppRadii.rMedium,
-          onTap: () => context.push('/jury/fair/${fair.fairId}'),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  fair.name,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                if (fair.siteName != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(fair.siteName!, style: theme.textTheme.bodySmall),
-                ],
-                const SizedBox(height: AppSpacing.m),
-                Wrap(
-                  spacing: AppSpacing.s,
-                  runSpacing: AppSpacing.s,
-                  children: [
-                    _Tag(
-                      label: switch (fair.status) {
-                        FairStatus.open => 'Abierta',
-                        FairStatus.draft => 'En preparación',
-                        FairStatus.closed => 'Cerrada',
-                        FairStatus.unknown => 'Sin estado',
-                      },
-                      tone: enabled ? _TagTone.success : _TagTone.neutral,
-                    ),
-                    if (enabled)
-                      const _Tag(
-                          label: 'Votación y rúbrica', tone: _TagTone.info),
-                  ],
-                ),
-                // `endsAt`/`startsAt` vienen de la asignación; si la feria no
-                // trae fechas, el contador se oculta en vez de inventar una.
-                if (enabled) ...[
-                  const SizedBox(height: AppSpacing.m),
-                  VotingCountdown(
-                    startsAt: fair.startsAt,
-                    endsAt: fair.endsAt,
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.s),
-                Text(
-                  'Toca para ver los proyectos de tu categoría',
-                  style: theme.textTheme.bodySmall,
+    return PageScrollBody(
+      // Siempre desplazable para que el pull-to-refresh funcione con poco
+      // contenido.
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: ClampingScrollPhysics(),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FadeSlide(
+            child: PanelHero(
+              title: 'Panel del jurado',
+              subtitle: 'Evalúa proyectos y vota en tus ferias asignadas',
+              icon: Icons.gavel_rounded,
+              badge: open.isNotEmpty
+                  ? '${open.length} feria${open.length == 1 ? '' : 's'} abierta${open.length == 1 ? '' : 's'}'
+                  : 'Sin ferias abiertas',
+              organizationLogoUrl: branding.logoUrl,
+              organizationName: branding.name,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.m),
+          FadeSlide(
+            delay: const Duration(milliseconds: 80),
+            child: StatsStrip(
+              items: [
+                StatItem(label: 'Asignadas', value: fairs.length),
+                StatItem(
+                  label: 'Abiertas',
+                  value: open.length,
+                  highlight: open.isNotEmpty,
                 ),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-enum _TagTone { success, info, neutral }
-
-class _Tag extends StatelessWidget {
-  const _Tag({required this.label, required this.tone});
-
-  final String label;
-  final _TagTone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    final (bg, fg) = switch (tone) {
-      _TagTone.success => (Colors.green.shade50, Colors.green.shade800),
-      _TagTone.info => (Colors.blue.shade50, Colors.blue.shade800),
-      _TagTone.neutral => (Colors.grey.shade200, Colors.grey.shade800),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: AppRadii.rSmall),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: fg,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: AppSpacing.xl),
+          if (open.isNotEmpty) ...[
+            SectionHeader(
+              label: 'Abiertas · evaluar y votar',
+              count: open.length,
             ),
+            ..._cards(open, startAt: 0),
+          ],
+          if (others.isNotEmpty) ...[
+            if (open.isNotEmpty) const SizedBox(height: AppSpacing.l),
+            SectionHeader(label: 'Otras ferias', count: others.length),
+            ..._cards(others, startAt: open.length),
+          ],
+        ],
       ),
     );
   }
-}
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: Text(
-        text,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(fontWeight: FontWeight.w700),
-      ),
-    );
+  /// Tarjetas con entrada escalonada (tope de 360 ms para listas largas).
+  List<Widget> _cards(List<FairAssignmentModel> list, {required int startAt}) {
+    return [
+      for (var i = 0; i < list.length; i++)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.m),
+          child: FadeSlide(
+            delay: Duration(
+              milliseconds: 160 + ((startAt + i) * 60).clamp(0, 360),
+            ),
+            child: FairCard(fair: list[i]),
+          ),
+        ),
+    ];
   }
 }
