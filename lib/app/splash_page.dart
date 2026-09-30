@@ -111,68 +111,57 @@ class _WelcomeHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.l,
-        vertical: AppSpacing.xl,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [AppColors.darkPrimarySoft, AppColors.darkSurface]
-              : [AppColors.primarySoft, AppColors.primarySubtle],
+    return Column(
+      children: [
+        Semantics(
+          image: true,
+          label: 'Logo de CampusVote',
+          child: AppLogo.asset(size: 128),
         ),
-        border: Border.all(
-          color: isDark ? AppColors.darkBorder : AppColors.primarySoft,
-        ),
-      ),
-      child: Column(
-        children: [
-          // La base blanca mantiene legible el asset transparente en ambos temas.
-          Semantics(
-            image: true,
-            label: 'Logo de CampusVote',
-            child: Container(
-              width: 116,
-              height: 116,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: AppColors.primarySoft, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryDark.withValues(alpha: 0.14),
-                    blurRadius: 18,
-                    offset: const Offset(0, 7),
-                  ),
-                ],
+        const SizedBox(height: AppSpacing.m),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.l,
+            vertical: AppSpacing.l,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [AppColors.darkPrimarySoft, AppColors.darkSurface]
+                  : [AppColors.primarySoft, AppColors.primarySubtle],
+            ),
+            border: Border.all(
+              color: isDark ? AppColors.darkBorder : AppColors.primarySoft,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? AppColors.darkInk : AppColors.primaryDark,
+                ),
               ),
-              child: AppLogo.asset(size: 96),
-            ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Votación y evaluación académica',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 16,
+                  color: isDark ? AppColors.darkInkMuted : AppColors.inkMuted,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.l),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: isDark ? AppColors.darkInk : AppColors.primaryDark,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Votación y evaluación académica',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: isDark ? AppColors.darkInkMuted : AppColors.inkMuted,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
