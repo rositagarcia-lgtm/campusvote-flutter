@@ -11,8 +11,7 @@ class TotpSetupModel extends TotpSetup {
     return TotpSetupModel(
       secret: (json['secret'] ?? '').toString(),
       uri: (json['uri'] ?? '').toString(),
-      qrCodeDataUrl:
-          (json['qrCode'] ?? json['qr_code'] ?? '').toString(),
+      qrCodeDataUrl: (json['qrCode'] ?? json['qr_code'] ?? '').toString(),
     );
   }
 
@@ -46,13 +45,12 @@ class TotpStatusModel extends TotpStatus {
 
   factory TotpStatusModel.fromJson(Map<String, dynamic> json) {
     return TotpStatusModel(
-      enabled: (json['twoFactorEnabled'] ??
-              json['two_factor_enabled'] ??
-              false) ==
-          true,
-      backupCodesRemaining:
-          (json['backupCodesRemaining'] ?? json['backup_codes_remaining'] ?? 0)
-              as int,
+      enabled:
+          (json['twoFactorEnabled'] ?? json['two_factor_enabled'] ?? false) ==
+              true,
+      backupCodesRemaining: (json['backupCodesRemaining'] ??
+          json['backup_codes_remaining'] ??
+          0) as int,
     );
   }
 

@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../core/branding/branding_controller.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
-import '../core/widgets/app_logo.dart';
 import '../core/widgets/fade_slide.dart';
+import 'splash_widgets.dart';
 
 /// Bienvenida y selección del flujo de acceso según el rol.
 class SplashPage extends ConsumerWidget {
@@ -17,6 +17,7 @@ class SplashPage extends ConsumerWidget {
     final branding = ref.watch(brandingControllerProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final muted = isDark ? AppColors.darkInkMuted : AppColors.inkMuted;
     final studentColor = isDark ? AppColors.primaryLighter : AppColors.primary;
     final juryColor = isDark ? AppColors.accentLight : const Color(0xFF80600E);
 
@@ -26,7 +27,7 @@ class SplashPage extends ConsumerWidget {
           physics: const ClampingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             AppSpacing.l,
-            AppSpacing.l,
+            AppSpacing.xl,
             AppSpacing.l,
             AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
           ),
@@ -36,37 +37,20 @@ class SplashPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FadeSlide(
-                    child: _WelcomeHeader(name: branding.name),
-                  ),
+                  FadeSlide(child: WelcomeHeader(name: branding.name)),
                   const SizedBox(height: AppSpacing.xxl),
-                  FadeSlide(
-                    delay: const Duration(milliseconds: 120),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Elige cómo participar',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          'Selecciona tu perfil para continuar.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: isDark
-                                ? AppColors.darkInkMuted
-                                : AppColors.inkMuted,
-                          ),
-                        ),
-                      ],
+                  const FadeSlide(
+                    delay: Duration(milliseconds: 120),
+                    child: SectionHeading(
+                      overline: 'Acceso',
+                      title: 'Elige cómo participar',
+                      subtitle: 'Selecciona tu perfil para continuar.',
                     ),
                   ),
                   const SizedBox(height: AppSpacing.l),
                   FadeSlide(
                     delay: const Duration(milliseconds: 220),
-                    child: _AccessCard(
+                    child: AccessCard(
                       icon: Icons.school_rounded,
                       actionIcon: Icons.mail_outline_rounded,
                       accent: studentColor,
@@ -80,7 +64,7 @@ class SplashPage extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.m),
                   FadeSlide(
                     delay: const Duration(milliseconds: 320),
-                    child: _AccessCard(
+                    child: AccessCard(
                       icon: Icons.gavel_rounded,
                       actionIcon: Icons.lock_outline_rounded,
                       accent: juryColor,
@@ -91,184 +75,33 @@ class SplashPage extends ConsumerWidget {
                       onTap: () => context.go('/auth/jury/login'),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WelcomeHeader extends StatelessWidget {
-  const _WelcomeHeader({required this.name});
-
-  final String name;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Column(
-      children: [
-        Semantics(
-          image: true,
-          label: 'Logo de CampusVote',
-          child: AppLogo.asset(size: 128),
-        ),
-        const SizedBox(height: AppSpacing.m),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.l,
-            vertical: AppSpacing.l,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? [AppColors.darkPrimarySoft, AppColors.darkSurface]
-                  : [AppColors.primarySoft, AppColors.primarySubtle],
-            ),
-            border: Border.all(
-              color: isDark ? AppColors.darkBorder : AppColors.primarySoft,
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(
-                name,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? AppColors.darkInk : AppColors.primaryDark,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Votación y evaluación académica',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 16,
-                  color: isDark ? AppColors.darkInkMuted : AppColors.inkMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AccessCard extends StatelessWidget {
-  const _AccessCard({
-    required this.icon,
-    required this.actionIcon,
-    required this.accent,
-    required this.title,
-    required this.subtitle,
-    required this.action,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final IconData actionIcon;
-  final Color accent;
-  final String title;
-  final String subtitle;
-  final String action;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final tint = accent.withValues(alpha: isDark ? 0.14 : 0.08);
-
-    return Material(
-      color: theme.colorScheme.surface,
-      elevation: 2,
-      shadowColor: accent.withValues(alpha: 0.18),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: accent.withValues(alpha: 0.32)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        splashColor: tint,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.l),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: tint,
-                      borderRadius: AppRadii.rLarge,
-                    ),
-                    child: Icon(icon, color: accent, size: 28),
-                  ),
-                  const SizedBox(width: AppSpacing.m),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.arrow_forward_ios_rounded,
-                      color: accent, size: 18),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.m),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: isDark ? AppColors.darkInkMuted : AppColors.inkMuted,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.l),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.m,
-                  vertical: AppSpacing.m,
-                ),
-                decoration: BoxDecoration(
-                  color: tint,
-                  borderRadius: AppRadii.rMedium,
-                ),
-                child: Row(
-                  children: [
-                    Icon(actionIcon, size: 20, color: accent),
-                    const SizedBox(width: AppSpacing.s),
-                    Expanded(
-                      child: Text(
-                        action,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w700,
+                  const SizedBox(height: AppSpacing.xl),
+                  FadeSlide(
+                    delay: const Duration(milliseconds: 420),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.verified_user_outlined,
+                          size: AppDimensions.iconSmall,
+                          color: muted,
                         ),
-                      ),
+                        const SizedBox(width: AppSpacing.s),
+                        Flexible(
+                          child: Text(
+                            'Acceso exclusivo para la comunidad académica',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: muted,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Icon(Icons.arrow_forward_rounded, color: accent, size: 20),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

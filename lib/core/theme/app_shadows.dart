@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 /// Sombras globales reutilizables.
 class AppShadows {
   const AppShadows._();
@@ -35,5 +34,6 @@ class AppShadows {
 }
 
 extension ShadowedOnWidget on Widget {
-  Widget campusShadow() => Container(decoration: BoxDecoration(boxShadow: AppShadows.campus), child: this);
+  Widget campusShadow() => Container(
+      decoration: BoxDecoration(boxShadow: AppShadows.campus), child: this);
 }

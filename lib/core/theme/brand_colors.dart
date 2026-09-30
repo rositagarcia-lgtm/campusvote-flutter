@@ -11,10 +11,9 @@ extension BrandColors on BuildContext {
   Color get brandPrimary => Theme.of(this).colorScheme.primary;
 
   /// Fondo suave para chips/banners del color primario.
-  Color get brandPrimarySoft =>
-      Theme.of(this).colorScheme.primary.withValues(
-            alpha: Theme.of(this).brightness == Brightness.dark ? 0.22 : 0.12,
-          );
+  Color get brandPrimarySoft => Theme.of(this).colorScheme.primary.withValues(
+        alpha: Theme.of(this).brightness == Brightness.dark ? 0.22 : 0.12,
+      );
 
   /// Acento institucional (secundario de la marca).
   Color get brandSecondary => Theme.of(this).colorScheme.secondary;

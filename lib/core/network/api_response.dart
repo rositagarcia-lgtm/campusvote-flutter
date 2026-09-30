@@ -27,14 +27,14 @@ class ApiResponse<T> {
     return ApiResponse<T>(
       success: isSuccess,
       message: json['message'] as String?,
-      data: isSuccess && json['data'] != null
-          ? dataBuilder(json['data'])
-          : null,
+      data:
+          isSuccess && json['data'] != null ? dataBuilder(json['data']) : null,
       meta: json['meta'] is Map
           ? Map<String, dynamic>.from(json['meta'] as Map)
           : null,
       error: !isSuccess && json['error'] is Map
-          ? ApiErrorPayload.fromJson(Map<String, dynamic>.from(json['error'] as Map))
+          ? ApiErrorPayload.fromJson(
+              Map<String, dynamic>.from(json['error'] as Map))
           : null,
     );
   }

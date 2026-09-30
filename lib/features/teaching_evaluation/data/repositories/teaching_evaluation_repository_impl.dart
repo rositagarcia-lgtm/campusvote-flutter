@@ -20,7 +20,8 @@ class TeachingEvaluationRepositoryImpl implements TeachingEvaluationRepository {
           : (raw is List ? raw : <dynamic>[]);
       final models = list
           .whereType<Map>()
-          .map((m) => TeachingAssignmentModel.fromJson(Map<String, dynamic>.from(m)))
+          .map((m) =>
+              TeachingAssignmentModel.fromJson(Map<String, dynamic>.from(m)))
           .map((m) => m.toEntity())
           .toList();
       return Success(models);
@@ -45,7 +46,8 @@ class TeachingEvaluationRepositoryImpl implements TeachingEvaluationRepository {
         },
       );
       final m = res.data is Map
-          ? Map<String, dynamic>.from((res.data as Map)['data'] as Map? ?? const {})
+          ? Map<String, dynamic>.from(
+              (res.data as Map)['data'] as Map? ?? const {})
           : const <String, dynamic>{};
       return Success(TeacherEvaluationResult(
         id: (m['id'] ?? '').toString(),

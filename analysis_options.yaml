@@ -14,5 +14,6 @@ analyzer:
     - build/**
     - android/**
     - web/**
+    - ios/**
   errors:
     invalid_annotation_target: ignore

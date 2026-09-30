@@ -53,8 +53,7 @@ class EvaluateTeacherController extends StateNotifier<EvaluateState> {
   }
 }
 
-final evaluateTeacherControllerProvider =
-    StateNotifierProvider.family<EvaluateTeacherController, EvaluateState,
-        String>(
+final evaluateTeacherControllerProvider = StateNotifierProvider.family<
+    EvaluateTeacherController, EvaluateState, String>(
   (ref, assignmentId) => EvaluateTeacherController(ref, assignmentId),
 );

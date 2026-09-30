@@ -12,14 +12,16 @@ class SharedPrefsAuthUserPersister implements AuthUserPersister {
 
   @override
   Future<void> persistUser(AuthUser user) async {
-    await _storage.setString(_key, jsonEncode({
-      'id': user.id,
-      'email': user.email,
-      'firstName': user.firstName,
-      'lastName': user.lastName,
-      'role': user.role,
-      'organizationId': user.organizationId,
-    }));
+    await _storage.setString(
+        _key,
+        jsonEncode({
+          'id': user.id,
+          'email': user.email,
+          'firstName': user.firstName,
+          'lastName': user.lastName,
+          'role': user.role,
+          'organizationId': user.organizationId,
+        }));
   }
 
   @override

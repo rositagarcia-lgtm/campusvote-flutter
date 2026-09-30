@@ -46,9 +46,8 @@ Failure _mapDio(DioException error) {
 Failure _mapResponse(Response<dynamic>? response) {
   final code = response?.statusCode ?? 0;
   final body = response?.data;
-  final errorBody = (body is Map && body['error'] is Map)
-      ? body['error'] as Map
-      : null;
+  final errorBody =
+      (body is Map && body['error'] is Map) ? body['error'] as Map : null;
   final message = (errorBody?['message'] as String?) ??
       (body is Map && body['message'] is String
           ? body['message'] as String

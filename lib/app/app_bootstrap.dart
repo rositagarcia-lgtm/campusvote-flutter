@@ -46,7 +46,8 @@ Future<List<Override>> appBootstrapOverrides() async {
 }
 
 class _ForcedLogoutAdapter implements AuthRefresher {
-  _ForcedLogoutAdapter(AuthRefresher Function() inner, AuthEventsController events)
+  _ForcedLogoutAdapter(
+      AuthRefresher Function() inner, AuthEventsController events)
       : _inner = inner,
         _events = events;
 

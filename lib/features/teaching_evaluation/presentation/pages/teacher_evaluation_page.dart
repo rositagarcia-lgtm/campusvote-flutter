@@ -222,9 +222,7 @@ class _StarsSelector extends StatelessWidget {
             iconSize: 40,
             onPressed: () => onChanged(i),
             icon: Icon(
-              i <= score
-                  ? Icons.star_rounded
-                  : Icons.star_outline_rounded,
+              i <= score ? Icons.star_rounded : Icons.star_outline_rounded,
               color: i <= score ? primary : faint,
             ),
           ),

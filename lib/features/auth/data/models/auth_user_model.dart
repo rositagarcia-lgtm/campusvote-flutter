@@ -16,7 +16,8 @@ class AuthUserModel extends AuthUser {
   static String _str(dynamic v) => (v ?? '').toString();
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
-    final avatar = json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
+    final avatar =
+        json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
     return AuthUserModel(
       id: _str(json['id'] ?? json['userId']),
       email: _str(json['email']),

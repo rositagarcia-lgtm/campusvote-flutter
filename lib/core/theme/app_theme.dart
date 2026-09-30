@@ -24,7 +24,8 @@ class AppTheme {
       onError: AppColors.inkInverse,
     );
 
-    return _build(scheme, AppColors.background, AppColors.ink, Brightness.light);
+    return _build(
+        scheme, AppColors.background, AppColors.ink, Brightness.light);
   }
 
   static ThemeData dark({OrganizationBranding? branding}) {
@@ -41,7 +42,8 @@ class AppTheme {
       onError: AppColors.inkInverse,
     );
 
-    return _build(scheme, AppColors.darkBackground, AppColors.darkInk, Brightness.dark);
+    return _build(
+        scheme, AppColors.darkBackground, AppColors.darkInk, Brightness.dark);
   }
 
   static ThemeData _build(
@@ -156,7 +158,9 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: surfaceInk,
         contentTextStyle: textTheme.bodyMedium?.copyWith(
-          color: brightness == Brightness.dark ? AppColors.darkInk : AppColors.inkInverse,
+          color: brightness == Brightness.dark
+              ? AppColors.darkInk
+              : AppColors.inkInverse,
         ),
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(borderRadius: AppRadii.rMedium),

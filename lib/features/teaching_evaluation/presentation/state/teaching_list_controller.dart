@@ -41,8 +41,7 @@ class TeachingListController extends StateNotifier<TeachingListState> {
 
   Future<void> load() async {
     state = state.copyWith(loading: true, clearError: true);
-    final res =
-        await _ref.read(getMyTeachingAssignmentsUseCaseProvider)();
+    final res = await _ref.read(getMyTeachingAssignmentsUseCaseProvider)();
     res.when(
       success: (items) {
         state = state.copyWith(loading: false, items: items);
@@ -80,7 +79,7 @@ class TeachingListController extends StateNotifier<TeachingListState> {
   }
 }
 
-final teachingListControllerProvider = StateNotifierProvider<
-    TeachingListController, TeachingListState>(
+final teachingListControllerProvider =
+    StateNotifierProvider<TeachingListController, TeachingListState>(
   (ref) => TeachingListController(ref),
 );

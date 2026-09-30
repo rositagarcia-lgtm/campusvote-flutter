@@ -187,7 +187,8 @@ class DisableTotpUseCase {
   Future<Result<void>> call({required String password}) {
     if (password.isEmpty) {
       return Future.value(const FailureResult(
-        ValidationFailure(message: 'La contraseña es obligatoria para deshabilitar 2FA'),
+        ValidationFailure(
+            message: 'La contraseña es obligatoria para deshabilitar 2FA'),
       ));
     }
     return _repo.disableTotp(password: password);

@@ -23,9 +23,8 @@ class AppTypography {
       );
     }
 
-    final ink = brightness == Brightness.dark
-        ? AppColors.darkInk
-        : AppColors.ink;
+    final ink =
+        brightness == Brightness.dark ? AppColors.darkInk : AppColors.ink;
     final inkMuted = brightness == Brightness.dark
         ? AppColors.darkInkMuted
         : AppColors.inkMuted;

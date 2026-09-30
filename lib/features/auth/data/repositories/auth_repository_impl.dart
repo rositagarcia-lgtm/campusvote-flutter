@@ -24,8 +24,7 @@ abstract class AuthUserPersister {
 ///
 /// Implementa además [AuthRefresher] para que el [AuthInterceptor]
 /// pueda renovar tokens durante un 401.
-class AuthRepositoryImpl
-    implements AuthRepository, AuthRefresher {
+class AuthRepositoryImpl implements AuthRepository, AuthRefresher {
   AuthRepositoryImpl({
     required ApiClient client,
     required AuthUserPersister persister,

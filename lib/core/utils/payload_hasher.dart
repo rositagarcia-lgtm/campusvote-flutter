@@ -22,9 +22,8 @@ class PayloadHasher {
     }
     if (value is Map) {
       final keys = value.keys.map((e) => e.toString()).toList()..sort();
-      final entries = keys
-          .map((k) => '"$k":${_canonicalize(value[k])}')
-          .join(',');
+      final entries =
+          keys.map((k) => '"$k":${_canonicalize(value[k])}').join(',');
       return '{$entries}';
     }
     return '"$value"';

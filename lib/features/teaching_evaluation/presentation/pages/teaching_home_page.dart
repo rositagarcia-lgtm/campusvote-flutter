@@ -69,8 +69,7 @@ class _Body extends ConsumerWidget {
     if (state.isEmpty) {
       return const AppEmptyView(
         icon: Icons.school_outlined,
-        message:
-            'Aún no tienes docentes asignados en este periodo. Cuando tu '
+        message: 'Aún no tienes docentes asignados en este periodo. Cuando tu '
             'organización asigne docentes a tu carrera y ciclo, aparecerán aquí.',
       );
     }

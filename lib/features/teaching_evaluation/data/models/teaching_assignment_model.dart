@@ -38,8 +38,7 @@ class TeachingAssignmentModel {
     return TeachingAssignmentModel(
       id: (json['id'] ?? '').toString(),
       courseId: (json['courseId'] ?? course['id'] ?? '').toString(),
-      teacherId:
-          (json['teacherId'] ?? teacher['id'] ?? '').toString(),
+      teacherId: (json['teacherId'] ?? teacher['id'] ?? '').toString(),
       courseCode: (course['code'] ?? '').toString(),
       courseName: (course['name'] ?? '').toString(),
       cycle: (json['cycle'] ?? course['cycle'] ?? 0) is num
