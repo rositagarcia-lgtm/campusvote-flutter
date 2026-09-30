@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
@@ -77,8 +78,10 @@ class _VotingButton extends StatelessWidget {
           : null,
       icon: const Icon(Icons.how_to_vote_rounded),
       label: Text(enabled ? 'Ir a votación' : 'Finaliza todas las rúbricas'),
-      backgroundColor: enabled ? AppColors.primary : AppColors.background,
-      foregroundColor: enabled ? AppColors.inkInverse : AppColors.inkFaint,
+      backgroundColor:
+          enabled ? Theme.of(context).colorScheme.primary : AppColors.background,
+      foregroundColor:
+          enabled ? Theme.of(context).colorScheme.onPrimary : AppColors.inkFaint,
     );
   }
 }
@@ -150,8 +153,8 @@ class _Header extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: const BoxDecoration(
-        color: AppColors.primarySoft,
+      decoration: BoxDecoration(
+        color: context.brandPrimarySoft,
         borderRadius: AppRadii.rMedium,
       ),
       child: Column(
@@ -169,7 +172,7 @@ class _Header extends StatelessWidget {
               value: progress,
               minHeight: 8,
               backgroundColor: AppColors.background,
-              color: AppColors.primary,
+              color: context.brandPrimary,
             ),
           ),
           const SizedBox(height: AppSpacing.s),
@@ -232,14 +235,13 @@ class _ProjectTile extends StatelessWidget {
                           child: Image.network(
                             project.logoUrl!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+errorBuilder: (_, __, ___) => const Icon(
                               Icons.image_not_supported_rounded,
                               color: AppColors.inkFaint,
                             ),
-                          ),
+                          )
                         )
-                      : const Icon(Icons.science_rounded,
-                          color: AppColors.primary),
+                        : Icon(Icons.science_rounded, color: context.brandPrimary),
                 ),
                 const SizedBox(width: AppSpacing.m),
                 Expanded(

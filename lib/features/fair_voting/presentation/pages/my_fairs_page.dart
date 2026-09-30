@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
+import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/panel_hero.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 import '../../domain/entities/fair_assignment.dart';
 import '../state/my_assigned_fairs_controller.dart';
 
@@ -33,17 +38,22 @@ class MyFairsPage extends ConsumerWidget {
         title: 'Mis ferias asignadas',
         actions: [
           IconButton(
+            tooltip: 'Actualizar',
+            icon: const Icon(Icons.refresh_rounded),
+            onPressed: ctrl.refresh,
+          ),
+          IconButton(
             tooltip: 'Cerrar sesión',
             icon: const Icon(Icons.logout_rounded),
             onPressed: () async {
-              // El botón de logout se gestiona en el perfil; dejamos un botón
-              // de refresh aquí para simplificar la pantalla.
-              await ctrl.refresh();
+              await ref.read(authControllerProvider.notifier).logout();
+              if (context.mounted) context.go('/splash');
             },
           ),
         ],
       ),
       body: _Body(state: state, onRefresh: ctrl.refresh),
+      bottomNavigationBar: const AppBottomNav(selectedIndex: 0),
     );
   }
 }
@@ -73,12 +83,25 @@ class _Body extends ConsumerWidget {
         state.items.where((f) => f.isOpen).toList(growable: false);
     final others =
         state.items.where((f) => !f.isOpen).toList(growable: false);
+    final branding = ref.watch(brandingControllerProvider);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.l),
         children: [
+          PanelHero(
+            title: 'Panel del jurado',
+            subtitle: 'Califica proyectos y participa en la votación final '
+                'de tus ferias asignadas',
+            icon: Icons.gavel_rounded,
+            badge: openFairs.isNotEmpty
+                ? '${openFairs.length} feria${openFairs.length == 1 ? '' : 's'} abierta${openFairs.length == 1 ? '' : 's'} para votar'
+                : 'Sin ferias abiertas por ahora',
+            organizationLogoUrl: branding.logoUrl,
+            organizationName: branding.name,
+          ),
+          const SizedBox(height: AppSpacing.l),
           if (openFairs.isNotEmpty) ...[
             const _SectionLabel('Abiertas · Evalúa y vota'),
             for (final f in openFairs) _FairTile(fair: f),
@@ -139,13 +162,13 @@ class _FairTile extends StatelessWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     color: enabled
-                        ? AppColors.primarySoft
+                        ? context.brandPrimarySoft
                         : AppColors.background,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.event_rounded,
-                    color: enabled ? AppColors.primary : AppColors.inkFaint,
+                    color: enabled ? context.brandPrimary : AppColors.inkFaint,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.m),

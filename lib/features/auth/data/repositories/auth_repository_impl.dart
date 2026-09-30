@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../../../core/errors/result.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_interceptor.dart';
@@ -5,6 +7,7 @@ import '../../domain/entities/auth_user.dart';
 import '../../domain/entities/login_result.dart';
 import '../../domain/entities/totp.dart';
 import '../../domain/repositories/auth_repository.dart';
+import 'auth_profile_datasource.dart';
 import 'auth_security_datasource.dart';
 import 'auth_session_datasource.dart';
 
@@ -27,10 +30,12 @@ class AuthRepositoryImpl
     required ApiClient client,
     required AuthUserPersister persister,
   })  : _session = AuthSessionDataSource(client, persister),
-        _security = AuthSecurityDataSource(client);
+        _security = AuthSecurityDataSource(client),
+        _profile = AuthProfileDataSource(client, persister);
 
   final AuthSessionDataSource _session;
   final AuthSecurityDataSource _security;
+  final AuthProfileDataSource _profile;
 
   // ── Sesión ────────────────────────────────────────────────────
   @override
@@ -46,6 +51,21 @@ class AuthRepositoryImpl
     required String code,
   }) =>
       _session.verifyLoginTotp(tempToken: tempToken, code: code);
+
+  @override
+  Future<Result<LoginResult>> requestEmailLogin({required String email}) =>
+      _session.requestEmailLogin(email: email);
+
+  @override
+  Future<Result<LoginResult>> verifyEmailLogin({
+    required String tempToken,
+    required String code,
+  }) =>
+      _session.verifyEmailLogin(tempToken: tempToken, code: code);
+
+  @override
+  Future<bool> resendEmailLogin({required String tempToken}) =>
+      _session.resendEmailLogin(tempToken: tempToken);
 
   @override
   Future<Result<TokenPair>> refresh({required String refreshToken}) =>
@@ -121,4 +141,13 @@ class AuthRepositoryImpl
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
+
+  // ── Perfil (foto y datos) ─────────────────────────────────────
+  @override
+  Future<Result<AuthUser>> updateProfile(Map<String, dynamic> fields) =>
+      _profile.updateProfile(fields);
+
+  @override
+  Future<Result<AuthUser>> updateAvatar(File file) =>
+      _profile.updateAvatar(file);
 }

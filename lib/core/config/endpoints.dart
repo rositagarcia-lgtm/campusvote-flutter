@@ -10,40 +10,24 @@ class ApiEndpoints {
   static const String refresh = '/api/auth/refresh';
   static const String logout = '/api/auth/logout';
   static const String me = '/api/auth/me';
+  static const String loginEmailRequest = '/api/auth/email/request';
+  static const String loginEmailVerify = '/api/auth/email/login-verify';
+  static const String loginEmailResend = '/api/auth/email/resend';
   static const String totpStatus = '/api/auth/2fa/status';
   static const String totpSetup = '/api/auth/totp/setup';
   static const String totpVerify = '/api/auth/totp/verify';
   static const String totpDisable = '/api/auth/totp/disable';
   static const String changeMyPassword = '/api/users/me/password';
+  static const String updateMe = '/api/users/me';
+  static const String uploadAvatar = '/api/upload/avatar';
 
   // Organization (branding)
   static String organizationById(String id) => '/api/organizations/$id';
 
-  // Elections
-  static const String elections = '/api/elections';
-  static String electionById(String id) => '/api/elections/$id';
-  static String electionRules(String id) => '/api/elections/$id/rules';
-  static String electionPositions(String id) => '/api/elections/$id/positions';
-  static String electionCandidateLists(String id) =>
-      '/api/elections/$id/candidate-lists';
-  static String electionCandidacies(String id) =>
-      '/api/elections/$id/candidacies';
-
-  // Ballots
-  static String activeBallot(String electionId) =>
-      '/api/ballots/election/$electionId/active';
-  static String ballotPositions(String ballotId) =>
-      '/api/ballots/$ballotId/positions';
-
-  // Voting
-  static String votingSession(String electionId) =>
-      '/api/voting/elections/$electionId/sessions';
-  static String castVote(String sessionId) =>
-      '/api/voting/sessions/$sessionId/cast';
-  static String votingSessionStatus(String sessionId) =>
-      '/api/voting/sessions/$sessionId';
-  static String verifyReceipt(String code) =>
-      '/api/public/verify-receipt/$code';
+  // Teaching evaluation — STUDENT (evaluación docente)
+  static const String myTeachingAssignments =
+      '/api/academic/my-teaching-assignments';
+  static const String evaluateTeacher = '/api/academic/teacher-evaluations';
 
   // Fair voting — JURY
   static const String myJuryAssignments = '/api/fairs/my-assignments';

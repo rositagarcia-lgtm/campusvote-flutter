@@ -10,11 +10,13 @@ class AuthUserModel extends AuthUser {
     super.lastName,
     super.role,
     super.organizationId,
+    super.avatarUrl,
   });
 
   static String _str(dynamic v) => (v ?? '').toString();
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
+    final avatar = json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
     return AuthUserModel(
       id: _str(json['id'] ?? json['userId']),
       email: _str(json['email']),
@@ -23,6 +25,7 @@ class AuthUserModel extends AuthUser {
       role: json['role'] as String?,
       organizationId: json['organization_id'] as String? ??
           json['organizationId'] as String?,
+      avatarUrl: (avatar == null || avatar.isEmpty) ? null : avatar,
     );
   }
 
@@ -33,6 +36,7 @@ class AuthUserModel extends AuthUser {
         lastName: u.lastName,
         role: u.role,
         organizationId: u.organizationId,
+        avatarUrl: u.avatarUrl,
       );
 
   AuthUser toEntity() => AuthUser(
@@ -42,5 +46,6 @@ class AuthUserModel extends AuthUser {
         lastName: lastName,
         role: role,
         organizationId: organizationId,
+        avatarUrl: avatarUrl,
       );
 }

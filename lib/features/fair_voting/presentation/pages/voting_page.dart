@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_error_view.dart';
@@ -132,23 +133,23 @@ class _Body extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.l),
               children: [
-                const                 AppSectionTitle(title: 'Selecciona UN proyecto'),
+                const AppSectionTitle(title: 'Selecciona UN proyecto'),
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.m),
-                  decoration: const BoxDecoration(
-                    color: AppColors.primarySoft,
+                  decoration: BoxDecoration(
+                    color: context.brandPrimarySoft,
                     borderRadius: AppRadii.rMedium,
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.info_outline_rounded,
-                          color: AppColors.primary),
-                      SizedBox(width: AppSpacing.s),
+                          color: context.brandPrimary),
+                      const SizedBox(width: AppSpacing.s),
                       Expanded(
                         child: Text(
                           'Tu voto es la decisión FINAL del jurado y es '
                           'ANÓNIMO. No podrás cambiarlo después.',
-                          style: TextStyle(color: AppColors.primary),
+                          style: TextStyle(color: context.brandPrimary),
                         ),
                       ),
                     ],
@@ -235,7 +236,7 @@ class _VoteProjectTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.s),
       child: Material(
-        color: selected ? AppColors.primarySoft : theme.colorScheme.surface,
+        color: selected ? context.brandPrimarySoft : theme.colorScheme.surface,
         borderRadius: AppRadii.rMedium,
         child: InkWell(
           borderRadius: AppRadii.rMedium,
@@ -248,7 +249,8 @@ class _VoteProjectTile extends StatelessWidget {
                   selected
                       ? Icons.radio_button_checked_rounded
                       : Icons.radio_button_unchecked_rounded,
-                  color: selected ? AppColors.primary : AppColors.inkFaint,
+                  color:
+                      selected ? context.brandPrimary : AppColors.inkFaint,
                 ),
                 const SizedBox(width: AppSpacing.m),
                 Expanded(

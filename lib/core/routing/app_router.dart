@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/splash_page.dart';
+import '../../features/auth/presentation/pages/account_page.dart';
 import '../../features/auth/presentation/pages/change_password_page.dart';
+import '../../features/auth/presentation/pages/email_otp_verify_page.dart';
+import '../../features/auth/presentation/pages/email_request_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/security_page.dart';
 import '../../features/auth/presentation/pages/totp_backup_codes_page.dart';
@@ -16,12 +19,9 @@ import '../../features/fair_voting/presentation/pages/my_fairs_page.dart';
 import '../../features/fair_voting/presentation/pages/rubric_page.dart';
 import '../../features/fair_voting/presentation/pages/voting_page.dart';
 import '../../features/fair_voting/presentation/pages/voting_success_page.dart';
-import '../../features/voting/presentation/pages/ballot_page.dart';
-import '../../features/voting/presentation/pages/election_detail_page.dart';
-import '../../features/voting/presentation/pages/vote_confirmation_page.dart';
-import '../../features/voting/presentation/pages/vote_success_page.dart';
-import '../../features/voting/presentation/pages/voting_home_page.dart';
-import '../../features/voting/presentation/pages/voting_receipt_page.dart';
+import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
+import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
+import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
 
 /// Router global.
 ///
@@ -41,24 +41,29 @@ GoRouter buildAppRouter(WidgetRef ref) {
       if (auth.initializing) {
         return loc == '/splash' ? null : '/splash';
       }
-      // '/splash' NO va en esta lista: mientras se comprueba la sesión ya se
-      // devolvió arriba. Si estuviera aquí, quien no tiene sesión se quedaría
-      // en la pantalla de carga para siempre en vez de pasar al login.
+      // '/splash' (bienvenida) es pública: quien no tiene sesión la ve.
       final publicRoutes = {
+        '/splash',
         '/login',
         '/auth/totp',
+        '/auth/email-request',
+        '/auth/email-verify',
       };
       if (!auth.authenticated && !publicRoutes.contains(loc)) {
-        return '/login';
+        return '/splash';
       }
-      // Para usuarios autenticados, mandamos a la pantalla principal.
-      // El backend determina qué vista le corresponde (JURY → /juries/fairs;
-      // otros roles → /voting) pero como Flutter no filtra por rol, lo dejamos
-      // al controller/redirección del cliente según `auth.user.role`.
-      if (auth.authenticated && (loc == '/login' || loc == '/splash')) {
+      // Para usuarios autenticados, mandamos a la pantalla principal según
+      // su rol: JURY evalúa ferias, STUDENT evalúa docentes, y los demás roles
+      // (ADMIN/TEACHER) caen en la vista de docentes (sin asignaciones si no
+      // corresponden) o en un inicio genérico.
+      if (auth.authenticated &&
+          (loc == '/login' ||
+              loc == '/splash' ||
+              loc == '/auth/email-request' ||
+              loc == '/auth/email-verify')) {
         final role = auth.user?.role;
         if (role == 'JURY') return '/juries/fairs';
-        return '/voting';
+        return '/teaching';
       }
       // Forzar cambio de contraseña obligatorio antes de cualquier otra ruta.
       if (auth.authenticated &&
@@ -70,7 +75,16 @@ GoRouter buildAppRouter(WidgetRef ref) {
     },
     routes: [
       GoRoute(path: '/splash', builder: (_, __) => const SplashPage()),
+      GoRoute(
+        path: '/auth/email-request',
+        builder: (_, __) => const EmailRequestPage(),
+      ),
+      GoRoute(
+        path: '/auth/email-verify',
+        builder: (_, __) => const EmailOtpVerifyPage(),
+      ),
       GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+      GoRoute(path: '/account', builder: (_, __) => const AccountPage()),
       GoRoute(path: '/auth/totp', builder: (_, __) => const TotpPage()),
       GoRoute(
         path: '/security',
@@ -141,40 +155,21 @@ GoRouter buildAppRouter(WidgetRef ref) {
         ],
       ),
 
-      // ── Votación electoral (existente) ──────────────────────────────
+      // ── Evaluación docente (STUDENT) ───────────────────────────────
       GoRoute(
-        path: '/voting',
-        builder: (_, __) => const VotingHomePage(),
+        path: '/teaching',
+        builder: (_, __) => const TeachingHomePage(),
         routes: [
           GoRoute(
-            path: ':electionId',
-            builder: (_, s) => ElectionDetailPage(
-              electionId: s.pathParameters['electionId']!,
+            path: 'evaluate/:assignmentId',
+            builder: (_, s) => TeacherEvaluationPage(
+              assignmentId: s.pathParameters['assignmentId']!,
             ),
             routes: [
               GoRoute(
-                path: 'ballot',
-                builder: (_, s) => BallotPage(
-                  electionId: s.pathParameters['electionId']!,
-                ),
-              ),
-              GoRoute(
-                path: 'confirmation',
-                builder: (_, s) => VoteConfirmationPage(
-                  electionId: s.pathParameters['electionId']!,
-                ),
-              ),
-              GoRoute(
                 path: 'success',
-                builder: (_, s) => VoteSuccessPage(
-                  electionId: s.pathParameters['electionId']!,
-                ),
-              ),
-              GoRoute(
-                path: 'receipt/:receiptCode',
-                builder: (_, s) => VotingReceiptPage(
-                  electionId: s.pathParameters['electionId']!,
-                  receiptCode: s.pathParameters['receiptCode']!,
+                builder: (_, s) => TeacherEvaluationSuccessPage(
+                  assignmentId: s.pathParameters['assignmentId']!,
                 ),
               ),
             ],

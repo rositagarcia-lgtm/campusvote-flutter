@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import '../theme/app_dimensions.dart';
 
 /// AppBar reutilizable para mantener consistencia.
+///
+/// El título es obligatorio: cada pantalla debe nombrarse sola (sin marcar
+/// "CampusVote" por defecto) para que el branding institucional sea coherente.
 PreferredSizeWidget buildCampusVoteAppBar(
   BuildContext context, {
-  String? title,
+  required String title,
   List<Widget>? actions,
   Widget? leading,
 }) {
   return AppBar(
-    title: Text(title ?? 'CampusVote'),
+    title: Text(title),
     centerTitle: false,
     leading: leading,
     actions: actions,

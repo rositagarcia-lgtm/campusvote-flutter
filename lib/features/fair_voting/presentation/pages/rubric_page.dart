@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_error_view.dart';
@@ -185,8 +186,8 @@ class _StatusBanner extends StatelessWidget {
           )
         : (
             'Marca los criterios cumplidos. Luego pulsa "Guardar" o "Finalizar".',
-            AppColors.primarySoft,
-            AppColors.primary,
+            context.brandPrimarySoft,
+            context.brandPrimary,
             Icons.edit_note_rounded,
           );
 

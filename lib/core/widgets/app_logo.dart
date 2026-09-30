@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Logo oficial de CampusVote como asset local.
+const kCampusVoteLogoAsset = 'assets/logo.png';
 
 class AppLogo extends StatelessWidget {
   final String? networkUrl;
@@ -23,6 +25,21 @@ class AppLogo extends StatelessWidget {
     );
   }
 
+  /// Logo institucional de CampusVote (asset local `assets/logo.png`).
+  factory AppLogo.asset({
+    Key? key,
+    double size = 48,
+    Color? backgroundColor,
+  }) {
+    return AppLogo(
+      key: key,
+      networkUrl: null,
+      fallbackLabel: 'CV',
+      size: size,
+      backgroundColor: backgroundColor,
+    );
+  }
+
   factory AppLogo.organization({
     Key? key,
     String? logoUrl,
@@ -40,9 +57,11 @@ class AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = backgroundColor ?? Theme.of(context).colorScheme.primary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final bg = backgroundColor ?? colorScheme.primary;
     final code = fallbackLabel.trim();
-    final initials = code.length <= 2 ? code.toUpperCase() : code[0].toUpperCase();
+    final initials =
+        code.length <= 2 ? code.toUpperCase() : code[0].toUpperCase();
 
     if (networkUrl != null && networkUrl!.isNotEmpty) {
       return Container(
@@ -56,6 +75,19 @@ class AppLogo extends StatelessWidget {
         child: Image.network(
           networkUrl!,
           fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _initials(bg, initials),
+        ),
+      );
+    }
+
+    if (fallbackLabel == 'CV') {
+      // Prioriza el logo de marca por asset cuando no hay branding externo.
+      return SizedBox(
+        width: size,
+        height: size,
+        child: Image.asset(
+          'assets/logo.png',
+          fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => _initials(bg, initials),
         ),
       );

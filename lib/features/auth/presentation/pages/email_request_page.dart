@@ -10,49 +10,35 @@ import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../state/auth_controller.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+/// Paso 1 del acceso sin contraseña: solicita el correo.
+///
+/// El backend resuelve la organización a partir del correo y devuelve el
+/// branding + tempToken EMAIL_PENDING que llevan al paso 2 (código OTP).
+class EmailRequestPage extends ConsumerStatefulWidget {
+  const EmailRequestPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  ConsumerState<EmailRequestPage> createState() => _EmailRequestPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
   final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _emailCtrl.dispose();
-    _passwordCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ok = await ref.read(authControllerProvider.notifier).login(
+    final ok = await ref.read(authControllerProvider.notifier).requestEmailLogin(
           email: _emailCtrl.text,
-          password: _passwordCtrl.text,
         );
     if (!mounted) return;
     if (ok) {
-      // JURY → ferias asignadas; STUDENT → evaluación docente.
-      final role = ref.read(authControllerProvider).user?.role;
-      if (role == 'JURY') {
-        context.go('/juries/fairs');
-      } else {
-        context.go('/teaching');
-      }
-    } else {
-      final state = ref.read(authControllerProvider);
-      if (state.requiresEmailOtp && mounted) {
-        context.go('/auth/email-verify');
-        return;
-      }
-      if (state.tempToken != null && mounted) {
-        context.go('/auth/totp');
-      }
+      context.go('/auth/email-verify');
     }
   }
 
@@ -63,6 +49,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.go('/splash'),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.l),
@@ -71,43 +63,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: AppSpacing.xxl),
                 Center(
                   child: AppLogo.organization(
                     logoUrl: branding.logoUrl,
                     organizationCode: branding.name,
-                    size: 80,
+                    size: 72,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.l),
+                const SizedBox(height: AppSpacing.xl),
                 Text(
-                  branding.name,
+                  'Ingresa con tu correo',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.displaySmall,
                 ),
                 const SizedBox(height: AppSpacing.s),
                 Text(
-                  'Inicia sesión con tu cuenta institucional',
+                  'Te enviaremos un código de acceso único a tu correo. No necesitas contraseña.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 AppTextField(
-                  label: 'Correo institucional',
+                  label: 'Correo',
                   hint: 'tu.correo@universidad.edu',
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailCtrl,
-                  textInputAction: TextInputAction.next,
-                  prefixIcon: Icons.alternate_email_rounded,
-                ),
-                const SizedBox(height: AppSpacing.l),
-                AppTextField(
-                  label: 'Contraseña',
-                  obscureText: true,
-                  controller: _passwordCtrl,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _submit(),
-                  prefixIcon: Icons.lock_outline_rounded,
+                  prefixIcon: Icons.alternate_email_rounded,
+                  validator: (value) {
+                    final v = (value ?? '').trim();
+                    if (v.isEmpty) return 'Escribe tu correo';
+                    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(v)) {
+                      return 'Escribe un correo válido';
+                    }
+                    return null;
+                  },
                 ),
                 if (state.errorMessage != null) ...[
                   const SizedBox(height: AppSpacing.m),
@@ -127,8 +118,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ],
                 const SizedBox(height: AppSpacing.xl),
                 AppButton(
-                  label: 'Iniciar sesión',
-                  icon: Icons.login_rounded,
+                  label: 'Enviar código',
+                  icon: Icons.mark_email_unread_outlined,
                   isLoading: state.submitting,
                   onPressed: state.submitting ? null : _submit,
                 ),

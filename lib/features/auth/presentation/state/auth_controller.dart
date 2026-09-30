@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/branding/branding_controller.dart';
+import '../../../../core/branding/organization_branding.dart';
 import '../../domain/entities/auth_user.dart';
 import 'auth_events.dart';
 import 'auth_providers.dart';
@@ -9,7 +13,9 @@ class AuthState {
   final bool authenticated;
   final AuthUser? user;
   final bool submitting;
-  final String? tempToken; // para 2FA
+  final String? tempToken; // para 2FA / EMAIL_PENDING
+  final bool requiresEmailOtp; // acceso sin contraseña (email + código)
+  final String? pendingEmail; // correo del flujo OTP en curso
   final String? errorMessage;
   final bool mustChangePassword;
 
@@ -19,6 +25,8 @@ class AuthState {
     this.user,
     this.submitting = false,
     this.tempToken,
+    this.requiresEmailOtp = false,
+    this.pendingEmail,
     this.errorMessage,
     this.mustChangePassword = false,
   });
@@ -29,6 +37,8 @@ class AuthState {
     AuthUser? user,
     bool? submitting,
     String? tempToken,
+    bool? requiresEmailOtp,
+    String? pendingEmail,
     String? errorMessage,
     bool? mustChangePassword,
     bool clearTempToken = false,
@@ -40,6 +50,8 @@ class AuthState {
       user: user ?? this.user,
       submitting: submitting ?? this.submitting,
       tempToken: clearTempToken ? null : (tempToken ?? this.tempToken),
+      requiresEmailOtp: requiresEmailOtp ?? this.requiresEmailOtp,
+      pendingEmail: pendingEmail ?? this.pendingEmail,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       mustChangePassword: mustChangePassword ?? this.mustChangePassword,
     );
@@ -101,6 +113,18 @@ class AuthController extends StateNotifier<AuthState> {
       },
     );
     if (data == null) return false;
+    if (data.requiresEmailOtp) {
+      _applyBranding(data.organization);
+      state = state.copyWith(
+        submitting: false,
+        tempToken: data.tempToken,
+        requiresEmailOtp: true,
+        pendingEmail: data.email,
+        mustChangePassword: data.mustChangePassword,
+        authenticated: false,
+      );
+      return false;
+    }
     if (data.requiresTotp || data.requiresOnboarding) {
       state = state.copyWith(
         submitting: false,
@@ -154,6 +178,86 @@ class AuthController extends StateNotifier<AuthState> {
     return true;
   }
 
+  /// Paso 1 del acceso sin contraseña (estudiantes y jurados): solicita el
+  /// código OTP al correo y guarda el tempToken EMAIL_PENDING para el paso 2.
+  Future<bool> requestEmailLogin({required String email}) async {
+    state = state.copyWith(submitting: true, clearError: true);
+    final result =
+        await _ref.read(requestEmailLoginUseCaseProvider)(email: email);
+    final data = result.when(
+      success: (d) => d,
+      failure: (f) {
+        state = state.copyWith(submitting: false, errorMessage: f.message);
+        return null;
+      },
+    );
+    if (data == null) return false;
+    _applyBranding(data.organization);
+    state = state.copyWith(
+      submitting: false,
+      tempToken: data.tempToken,
+      requiresEmailOtp: true,
+      pendingEmail: data.email,
+      mustChangePassword: data.mustChangePassword,
+      authenticated: false,
+    );
+    return true;
+  }
+
+  /// Paso 2 del acceso sin contraseña: verifica el código recibido por correo.
+  Future<bool> verifyEmailLogin(String code) async {
+    final temp = state.tempToken;
+    if (temp == null || !state.requiresEmailOtp) {
+      state = state.copyWith(
+        errorMessage: 'Inicia de nuevo: el código expiró',
+        requiresEmailOtp: false,
+        clearTempToken: true,
+      );
+      return false;
+    }
+    state = state.copyWith(submitting: true, clearError: true);
+    final result = await _ref
+        .read(verifyEmailLoginUseCaseProvider)(tempToken: temp, code: code);
+    final data = result.when(
+      success: (d) => d,
+      failure: (f) {
+        state = state.copyWith(submitting: false, errorMessage: f.message);
+        return null;
+      },
+    );
+    if (data == null) return false;
+    final user = await _ref.read(authRepositoryProvider).currentUser();
+    state = state.copyWith(
+      submitting: false,
+      authenticated: true,
+      user: user,
+      requiresEmailOtp: false,
+      pendingEmail: null,
+      mustChangePassword: data.mustChangePassword,
+      clearTempToken: true,
+    );
+    _hydrateProfile();
+    return true;
+  }
+
+  /// Reenvía el código OTP del flujo de acceso sin contraseña en curso.
+  Future<bool> resendEmailLogin() async {
+    final temp = state.tempToken;
+    if (temp == null || !state.requiresEmailOtp) return false;
+    if (!await _ref.read(authRepositoryProvider).resendEmailLogin(
+          tempToken: temp,
+        )) {
+      state = state.copyWith(errorMessage: 'No se pudo reenviar el código');
+      return false;
+    }
+    return true;
+  }
+
+  void _applyBranding(OrganizationBranding? org) {
+    if (org == null) return;
+    _ref.read(brandingControllerProvider.notifier).apply(org);
+  }
+
   Future<void> _hydrateProfile() async {
     final res = await _ref.read(getProfileUseCaseProvider)();
     res.when(
@@ -161,6 +265,39 @@ class AuthController extends StateNotifier<AuthState> {
         state = state.copyWith(user: user);
       },
       failure: (_) {},
+    );
+  }
+
+  /// Cambia la foto de perfil: sube la imagen, la enlaza al usuario y
+  /// refresca el estado de sesión para que toda la app la vea al instante.
+  Future<bool> changeAvatar(File file) async {
+    state = state.copyWith(submitting: true, clearError: true);
+    final res = await _ref.read(updateAvatarUseCaseProvider)(file);
+    return res.when(
+      success: (user) {
+        state = state.copyWith(submitting: false, user: user);
+        return true;
+      },
+      failure: (f) {
+        state = state.copyWith(submitting: false, errorMessage: f.message);
+        return false;
+      },
+    );
+  }
+
+  /// Guarda los campos editados del perfil propio.
+  Future<bool> updateProfile(Map<String, dynamic> fields) async {
+    state = state.copyWith(submitting: true, clearError: true);
+    final res = await _ref.read(updateProfileUseCaseProvider)(fields);
+    return res.when(
+      success: (user) {
+        state = state.copyWith(submitting: false, user: user);
+        return true;
+      },
+      failure: (f) {
+        state = state.copyWith(submitting: false, errorMessage: f.message);
+        return false;
+      },
     );
   }
 

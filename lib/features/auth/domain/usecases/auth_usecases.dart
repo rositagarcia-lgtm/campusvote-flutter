@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../../../core/errors/result.dart';
 import '../entities/auth_user.dart';
 import '../entities/login_result.dart';
@@ -43,6 +45,47 @@ class VerifyLoginTotpUseCase {
       ));
     }
     return _repo.verifyLoginTotp(tempToken: tempToken, code: code.trim());
+  }
+}
+
+/// Solicita el código OTP del acceso sin contraseña.
+class RequestEmailLoginUseCase {
+  RequestEmailLoginUseCase(this._repo);
+  final AuthRepository _repo;
+
+  Future<Result<LoginResult>> call({required String email}) {
+    final clean = email.trim().toLowerCase();
+    if (clean.isEmpty) {
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'El correo es obligatorio'),
+      ));
+    }
+    if (!_isEmail(clean)) {
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'Escribe un correo válido'),
+      ));
+    }
+    return _repo.requestEmailLogin(email: clean);
+  }
+}
+
+/// Verifica el código OTP enviado al correo (paso 2 del acceso sin contraseña).
+class VerifyEmailLoginUseCase {
+  VerifyEmailLoginUseCase(this._repo);
+  final AuthRepository _repo;
+
+  Future<Result<LoginResult>> call({
+    required String tempToken,
+    required String code,
+  }) {
+    if (code.trim().length != 6 || !RegExp(r'^\d{6}$').hasMatch(code.trim())) {
+      return Future.value(const FailureResult(
+        ValidationFailure(
+          message: 'El código debe tener 6 dígitos',
+        ),
+      ));
+    }
+    return _repo.verifyEmailLogin(tempToken: tempToken, code: code.trim());
   }
 }
 
@@ -143,10 +186,43 @@ class DisableTotpUseCase {
 
   Future<Result<void>> call({required String password}) {
     if (password.isEmpty) {
-      return Future.value(const FailureResult(ValidationFailure(
-        message: 'La contraseña es obligatoria para deshabilitar 2FA',
-      )));
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'La contraseña es obligatoria para deshabilitar 2FA'),
+      ));
     }
     return _repo.disableTotp(password: password);
   }
 }
+
+/// Cambia la foto de perfil: sube la imagen y la enlaza al usuario.
+class UpdateAvatarUseCase {
+  UpdateAvatarUseCase(this._repo);
+  final AuthRepository _repo;
+
+  Future<Result<AuthUser>> call(File file) {
+    if (!file.existsSync()) {
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'No se encontró la imagen seleccionada'),
+      ));
+    }
+    return _repo.updateAvatar(file);
+  }
+}
+
+/// Actualiza los datos del perfil propio.
+class UpdateProfileUseCase {
+  UpdateProfileUseCase(this._repo);
+  final AuthRepository _repo;
+
+  Future<Result<AuthUser>> call(Map<String, dynamic> fields) {
+    if (fields.isEmpty) {
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'No hay cambios para guardar'),
+      ));
+    }
+    return _repo.updateProfile(fields);
+  }
+}
+
+bool _isEmail(String value) =>
+    RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);

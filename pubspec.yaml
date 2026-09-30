@@ -23,6 +23,10 @@ dependencies:
 
   # Network
   dio: ^5.7.0
+  http_parser: ^4.0.2
+
+  # Foto de perfil (avatar)
+  image_picker: ^1.1.2
 
   # Storage seguro
   flutter_secure_storage: ^9.2.2
@@ -46,5 +50,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/logo.png
     - assets/branding/
     - assets/branding/organizations/

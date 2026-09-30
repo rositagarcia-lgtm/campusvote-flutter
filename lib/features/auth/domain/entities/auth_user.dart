@@ -6,6 +6,7 @@ class AuthUser {
   final String? lastName;
   final String? role;
   final String? organizationId;
+  final String? avatarUrl;
 
   const AuthUser({
     required this.id,
@@ -14,6 +15,7 @@ class AuthUser {
     this.lastName,
     this.role,
     this.organizationId,
+    this.avatarUrl,
   });
 
   String get displayName {
@@ -31,6 +33,7 @@ class AuthUser {
     String? lastName,
     String? role,
     String? organizationId,
+    String? avatarUrl,
   }) {
     return AuthUser(
       id: id,
@@ -39,6 +42,7 @@ class AuthUser {
       lastName: lastName ?? this.lastName,
       role: role ?? this.role,
       organizationId: organizationId ?? this.organizationId,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
     );
   }
 }

@@ -53,22 +53,23 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final disabled = onPressed == null || isLoading;
 
     final bg = switch (variant) {
-      AppButtonVariant.primary => AppColors.primary,
+      AppButtonVariant.primary => scheme.primary,
       AppButtonVariant.outlined => Colors.transparent,
       AppButtonVariant.danger => AppColors.danger,
       AppButtonVariant.ghost => Colors.transparent,
     };
 
     final fg = switch (variant) {
-      AppButtonVariant.primary => AppColors.inkInverse,
-      AppButtonVariant.outlined => AppColors.primary,
+      AppButtonVariant.primary => scheme.onPrimary,
+      AppButtonVariant.outlined => scheme.primary,
       AppButtonVariant.danger => AppColors.inkInverse,
       AppButtonVariant.ghost =>
-        isDark ? AppColors.darkInk : AppColors.primary,
+        isDark ? AppColors.darkInk : scheme.primary,
     };
 
     Widget content = Row(
@@ -103,7 +104,7 @@ class AppButton extends StatelessWidget {
     final shape = RoundedRectangleBorder(
       borderRadius: AppRadii.rMedium,
       side: variant == AppButtonVariant.outlined
-          ? const BorderSide(color: AppColors.primary, width: 1.4)
+          ? BorderSide(color: scheme.primary, width: 1.4)
           : BorderSide.none,
     );
 

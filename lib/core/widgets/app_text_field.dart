@@ -18,6 +18,8 @@ class AppTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final String? Function(String? value)? validator;
+  final int maxLines;
+  final int? maxLength;
 
   const AppTextField({
     super.key,
@@ -36,6 +38,8 @@ class AppTextField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.validator,
+    this.maxLines = 1,
+    this.maxLength,
   });
 
   @override
@@ -55,6 +59,8 @@ class AppTextField extends StatelessWidget {
           focusNode: focusNode,
           textInputAction: textInputAction,
           validator: validator,
+          maxLines: maxLines,
+          maxLength: maxLength,
           style: Theme.of(context).textTheme.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,

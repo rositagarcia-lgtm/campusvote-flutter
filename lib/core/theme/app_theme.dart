@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../branding/organization_branding.dart';
 import 'app_colors.dart';
 import 'app_dimensions.dart';
 import 'app_typography.dart';
@@ -7,11 +8,15 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData light() {
-    final scheme = const ColorScheme.light(
-      primary: AppColors.primary,
+  /// Tema claro. Si hay branding institucional resuelto, pinta los colores de
+  /// la organización; si no, usa la paleta por defecto de CampusVote.
+  static ThemeData light({OrganizationBranding? branding}) {
+    final primary = branding?.primaryColor;
+    final secondary = branding?.secondaryColor;
+    final scheme = ColorScheme.light(
+      primary: primary ?? AppColors.primary,
       onPrimary: AppColors.inkInverse,
-      secondary: AppColors.accent,
+      secondary: secondary ?? AppColors.accent,
       onSecondary: AppColors.ink,
       surface: AppColors.surface,
       onSurface: AppColors.ink,
@@ -22,11 +27,13 @@ class AppTheme {
     return _build(scheme, AppColors.background, AppColors.ink, Brightness.light);
   }
 
-  static ThemeData dark() {
-    final scheme = const ColorScheme.dark(
-      primary: AppColors.primaryLighter,
+  static ThemeData dark({OrganizationBranding? branding}) {
+    final primary = branding?.primaryColor;
+    final secondary = branding?.secondaryColor;
+    final scheme = ColorScheme.dark(
+      primary: primary ?? AppColors.primaryLighter,
       onPrimary: AppColors.darkInkInverse,
-      secondary: AppColors.accent,
+      secondary: secondary ?? AppColors.accent,
       onSecondary: AppColors.darkInk,
       surface: AppColors.darkSurface,
       onSurface: AppColors.darkInk,
@@ -101,9 +108,9 @@ class AppTheme {
                 : AppColors.border,
           ),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderRadius: AppRadii.rMedium,
-          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: BorderSide(color: scheme.primary, width: 1.5),
         ),
         errorBorder: const OutlineInputBorder(
           borderRadius: AppRadii.rMedium,
@@ -117,8 +124,8 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.inkInverse,
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
           minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
           shape: const RoundedRectangleBorder(borderRadius: AppRadii.rMedium),
           textStyle: textTheme.titleSmall,
@@ -126,16 +133,16 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: scheme.primary,
           minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
-          side: const BorderSide(color: AppColors.primary, width: 1.4),
+          side: BorderSide(color: scheme.primary, width: 1.4),
           shape: const RoundedRectangleBorder(borderRadius: AppRadii.rMedium),
           textStyle: textTheme.titleSmall,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: scheme.primary,
           textStyle: textTheme.titleSmall,
         ),
       ),

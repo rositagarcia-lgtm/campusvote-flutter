@@ -39,6 +39,12 @@ final loginUseCaseProvider =
 final verifyLoginTotpUseCaseProvider =
     Provider((ref) => VerifyLoginTotpUseCase(ref.watch(authRepositoryProvider)));
 
+final requestEmailLoginUseCaseProvider =
+    Provider((ref) => RequestEmailLoginUseCase(ref.watch(authRepositoryProvider)));
+
+final verifyEmailLoginUseCaseProvider =
+    Provider((ref) => VerifyEmailLoginUseCase(ref.watch(authRepositoryProvider)));
+
 final refreshTokenUseCaseProvider =
     Provider((ref) => RefreshTokenUseCase(ref.watch(authRepositoryProvider)));
 
@@ -61,3 +67,9 @@ final verifyAndEnableTotpUseCaseProvider = Provider(
 );
 final disableTotpUseCaseProvider =
     Provider((ref) => DisableTotpUseCase(ref.watch(authRepositoryProvider)));
+
+final updateAvatarUseCaseProvider =
+    Provider((ref) => UpdateAvatarUseCase(ref.watch(authRepositoryProvider)));
+
+final updateProfileUseCaseProvider =
+    Provider((ref) => UpdateProfileUseCase(ref.watch(authRepositoryProvider)));
