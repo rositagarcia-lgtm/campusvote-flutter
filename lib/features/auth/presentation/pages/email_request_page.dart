@@ -94,10 +94,11 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                         child: AuthHeader(
                           accent: accent,
                           icon: Icons.school_rounded,
-                          overline: 'Panel del Estudiante',
-                          title: 'Ingresa con tu correo',
+                          overline: 'Acceso estudiantil',
+                          title: 'Identifica tu cuenta',
                           subtitle:
-                              'Te enviaremos un código de 6 dígitos. No necesitas contraseña.',
+                              'Usa tu correo institucional y recibe un código de acceso de un solo uso.',
+                          logoSize: 120,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl),
@@ -109,8 +110,8 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               AppTextField(
-                                label: 'Correo institucional',
-                                hint: 'tu.correo@universidad.edu',
+                                label: 'Correo institucional del estudiante',
+                                hint: 'nombre.apellido@universidad.edu',
                                 keyboardType: TextInputType.emailAddress,
                                 controller: _emailCtrl,
                                 enabled: !state.submitting,
@@ -121,7 +122,11 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                               ),
                               if (error != null) ...[
                                 const SizedBox(height: AppSpacing.l),
-                                AuthErrorBanner(message: error),
+                                AuthErrorBanner(
+                                  message: error,
+                                  title: 'No se pudo enviar el código',
+                                  icon: Icons.mark_email_unread_outlined,
+                                ),
                               ],
                               const SizedBox(height: AppSpacing.l),
                               const AuthInfoNote(
@@ -137,7 +142,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                       FadeSlide(
                         delay: const Duration(milliseconds: 220),
                         child: AppButton(
-                          label: 'Enviar código',
+                          label: 'Recibir código de acceso',
                           icon: Icons.mark_email_unread_outlined,
                           isLoading: state.submitting,
                           onPressed: state.submitting ? null : _submit,
@@ -151,7 +156,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                               ? null
                               : () => context.go('/auth/jury/login'),
                           child: const Text(
-                              '¿Eres jurado? Ingresa con contraseña'),
+                              'Acceso para jurado · usar contraseña'),
                         ),
                       ),
                     ],

@@ -20,6 +20,7 @@ class AuthHeader extends StatelessWidget {
     required this.overline,
     required this.title,
     required this.subtitle,
+    this.logoSize = 112,
   });
 
   final Color accent;
@@ -27,6 +28,7 @@ class AuthHeader extends StatelessWidget {
   final String overline;
   final String title;
   final String subtitle;
+  final double logoSize;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class AuthHeader extends StatelessWidget {
           image: true,
           label: 'Logo de CampusVote',
           // Pre-login la identidad es la de CampusVote, no la del tenant.
-          child: AppLogo.asset(size: 80),
+          child: AppLogo.asset(size: logoSize),
         ),
         const SizedBox(height: AppSpacing.l),
         Row(
@@ -116,9 +118,16 @@ class AuthFormCard extends StatelessWidget {
 
 /// Mensaje de error inline con franja lateral.
 class AuthErrorBanner extends StatelessWidget {
-  const AuthErrorBanner({super.key, required this.message});
+  const AuthErrorBanner({
+    super.key,
+    required this.message,
+    this.title = 'Revisa la información',
+    this.icon = Icons.error_outline_rounded,
+  });
 
   final String message;
+  final String title;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +136,7 @@ class AuthErrorBanner extends StatelessWidget {
 
     return Semantics(
       liveRegion: true,
+      label: '$title: $message',
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
@@ -144,17 +154,30 @@ class AuthErrorBanner extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.error_outline_rounded,
+                      Icon(icon,
                           color: AppColors.danger,
                           size: AppDimensions.iconMedium),
                       const SizedBox(width: AppSpacing.s),
                       Expanded(
-                        child: Text(
-                          message,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.danger,
-                            height: 1.4,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: AppColors.danger,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              message,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppColors.danger,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

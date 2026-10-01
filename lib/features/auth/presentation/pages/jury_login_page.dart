@@ -121,10 +121,11 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                         child: AuthHeader(
                           accent: accent,
                           icon: Icons.gavel_rounded,
-                          overline: 'Panel del jurado',
-                          title: 'Inicia sesión',
+                          overline: 'Acceso de evaluación',
+                          title: 'Portal del jurado',
                           subtitle:
-                              'Usa el correo y la contraseña que el administrador te envió.',
+                              'Ingresa con las credenciales institucionales asignadas por el administrador.',
+                          logoSize: 112,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl),
@@ -136,7 +137,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               AppTextField(
-                                label: 'Correo institucional',
+                                label: 'Correo del jurado',
                                 hint: 'jurado@universidad.edu',
                                 keyboardType: TextInputType.emailAddress,
                                 controller: _emailCtrl,
@@ -147,8 +148,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                               ),
                               const SizedBox(height: AppSpacing.l),
                               AppTextField(
-                                label: 'Contraseña',
-                                hint: '••••••••',
+                                label: 'Contraseña institucional',
+                                hint: 'Escribe tu contraseña',
                                 obscureText: _obscurePassword,
                                 controller: _passwordCtrl,
                                 focusNode: _passwordFocus,
@@ -175,7 +176,15 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                               ),
                               if (message != null) ...[
                                 const SizedBox(height: AppSpacing.l),
-                                AuthErrorBanner(message: message),
+                                AuthErrorBanner(
+                                  message: message,
+                                  title: _wrongRole
+                                      ? 'Cuenta no autorizada'
+                                      : 'No se pudo abrir el acceso',
+                                  icon: _wrongRole
+                                      ? Icons.gavel_outlined
+                                      : Icons.lock_outline_rounded,
+                                ),
                               ],
                               const SizedBox(height: AppSpacing.l),
                               const JurySecurityNote(),
@@ -187,7 +196,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                       FadeSlide(
                         delay: const Duration(milliseconds: 220),
                         child: AppButton(
-                          label: 'Ingresar al panel',
+                          label: 'Entrar al panel de evaluación',
                           icon: Icons.login_rounded,
                           isLoading: state.submitting,
                           onPressed: state.submitting ? null : _submit,
@@ -200,7 +209,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                           onPressed: state.submitting
                               ? null
                               : () => context.go('/auth/email-request'),
-                          child: const Text('¿Eres estudiante? Pide un código'),
+                          child: const Text(
+                              'Acceso para estudiante · recibir código'),
                         ),
                       ),
                     ],
