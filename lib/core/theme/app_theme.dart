@@ -13,11 +13,13 @@ class AppTheme {
   static ThemeData light({OrganizationBranding? branding}) {
     final primary = branding?.primaryColor;
     final secondary = branding?.secondaryColor;
+    final resolvedPrimary = primary ?? AppColors.primary;
+    final resolvedSecondary = secondary ?? AppColors.accent;
     final scheme = ColorScheme.light(
-      primary: primary ?? AppColors.primary,
-      onPrimary: AppColors.inkInverse,
-      secondary: secondary ?? AppColors.accent,
-      onSecondary: AppColors.ink,
+      primary: resolvedPrimary,
+      onPrimary: _onColor(resolvedPrimary),
+      secondary: resolvedSecondary,
+      onSecondary: _onColor(resolvedSecondary),
       surface: AppColors.surface,
       onSurface: AppColors.ink,
       error: AppColors.danger,
@@ -31,11 +33,13 @@ class AppTheme {
   static ThemeData dark({OrganizationBranding? branding}) {
     final primary = branding?.primaryColor;
     final secondary = branding?.secondaryColor;
+    final resolvedPrimary = primary ?? AppColors.primaryLighter;
+    final resolvedSecondary = secondary ?? AppColors.accent;
     final scheme = ColorScheme.dark(
-      primary: primary ?? AppColors.primaryLighter,
-      onPrimary: AppColors.darkInkInverse,
-      secondary: secondary ?? AppColors.accent,
-      onSecondary: AppColors.darkInk,
+      primary: resolvedPrimary,
+      onPrimary: _onColor(resolvedPrimary),
+      secondary: resolvedSecondary,
+      onSecondary: _onColor(resolvedSecondary),
       surface: AppColors.darkSurface,
       onSurface: AppColors.darkInk,
       error: AppColors.danger,
@@ -45,6 +49,9 @@ class AppTheme {
     return _build(
         scheme, AppColors.darkBackground, AppColors.darkInk, Brightness.dark);
   }
+
+  static Color _onColor(Color color) =>
+      color.computeLuminance() > 0.52 ? AppColors.ink : AppColors.inkInverse;
 
   static ThemeData _build(
     ColorScheme scheme,

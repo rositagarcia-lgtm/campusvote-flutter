@@ -60,7 +60,10 @@ abstract class AuthRepository {
 
   Future<Result<TotpEnableResult>> verifyAndEnableTotp(String code);
 
-  Future<Result<void>> disableTotp({required String password});
+  Future<Result<void>> disableTotp({
+    required String password,
+    required String code,
+  });
 
   /// Cambio de contraseña del usuario autenticado.
   Future<Result<void>> changeMyPassword({

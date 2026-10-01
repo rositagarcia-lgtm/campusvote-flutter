@@ -35,17 +35,26 @@ class TeacherEvaluationSuccessPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  color: context.brandPrimarySoft,
-                  shape: BoxShape.circle,
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.7, end: 1),
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeOutBack,
+                builder: (context, scale, child) => Transform.scale(
+                  scale: scale,
+                  child: child,
                 ),
-                child: Icon(
-                  Icons.check_circle_rounded,
-                  size: 72,
-                  color: context.brandPrimary,
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: context.brandPrimarySoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check_circle_rounded,
+                    size: 72,
+                    color: context.brandPrimary,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),

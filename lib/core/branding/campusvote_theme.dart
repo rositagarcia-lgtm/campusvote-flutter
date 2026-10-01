@@ -27,14 +27,16 @@ class CampusVoteTheme extends StatelessWidget {
   Widget build(BuildContext context) {
     // El dorado es claro: necesita tinta oscura encima, el verde no.
     final onAccent =
-        accent == AppColors.accent ? AppColors.ink : AppColors.inkInverse;
+        accent.computeLuminance() > 0.52 ? AppColors.ink : AppColors.inkInverse;
     final scheme = Theme.of(context).colorScheme;
 
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: scheme.copyWith(
           primary: AppColors.primary,
-          onPrimary: AppColors.inkInverse,
+          onPrimary: AppColors.primary.computeLuminance() > 0.52
+              ? AppColors.ink
+              : AppColors.inkInverse,
           secondary: AppColors.accent,
           onSecondary: AppColors.ink,
         ),

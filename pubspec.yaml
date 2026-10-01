@@ -38,6 +38,7 @@ dependencies:
   # Utilidades
   intl: ^0.20.0
   crypto: ^3.0.6
+  video_player: ^2.9.2
 
 dev_dependencies:
   flutter_test:
@@ -51,5 +52,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
+    - assets/video-campusvote.mp4
     - assets/branding/
     - assets/branding/organizations/

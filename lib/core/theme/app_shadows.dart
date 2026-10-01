@@ -31,6 +31,14 @@ class AppShadows {
       ];
 
   static List<BoxShadow> get none => const [];
+
+  static List<BoxShadow> get navigation => const [
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.08),
+          offset: Offset(0, 4),
+          blurRadius: 16,
+        ),
+      ];
 }
 
 extension ShadowedOnWidget on Widget {

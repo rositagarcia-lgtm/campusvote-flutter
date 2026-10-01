@@ -89,7 +89,8 @@ GoRouter buildAppRouter(
         final opensJuryPanel = isJuryPanelPath(loc);
         final opensStudentPanel = loc.startsWith('/teaching');
         final isJury = auth.user?.role == AuthRole.jury;
-        if (opensJuryPanel != isJury && (opensJuryPanel || opensStudentPanel)) {
+        final isStudent = auth.user?.role == AuthRole.student;
+        if ((opensJuryPanel && !isJury) || (opensStudentPanel && !isStudent)) {
           return landingPathForRole(auth.user?.role);
         }
       }

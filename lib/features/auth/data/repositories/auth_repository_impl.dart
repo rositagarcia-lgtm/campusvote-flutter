@@ -128,8 +128,11 @@ class AuthRepositoryImpl implements AuthRepository, AuthRefresher {
       _security.verifyAndEnableTotp(code);
 
   @override
-  Future<Result<void>> disableTotp({required String password}) =>
-      _security.disableTotp(password: password);
+  Future<Result<void>> disableTotp({
+    required String password,
+    required String code,
+  }) =>
+      _security.disableTotp(password: password, code: code);
 
   @override
   Future<Result<void>> changeMyPassword({

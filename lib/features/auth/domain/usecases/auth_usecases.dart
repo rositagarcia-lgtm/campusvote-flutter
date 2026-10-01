@@ -184,14 +184,22 @@ class DisableTotpUseCase {
   DisableTotpUseCase(this._repo);
   final AuthRepository _repo;
 
-  Future<Result<void>> call({required String password}) {
+  Future<Result<void>> call({
+    required String password,
+    required String code,
+  }) {
     if (password.isEmpty) {
       return Future.value(const FailureResult(
         ValidationFailure(
             message: 'La contraseña es obligatoria para deshabilitar 2FA'),
       ));
     }
-    return _repo.disableTotp(password: password);
+    if (!RegExp(r'^\d{6}$').hasMatch(code.trim())) {
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'El código TOTP debe tener 6 dígitos'),
+      ));
+    }
+    return _repo.disableTotp(password: password, code: code.trim());
   }
 }
 

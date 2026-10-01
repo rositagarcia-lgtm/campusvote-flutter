@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -6,11 +7,21 @@ import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 
 /// Diálogo de confirmación para deshabilitar 2FA (incluye input de contraseña).
+class TotpDisableCredentials {
+  final String password;
+  final String code;
+
+  const TotpDisableCredentials({
+    required this.password,
+    required this.code,
+  });
+}
+
 class DisableTotpDialog extends StatefulWidget {
   const DisableTotpDialog({super.key});
 
-  static Future<bool?> show(BuildContext context) {
-    return showDialog<bool>(
+  static Future<TotpDisableCredentials?> show(BuildContext context) {
+    return showDialog<TotpDisableCredentials>(
       context: context,
       builder: (_) => const DisableTotpDialog(),
     );
@@ -22,10 +33,12 @@ class DisableTotpDialog extends StatefulWidget {
 
 class _DisableTotpDialogState extends State<DisableTotpDialog> {
   final _passwordCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController();
 
   @override
   void dispose() {
     _passwordCtrl.dispose();
+    _codeCtrl.dispose();
     super.dispose();
   }
 
@@ -39,8 +52,8 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Confirma con tu contraseña para deshabilitar la verificación '
-            'en dos pasos.',
+            'Confirma con tu contraseña y el código actual para deshabilitar '
+            'la verificación en dos pasos.',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.m),
@@ -53,6 +66,19 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
               prefixIcon: Icon(Icons.lock_outline_rounded),
             ),
           ),
+          const SizedBox(height: AppSpacing.m),
+          TextField(
+            controller: _codeCtrl,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(6),
+            ],
+            decoration: const InputDecoration(
+              labelText: 'Código TOTP actual',
+              prefixIcon: Icon(Icons.pin_outlined),
+            ),
+          ),
           const SizedBox(height: AppSpacing.s),
           const NoticeBanner(
             tone: AppTone.warning,
@@ -62,13 +88,18 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancelar'),
         ),
         AppButton.danger(
           label: 'Deshabilitar',
           expand: false,
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: () => Navigator.of(context).pop(
+            TotpDisableCredentials(
+              password: _passwordCtrl.text,
+              code: _codeCtrl.text,
+            ),
+          ),
         ),
       ],
     );

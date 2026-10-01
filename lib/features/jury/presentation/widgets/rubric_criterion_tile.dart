@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 
@@ -30,10 +31,17 @@ class RubricCriterionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final border = theme.brightness == Brightness.dark
+        ? AppColors.darkBorder
+        : AppColors.border;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.s),
       child: Material(
         color: value ? context.brandPrimarySoft : theme.colorScheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadii.rMedium,
+          side: BorderSide(color: border),
+        ),
         borderRadius: AppRadii.rMedium,
         child: InkWell(
           borderRadius: AppRadii.rMedium,

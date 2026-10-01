@@ -74,11 +74,14 @@ class AuthSecurityDataSource {
     }
   }
 
-  Future<Result<void>> disableTotp({required String password}) async {
+  Future<Result<void>> disableTotp({
+    required String password,
+    required String code,
+  }) async {
     try {
       final res = await _client.post(
         ApiEndpoints.totpDisable,
-        body: {'password': password},
+        body: {'password': password, 'code': code},
       );
       final r = ApiResponse<Map<String, dynamic>>.fromJson(
         _asMap(res.data),

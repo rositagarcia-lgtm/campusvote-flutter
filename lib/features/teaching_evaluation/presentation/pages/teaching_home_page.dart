@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../domain/entities/teaching_assignment.dart';
@@ -74,7 +75,8 @@ class _Body extends ConsumerWidget {
       );
     }
 
-    final pending = state.pending;
+    final pending = state.pending.where((a) => a.isActive).toList();
+    final unavailable = state.pending.where((a) => !a.isActive).toList();
     final done = state.done;
     final branding = ref.watch(brandingControllerProvider);
 
@@ -100,6 +102,14 @@ class _Body extends ConsumerWidget {
               subtitle: 'Tu opinión suma a la mejora de la enseñanza',
             ),
             for (final a in pending) _AssignmentCard(assignment: a),
+          ],
+          if (unavailable.isNotEmpty) ...[
+            if (pending.isNotEmpty) const SizedBox(height: AppSpacing.l),
+            const _SectionHeader(
+              title: 'No disponibles',
+              subtitle: 'Estas asignaciones no están activas en este periodo.',
+            ),
+            for (final a in unavailable) _AssignmentCard(assignment: a),
           ],
           if (done.isNotEmpty) ...[
             if (pending.isNotEmpty) const SizedBox(height: AppSpacing.l),
@@ -155,9 +165,10 @@ class _AssignmentCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: Material(
-        color: theme.colorScheme.surface,
-        borderRadius: AppRadii.rMedium,
+      child: AppCard(
+        padding: EdgeInsets.zero,
+        bordered: true,
+        elevated: enabled,
         child: InkWell(
           borderRadius: AppRadii.rMedium,
           onTap: enabled
@@ -226,10 +237,15 @@ class _AssignmentCard extends StatelessWidget {
                         Icons.check_circle_rounded,
                         color: AppColors.success,
                       )
-                    : Icon(
-                        Icons.chevron_right_rounded,
-                        color: theme.textTheme.bodySmall?.color,
-                      ),
+                    : !assignment.isActive
+                        ? Icon(
+                            Icons.lock_outline_rounded,
+                            color: theme.textTheme.bodySmall?.color,
+                          )
+                        : Icon(
+                            Icons.chevron_right_rounded,
+                            color: theme.textTheme.bodySmall?.color,
+                          ),
               ],
             ),
           ),
