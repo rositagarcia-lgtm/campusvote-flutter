@@ -32,9 +32,10 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
 
   Future<void> _onDisableTotp() async {
     final ok = await DisableTotpDialog.show(context);
-    if (ok != true) return;
+    if (ok == null) return;
     final result = await ref.read(disableTotpUseCaseProvider)(
-      password: '',
+      password: ok.password,
+      code: ok.code,
     );
     if (!mounted) return;
     result.when(

@@ -34,4 +34,5 @@ class AppDimensions {
   static const double touchTarget = 44;
   static const double inputHeight = 52;
   static const double buttonHeight = 52;
+  static const double brandLogoLarge = 128;
 }

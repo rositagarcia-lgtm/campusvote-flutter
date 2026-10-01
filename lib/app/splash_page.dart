@@ -6,14 +6,34 @@ import '../core/branding/branding_controller.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/widgets/fade_slide.dart';
+import 'splash_intro_video.dart';
 import 'splash_widgets.dart';
 
 /// Bienvenida y selección del flujo de acceso según el rol.
-class SplashPage extends ConsumerWidget {
+class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends ConsumerState<SplashPage> {
+  static bool _introCompleted = false;
+  bool _showWelcome = _introCompleted;
+
+  void _showWelcomePage() {
+    if (mounted && !_showWelcome) {
+      _introCompleted = true;
+      setState(() => _showWelcome = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_showWelcome) {
+      return SplashIntroVideo(onFinished: _showWelcomePage);
+    }
+
     final branding = ref.watch(brandingControllerProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
