@@ -26,14 +26,17 @@ class FairProjectsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projects = ref.watch(fairProjectsProvider(fairId));
-    void reload() => ref.invalidate(fairProjectsProvider(fairId));
+    Future<void> reload() async {
+      ref.invalidate(fairProjectsProvider(fairId));
+      await ref.read(fairProjectsProvider(fairId).future);
+    }
 
     return Scaffold(
       // Progreso, votar y resultados viven ahora en la barra de accesos del
       // cuerpo, con etiqueta visible, en lugar de tres íconos sin texto.
       appBar: buildCampusVoteAppBar(context, title: 'Proyectos'),
       body: RefreshIndicator(
-        onRefresh: () async => reload(),
+        onRefresh: reload,
         child: _bodyFor(fairId, projects, reload),
       ),
     );

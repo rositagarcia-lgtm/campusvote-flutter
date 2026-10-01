@@ -34,8 +34,11 @@ class FairCard extends StatelessWidget {
     final site = fair.siteName;
 
     return Semantics(
-      button: true,
-      label: '${fair.name}. $status. Ver proyectos de tu categoría',
+      button: enabled,
+      enabled: enabled,
+      label: enabled
+          ? '${fair.name}. $status. Ver proyectos de tu categoría'
+          : '${fair.name}. $status. Esta feria no está disponible',
       child: Material(
         color: theme.colorScheme.surface,
         elevation: 0,
@@ -45,7 +48,8 @@ class FairCard extends StatelessWidget {
           side: BorderSide(color: appBorder(isDark)),
         ),
         child: InkWell(
-          onTap: () => context.push('/jury/fair/${fair.fairId}'),
+          onTap:
+              enabled ? () => context.push('/jury/fair/${fair.fairId}') : null,
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -111,21 +115,45 @@ class FairCard extends StatelessWidget {
                         Divider(
                             height: 1, thickness: 1, color: appBorder(isDark)),
                         const SizedBox(height: AppSpacing.m),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Ver proyectos de tu categoría',
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: accent,
-                                  fontWeight: FontWeight.w700,
+                        if (enabled)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Ver proyectos de tu categoría',
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: accent,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Icon(Icons.arrow_forward_rounded,
-                                size: AppDimensions.iconMedium, color: accent),
-                          ],
-                        ),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: AppDimensions.iconMedium,
+                                color: accent,
+                              ),
+                            ],
+                          )
+                        else
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.lock_outline_rounded,
+                                size: AppDimensions.iconMedium,
+                                color: muted,
+                              ),
+                              const SizedBox(width: AppSpacing.s),
+                              Expanded(
+                                child: Text(
+                                  'Esta feria no está disponible',
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: muted,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),

@@ -19,7 +19,6 @@ import '../../features/jury/presentation/pages/fair_projects_page.dart';
 import '../../features/jury/presentation/pages/jury_dashboard_page.dart';
 import '../../features/jury/presentation/pages/jury_declaration_page.dart';
 import '../../features/jury/presentation/pages/jury_progress_page.dart';
-import '../../features/jury/presentation/pages/jury_results_page.dart';
 import '../../features/jury/presentation/pages/rubric_evaluation_page.dart';
 import '../../features/jury/presentation/pages/voting_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
@@ -184,11 +183,6 @@ GoRouter buildAppRouter(
                 path: 'vote',
                 builder: (_, s) =>
                     VotingPage(fairId: s.pathParameters['fairId']!),
-              ),
-              GoRoute(
-                path: 'results',
-                builder: (_, s) =>
-                    JuryResultsPage(fairId: s.pathParameters['fairId']!),
               ),
             ],
           ),
