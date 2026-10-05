@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/jury_progress_bar.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury/fair/:fairId/progress` — avance del jurado y su declaración.
 ///
@@ -30,7 +31,8 @@ class JuryProgressPage extends ConsumerWidget {
     final reload = ref.read(juryProgressProvider(fairId).notifier).reload;
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Mi progreso'),
+      appBar: buildCampusVoteAppBar(context,
+          title: SettingsCopy.of(context).t('Mi progreso')),
       body: RefreshIndicator(
         onRefresh: reload,
         child: _bodyFor(fairId, progress, reload),
@@ -69,6 +71,7 @@ class _ProgressBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final signed = progress.declaration != null;
+    final text = SettingsCopy.of(context);
 
     return PageScrollBody(
       // Siempre desplazable para que el pull-to-refresh funcione con poco
@@ -94,7 +97,7 @@ class _ProgressBody extends StatelessWidget {
               completed: progress.completedProjects,
               total: progress.totalProjects,
               percentage: progress.progressPercentage,
-              label: 'Evaluaciones finalizadas',
+              label: text.t('Evaluaciones finalizadas'),
             ),
           ),
           const SizedBox(height: AppSpacing.m),
@@ -102,8 +105,10 @@ class _ProgressBody extends StatelessWidget {
             icon: progress.hasVoted
                 ? Icons.how_to_vote_rounded
                 : Icons.pending_actions_rounded,
-            title: 'Votación',
-            value: progress.hasVoted ? 'Voto emitido' : 'Pendiente',
+            title: text.t('Votación'),
+            value: progress.hasVoted
+                ? text.t('Voto emitido')
+                : text.t('Pendiente'),
             done: progress.hasVoted,
           ),
           const SizedBox(height: AppSpacing.s),
@@ -111,13 +116,13 @@ class _ProgressBody extends StatelessWidget {
             icon: signed
                 ? Icons.assignment_turned_in_rounded
                 : Icons.assignment_rounded,
-            title: 'Declaración de jurado',
-            value: signed ? 'Firmada' : 'Sin firmar',
+            title: text.t('Declaración de jurado'),
+            value: signed ? text.t('Firmada') : text.t('Sin firmar'),
             done: signed,
           ),
           if (signed) ...[
             const SizedBox(height: AppSpacing.l),
-            const SectionHeader(label: 'Declaración registrada'),
+            SectionHeader(label: text.t('Declaración registrada')),
             AppCard(
               child: Text(
                 progress.declaration!.statement,
@@ -127,8 +132,9 @@ class _ProgressBody extends StatelessWidget {
           ],
           const SizedBox(height: AppSpacing.l),
           AppButton.outlined(
-            label:
-                signed ? 'Ver mi declaración' : 'Firmar declaración de jurado',
+            label: signed
+                ? text.t('Ver mi declaración')
+                : text.t('Firmar declaración de jurado'),
             icon: signed ? Icons.description_outlined : Icons.draw_outlined,
             onPressed: () => context.push('/jury/fair/$fairId/declaration'),
           ),

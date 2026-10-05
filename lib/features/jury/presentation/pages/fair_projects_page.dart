@@ -13,6 +13,7 @@ import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/fair_projects_widgets.dart';
 import '../widgets/project_card.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury/fair/:fairId` — proyectos de la feria.
 ///
@@ -31,16 +32,18 @@ class FairProjectsPage extends ConsumerWidget {
     return Scaffold(
       // Progreso, votar y resultados viven ahora en la barra de accesos del
       // cuerpo, con etiqueta visible, en lugar de tres íconos sin texto.
-      appBar: buildCampusVoteAppBar(context, title: 'Proyectos'),
+      appBar: buildCampusVoteAppBar(context,
+          title: SettingsCopy.of(context).t('Proyectos')),
       body: RefreshIndicator(
         onRefresh: () async => reload(),
-        child: _bodyFor(fairId, projects, reload),
+        child: _bodyFor(context, fairId, projects, reload),
       ),
     );
   }
 }
 
 Widget _bodyFor(
+  BuildContext context,
   String fairId,
   AsyncValue<List<FairProjectModel>> projects,
   VoidCallback onRetry,
@@ -55,9 +58,10 @@ Widget _bodyFor(
       );
     case AsyncData(:final value):
       if (value.isEmpty) {
-        return const AppEmptyView(
+        return AppEmptyView(
           icon: Icons.inventory_2_outlined,
-          message: 'No tienes proyectos aprobados para evaluar en esta feria.',
+          message: SettingsCopy.of(context)
+              .t('No tienes proyectos aprobados para evaluar en esta feria.'),
         );
       }
       return _ProjectsList(fairId: fairId, projects: value);
@@ -97,7 +101,9 @@ class _ProjectsList extends ConsumerWidget {
             child: FairActionsBar(fairId: fairId),
           ),
           const SizedBox(height: AppSpacing.xl),
-          SectionHeader(label: 'Proyectos', count: projects.length),
+          SectionHeader(
+              label: SettingsCopy.of(context).t('Proyectos'),
+              count: projects.length),
           for (var i = 0; i < projects.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.m),

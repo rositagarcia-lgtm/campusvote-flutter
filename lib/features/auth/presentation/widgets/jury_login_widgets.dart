@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'auth_form_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Nota informativa sobre la verificación de seguridad en dos pasos del jurado.
 ///
@@ -12,10 +13,10 @@ class JurySecurityNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AuthInfoNote(
+    return AuthInfoNote(
       icon: Icons.shield_outlined,
-      text:
-          'Por seguridad, te pediremos un código enviado a tu correo antes de entrar.',
+      text: SettingsCopy.of(context).t(
+          'Por seguridad, te pediremos un código enviado a tu correo antes de entrar.'),
     );
   }
 }

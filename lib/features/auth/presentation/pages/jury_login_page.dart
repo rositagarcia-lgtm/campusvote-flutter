@@ -13,6 +13,7 @@ import '../../../../core/widgets/fade_slide.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
 import '../widgets/jury_login_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Acceso del JURADO: correo + contraseña.
 ///
@@ -80,8 +81,10 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
 
   String? _validateEmail(String? value) {
     final v = (value ?? '').trim();
-    if (v.isEmpty) return 'Escribe tu correo';
-    if (!_emailPattern.hasMatch(v)) return 'Escribe un correo válido';
+    if (v.isEmpty) return SettingsCopy.of(context).t('Escribe tu correo');
+    if (!_emailPattern.hasMatch(v)) {
+      return SettingsCopy.of(context).t('Escribe un correo válido');
+    }
     return null;
   }
 
@@ -91,8 +94,10 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = isDark ? AppColors.accentLight : AppColors.accent;
+    final text = SettingsCopy.of(context);
     final message = _wrongRole
-        ? 'Esa cuenta no pertenece al panel del jurado. Entra desde el panel de estudiante.'
+        ? text.t(
+            'Esa cuenta no pertenece al panel del jurado. Entra desde el panel de estudiante.')
         : state.errorMessage;
 
     return CampusVoteTheme(
@@ -121,10 +126,10 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                         child: AuthHeader(
                           accent: accent,
                           icon: Icons.gavel_rounded,
-                          overline: 'Acceso de evaluación',
-                          title: 'Portal del jurado',
-                          subtitle:
-                              'Ingresa con las credenciales institucionales asignadas por el administrador.',
+                          overline: text.t('Acceso de evaluación'),
+                          title: text.t('Portal del jurado'),
+                          subtitle: text.t(
+                              'Ingresa con las credenciales institucionales asignadas por el administrador.'),
                           logoSize: 112,
                         ),
                       ),
@@ -137,8 +142,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               AppTextField(
-                                label: 'Correo del jurado',
-                                hint: 'jurado@universidad.edu',
+                                label: text.t('Correo del jurado'),
+                                hint: text.t('jurado@universidad.edu'),
                                 keyboardType: TextInputType.emailAddress,
                                 controller: _emailCtrl,
                                 enabled: !state.submitting,
@@ -148,8 +153,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                               ),
                               const SizedBox(height: AppSpacing.l),
                               AppTextField(
-                                label: 'Contraseña institucional',
-                                hint: 'Escribe tu contraseña',
+                                label: text.t('Contraseña institucional'),
+                                hint: text.t('Escribe tu contraseña'),
                                 obscureText: _obscurePassword,
                                 controller: _passwordCtrl,
                                 focusNode: _passwordFocus,
@@ -159,8 +164,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                                 prefixIcon: Icons.lock_outline_rounded,
                                 suffix: IconButton(
                                   tooltip: _obscurePassword
-                                      ? 'Mostrar contraseña'
-                                      : 'Ocultar contraseña',
+                                      ? text.t('Mostrar contraseña')
+                                      : text.t('Ocultar contraseña'),
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_outlined
@@ -171,7 +176,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                                       _obscurePassword = !_obscurePassword),
                                 ),
                                 validator: (value) => (value ?? '').isEmpty
-                                    ? 'Escribe tu contraseña'
+                                    ? text.t('Escribe tu contraseña')
                                     : null,
                               ),
                               if (message != null) ...[
@@ -179,8 +184,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                                 AuthErrorBanner(
                                   message: message,
                                   title: _wrongRole
-                                      ? 'Cuenta no autorizada'
-                                      : 'No se pudo abrir el acceso',
+                                      ? text.t('Cuenta no autorizada')
+                                      : text.t('No se pudo abrir el acceso'),
                                   icon: _wrongRole
                                       ? Icons.gavel_outlined
                                       : Icons.lock_outline_rounded,
@@ -196,7 +201,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                       FadeSlide(
                         delay: const Duration(milliseconds: 220),
                         child: AppButton(
-                          label: 'Entrar al panel de evaluación',
+                          label: text.t('Entrar al panel de evaluación'),
                           icon: Icons.login_rounded,
                           isLoading: state.submitting,
                           onPressed: state.submitting ? null : _submit,
@@ -209,8 +214,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                           onPressed: state.submitting
                               ? null
                               : () => context.go('/auth/email-request'),
-                          child: const Text(
-                              'Acceso para estudiante · recibir código'),
+                          child: Text(text
+                              .t('Acceso para estudiante · recibir código')),
                         ),
                       ),
                     ],

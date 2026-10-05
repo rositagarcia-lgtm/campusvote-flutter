@@ -5,6 +5,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../data/models/jury_models.dart';
 import 'project_status_chip.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Tarjeta de proyecto: logo, nombre, descripción, metadatos y acción.
 class ProjectCard extends StatelessWidget {
@@ -24,7 +25,8 @@ class ProjectCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: '${project.name}. Evaluar con rúbrica',
+      label:
+          '${project.name}. ${SettingsCopy.of(context).t('Evaluar con rúbrica')}',
       child: Material(
         color: theme.colorScheme.surface,
         elevation: 0,
@@ -93,7 +95,7 @@ class ProjectCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Evaluar con rúbrica',
+                        SettingsCopy.of(context).t('Evaluar con rúbrica'),
                         style: theme.textTheme.labelLarge?.copyWith(
                           color: accent,
                           fontWeight: FontWeight.w700,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Cuenta regresiva hasta el cierre de la votación.
 ///
@@ -63,6 +64,7 @@ class _VotingCountdownState extends State<VotingCountdown> {
     final startsAt = widget.startsAt;
     final startsIn = startsAt?.difference(DateTime.now());
     final pending = startsIn != null && !startsIn.isNegative;
+    final text = SettingsCopy.of(context);
 
     final days = _remaining.inDays;
     final hours = _remaining.inHours % 24;
@@ -97,11 +99,11 @@ class _VotingCountdownState extends State<VotingCountdown> {
           Expanded(
             child: Text(
               pending
-                  ? 'La votación abre en ${_format(startsIn)}'
+                  ? text.openingIn(startsIn)
                   : closed
-                      ? 'La votación de esta feria ya cerró'
-                      : 'Cierra en ${days > 0 ? '${days}d ' : ''}'
-                          '${_pad(hours)}:${_pad(minutes)}:${_pad(seconds)}',
+                      ? text.t('La votación de esta feria ya cerró')
+                      : text.closingIn('${days > 0 ? '${days}d ' : ''}'
+                          '${_pad(hours)}:${_pad(minutes)}:${_pad(seconds)}'),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: colors.fg,
@@ -114,10 +116,4 @@ class _VotingCountdownState extends State<VotingCountdown> {
   }
 
   static String _pad(int value) => value.toString().padLeft(2, '0');
-
-  static String _format(Duration d) {
-    if (d.inDays > 0) return '${d.inDays} días';
-    if (d.inHours > 0) return '${d.inHours} h ${d.inMinutes % 60} min';
-    return '${d.inMinutes} min';
-  }
 }

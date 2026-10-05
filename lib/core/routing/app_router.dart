@@ -22,6 +22,7 @@ import '../../features/jury/presentation/pages/jury_progress_page.dart';
 import '../../features/jury/presentation/pages/rubric_evaluation_page.dart';
 import '../../features/jury/presentation/pages/voting_page.dart';
 import '../../features/notifications/notifications_page.dart';
+import '../../features/settings/presentation/settings_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
@@ -122,6 +123,7 @@ GoRouter buildAppRouter(
         redirect: (_, __) => '/auth/jury/login',
       ),
       GoRoute(path: '/account', builder: (_, __) => const AccountPage()),
+      GoRoute(path: '/settings', builder: (_, __) => const SettingsPage()),
       GoRoute(path: '/auth/totp', builder: (_, __) => const TotpPage()),
       GoRoute(
         path: '/security',

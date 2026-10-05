@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../widgets/auth_form_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 class TotpBackupCodesPage extends ConsumerWidget {
   final List<String> backupCodes;
@@ -20,7 +21,7 @@ class TotpBackupCodesPage extends ConsumerWidget {
     await Clipboard.setData(ClipboardData(text: backupCodes.join('\n')));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Códigos copiados')),
+      SnackBar(content: Text(SettingsCopy.of(context).t('Códigos copiados'))),
     );
   }
 
@@ -30,9 +31,11 @@ class TotpBackupCodesPage extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final accent = context.brandPrimary;
     final muted = appMuted(isDark);
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Códigos de respaldo'),
+      appBar:
+          buildCampusVoteAppBar(context, title: text.t('Códigos de respaldo')),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
@@ -43,12 +46,11 @@ class TotpBackupCodesPage extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const NoticeBanner(
+                  NoticeBanner(
                     tone: AppTone.warning,
                     liveRegion: true,
-                    message: 'Guarda estos códigos en un lugar seguro. Los '
-                        'necesitarás si pierdes acceso a tu aplicación '
-                        'autenticadora.',
+                    message: text.t(
+                        'Guarda estos códigos en un lugar seguro. Los necesitarás si pierdes acceso a tu aplicación autenticadora.'),
                   ),
                   const SizedBox(height: AppSpacing.l),
                   AuthFormCard(
@@ -57,7 +59,7 @@ class TotpBackupCodesPage extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'TUS CÓDIGOS · ${backupCodes.length}',
+                          text.backupCodes(backupCodes.length),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: muted,
                             fontWeight: FontWeight.w700,
@@ -84,22 +86,22 @@ class TotpBackupCodesPage extends ConsumerWidget {
                         ),
                         const SizedBox(height: AppSpacing.l),
                         AppButton.outlined(
-                          label: 'Copiar todos',
+                          label: text.t('Copiar todos'),
                           icon: Icons.copy_rounded,
                           onPressed: () => _copyAll(context),
                         ),
                         const SizedBox(height: AppSpacing.l),
-                        const AuthInfoNote(
+                        AuthInfoNote(
                           icon: Icons.lock_outline_rounded,
-                          text:
-                              'Guárdalos fuera de tu teléfono, por ejemplo impresos o en un gestor de contraseñas.',
+                          text: text.t(
+                              'Guárdalos fuera de tu teléfono, por ejemplo impresos o en un gestor de contraseñas.'),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: AppSpacing.l),
                   AppButton(
-                    label: 'He guardado mis códigos',
+                    label: text.t('He guardado mis códigos'),
                     icon: Icons.check_rounded,
                     onPressed: () => context.go('/security'),
                   ),

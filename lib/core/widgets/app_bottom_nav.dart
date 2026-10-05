@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/domain/entities/auth_role.dart';
 import '../../features/auth/presentation/state/auth_controller.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 
@@ -28,18 +29,19 @@ class AppBottomNav extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
+    final text = SettingsCopy.of(context);
     final border = isDark ? AppColors.darkBorder : AppColors.primarySoft;
 
     final items = [
       _NavItem(
         icon: isJury ? Icons.gavel_outlined : Icons.school_outlined,
         selectedIcon: isJury ? Icons.gavel_rounded : Icons.school_rounded,
-        label: 'Mi panel',
+        label: text.t('Mi panel'),
       ),
-      const _NavItem(
+      _NavItem(
         icon: Icons.person_outline_rounded,
         selectedIcon: Icons.person_rounded,
-        label: 'Sobre mí',
+        label: text.t('Sobre mí'),
       ),
     ];
 

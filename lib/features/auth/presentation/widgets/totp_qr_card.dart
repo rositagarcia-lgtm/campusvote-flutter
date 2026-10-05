@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_qr_image.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Tarjeta que muestra el código QR generado por el backend a partir del
 /// secreto TOTP, con la URI de enrolment debajo para copiar a mano.
@@ -25,7 +26,8 @@ class TotpQrCard extends StatelessWidget {
         children: [
           AppQrImage(
             dataUrl: qrCodeDataUrl,
-            semanticsLabel: 'Código QR de configuración de la aplicación 2FA',
+            semanticsLabel: SettingsCopy.of(context)
+                .t('Código QR de configuración de la aplicación 2FA'),
           ),
           const SizedBox(height: AppSpacing.s),
           Text(

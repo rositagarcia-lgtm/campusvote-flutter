@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Decodifica un data URL `data:image/png;base64,...` a bytes de imagen.
 Uint8List? decodeQrDataUrl(String raw) {
@@ -64,7 +65,7 @@ class AppQrImage extends StatelessWidget {
     }
 
     return Semantics(
-      label: semanticsLabel,
+      label: SettingsCopy.of(context).t(semanticsLabel),
       image: true,
       excludeSemantics: true,
       child: Container(
@@ -89,7 +90,7 @@ class AppQrImage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.m),
       child: Text(
-        fallbackLabel,
+        SettingsCopy.of(context).t(fallbackLabel),
         textAlign: TextAlign.center,
         style: theme.textTheme.bodySmall?.copyWith(color: AppColors.inkMuted),
       ),

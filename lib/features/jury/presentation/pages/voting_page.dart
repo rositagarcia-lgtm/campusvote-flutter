@@ -13,6 +13,7 @@ import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
 import '../widgets/voting_widgets.dart';
 import '../../data/models/jury_models.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury/fair/:fairId/vote` — voto anónimo, uno por jurado.
 ///
@@ -39,13 +40,15 @@ class VotingPage extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Votación'),
+      appBar: buildCampusVoteAppBar(context,
+          title: SettingsCopy.of(context).t('Votación')),
       body: state.loading
           ? const AppLoader()
           : !state.statusIsLoaded
               ? AppErrorView(
-                  message:
-                      state.errorMessage ?? 'No se pudo cargar la votación',
+                  message: state.errorMessage ??
+                      SettingsCopy.of(context)
+                          .t('No se pudo cargar la votación'),
                   onRetry: controller.load,
                 )
               : _VotingBody(
@@ -76,6 +79,7 @@ class _VotingBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final status = state.status!;
+    final text = SettingsCopy.of(context);
 
     if (state.receipt != null) {
       return VoteReceiptView(receipt: state.receipt!);
@@ -91,22 +95,21 @@ class _VotingBody extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
               Text(
-                fairName ?? 'Votación oficial de la feria',
+                fairName ?? text.t('Votación oficial de la feria'),
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Selecciona un proyecto aprobado. Puedes emitir un solo voto; '
-                'el servidor valida la asignación y el período de votación. '
-                'Tu selección no se guarda en este dispositivo.',
+                text.t(
+                    'Selecciona un proyecto aprobado. Puedes emitir un solo voto; el servidor valida la asignación y el período de votación. Tu selección no se guarda en este dispositivo.'),
                 style: theme.textTheme.bodySmall,
               ),
               const SizedBox(height: AppSpacing.l),
               if (!status.isOpen)
-                const NoticeBanner(
-                  message:
-                      'La votación está cerrada: la feria no está abierta.',
+                NoticeBanner(
+                  message: text
+                      .t('La votación está cerrada: la feria no está abierta.'),
                   tone: AppTone.warning,
                   icon: Icons.lock_rounded,
                 ),
@@ -120,16 +123,16 @@ class _VotingBody extends StatelessWidget {
               ],
               if (state.requiresStatusRefresh) ...[
                 const SizedBox(height: AppSpacing.m),
-                const NoticeBanner(
-                  message:
-                      'No se pudo confirmar la respuesta del servidor. Consulta el estado antes de volver a votar.',
+                NoticeBanner(
+                  message: text.t(
+                      'No se pudo confirmar la respuesta del servidor. Consulta el estado antes de volver a votar.'),
                   tone: AppTone.warning,
                   icon: Icons.cloud_sync_outlined,
                   liveRegion: true,
                 ),
                 const SizedBox(height: AppSpacing.s),
                 AppButton.outlined(
-                  label: 'Consultar estado de votación',
+                  label: text.t('Consultar estado de votación'),
                   icon: Icons.refresh_rounded,
                   onPressed: state.loading ? null : controller.refreshStatus,
                   isLoading: state.loading,
@@ -144,13 +147,14 @@ class _VotingBody extends StatelessWidget {
                           color: theme.colorScheme.primary),
                       const SizedBox(height: AppSpacing.s),
                       Text(
-                        'No hay proyectos disponibles',
+                        text.t('No hay proyectos disponibles'),
                         style: theme.textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      const Text(
-                        'No encontramos proyectos aprobados para tu asignación. Puedes volver a consultar más tarde.',
+                      Text(
+                        text.t(
+                            'No encontramos proyectos aprobados para tu asignación. Puedes volver a consultar más tarde.'),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -159,8 +163,8 @@ class _VotingBody extends StatelessWidget {
               else ...[
                 Text(
                   state.selectedProjectId == null
-                      ? 'Elige un proyecto'
-                      : 'Proyecto seleccionado',
+                      ? text.t('Elige un proyecto')
+                      : text.t('Proyecto seleccionado'),
                   style: theme.textTheme.labelLarge,
                 ),
                 const SizedBox(height: AppSpacing.s),
@@ -183,8 +187,8 @@ class _VotingBody extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.l),
             child: AppButton(
               label: state.selectedProjectId == null
-                  ? 'Selecciona un proyecto para continuar'
-                  : 'Revisar y confirmar voto',
+                  ? text.t('Selecciona un proyecto para continuar')
+                  : text.t('Revisar y confirmar voto'),
               icon: Icons.how_to_vote_rounded,
               // `canVote` ya incluye `!submitting`: el botón no se rearma
               // hasta que el POST termine.
@@ -213,25 +217,27 @@ class _VotingBody extends StatelessWidget {
       context: context,
       builder: (dialogContext) => AlertDialog(
         scrollable: true,
-        title: const Text('Confirma tu voto oficial'),
+        title:
+            Text(SettingsCopy.of(dialogContext).t('Confirma tu voto oficial')),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Revisa la selección. Después de enviarlo, no podrás cambiar ni repetir tu voto.',
+              Text(
+                SettingsCopy.of(dialogContext).t(
+                    'Revisa la selección. Después de enviarlo, no podrás cambiar ni repetir tu voto.'),
               ),
               if (fairName != null) ...[
                 const SizedBox(height: AppSpacing.l),
-                Text('Feria',
+                Text(SettingsCopy.of(dialogContext).t('Feria'),
                     style: Theme.of(dialogContext).textTheme.labelMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Text(fairName!, maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
               const SizedBox(height: AppSpacing.l),
-              Text('Proyecto',
+              Text(SettingsCopy.of(dialogContext).t('Proyecto'),
                   style: Theme.of(dialogContext).textTheme.labelMedium),
               const SizedBox(height: AppSpacing.xs),
               Text(
@@ -254,20 +260,20 @@ class _VotingBody extends StatelessWidget {
                 Text(selected.categoryName!),
               ],
               const SizedBox(height: AppSpacing.m),
-              const Text(
-                  'El comprobante confirma tu participación; no revela tu selección.'),
+              Text(SettingsCopy.of(dialogContext).t(
+                  'El comprobante confirma tu participación; no revela tu selección.')),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Volver'),
+            child: Text(SettingsCopy.of(dialogContext).t('Volver')),
           ),
           FilledButton.icon(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             icon: const Icon(Icons.lock_outline_rounded),
-            label: const Text('Confirmar voto'),
+            label: Text(SettingsCopy.of(dialogContext).t('Confirmar voto')),
           ),
         ],
       ),

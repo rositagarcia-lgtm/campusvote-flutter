@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../domain/entities/teaching_assignment.dart';
 import '../state/teaching_list_controller.dart';
 
@@ -27,19 +28,20 @@ class TeachingHomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(teachingListControllerProvider);
     final controller = ref.read(teachingListControllerProvider.notifier);
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Evaluación docente',
+        title: text.t('Evaluación docente'),
         actions: [
           IconButton(
-            tooltip: 'Actualizar asignaciones',
+            tooltip: text.t('Actualizar asignaciones'),
             icon: const Icon(Icons.refresh_rounded),
             onPressed: state.loading ? null : controller.refresh,
           ),
           IconButton(
-            tooltip: 'Cerrar sesión',
+            tooltip: text.t('Cerrar sesión'),
             icon: const Icon(Icons.logout_rounded),
             onPressed: () async {
               await ref.read(authControllerProvider.notifier).logout();
@@ -78,10 +80,10 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
     if (state.isEmpty) {
       return AppEmptyView(
         icon: Icons.school_outlined,
-        title: 'Sin asignaciones docentes',
-        message: 'Cuando haya docentes asignados a tu carrera y ciclo, '
-            'aparecerán aquí para que puedas evaluarlos.',
-        actionLabel: 'Actualizar lista',
+        title: SettingsCopy.of(context).t('Sin asignaciones docentes'),
+        message: SettingsCopy.of(context).t(
+            'Cuando haya docentes asignados a tu carrera y ciclo, aparecerán aquí para que puedas evaluarlos.'),
+        actionLabel: SettingsCopy.of(context).t('Actualizar lista'),
         onAction: () => onRefresh(),
       );
     }
@@ -90,6 +92,7 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
     final unavailable = state.pending.where((item) => !item.isActive).toList();
     final completed = state.done;
     final branding = ref.watch(brandingControllerProvider);
+    final text = SettingsCopy.of(context);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -104,15 +107,15 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   PanelHero(
-                    title: 'Tus docentes',
-                    subtitle:
-                        'Consulta tus asignaciones y califica a cada docente.',
+                    title: text.t('Tus docentes'),
+                    subtitle: text.t(
+                        'Consulta tus asignaciones y califica a cada docente.'),
                     icon: Icons.school_rounded,
                     badge: pending.isNotEmpty
-                        ? '${pending.length} pendiente${pending.length == 1 ? '' : 's'}'
+                        ? text.pendingAssignments(pending.length)
                         : completed.isNotEmpty
-                            ? 'Sin pendientes'
-                            : 'Sin evaluaciones pendientes',
+                            ? text.t('Sin pendientes')
+                            : text.t('Sin evaluaciones pendientes'),
                     organizationLogoUrl: branding.logoUrl,
                     organizationName: branding.name,
                   ),
@@ -131,8 +134,9 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   if (pending.isNotEmpty) ...[
                     _SectionHeader(
-                      title: 'Por evaluar',
-                      subtitle: 'Elige una asignación pendiente para comenzar.',
+                      title: text.t('Por evaluar'),
+                      subtitle: text
+                          .t('Elige una asignación pendiente para comenzar.'),
                       count: pending.length,
                     ),
                     for (final assignment in pending)
@@ -142,8 +146,8 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                     if (pending.isNotEmpty)
                       const SizedBox(height: AppSpacing.l),
                     _SectionHeader(
-                      title: 'No disponibles',
-                      subtitle: 'Estas asignaciones no están activas.',
+                      title: text.t('No disponibles'),
+                      subtitle: text.t('Estas asignaciones no están activas.'),
                       count: unavailable.length,
                     ),
                     for (final assignment in unavailable)
@@ -153,8 +157,9 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                     if (pending.isNotEmpty || unavailable.isNotEmpty)
                       const SizedBox(height: AppSpacing.l),
                     _SectionHeader(
-                      title: 'Completadas',
-                      subtitle: 'El servidor confirma estas evaluaciones.',
+                      title: text.t('Completadas'),
+                      subtitle:
+                          text.t('El servidor confirma estas evaluaciones.'),
                       count: completed.length,
                     ),
                     for (final assignment in completed)
@@ -215,20 +220,33 @@ class _AssignmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final enabled = assignment.isActive && !assignment.evaluated;
+    final text = SettingsCopy.of(context);
     final (statusLabel, tone, statusIcon) = assignment.evaluated
-        ? ('Completada', AppTone.success, Icons.check_circle_outline_rounded)
+        ? (
+            text.t('Completada'),
+            AppTone.success,
+            Icons.check_circle_outline_rounded
+          )
         : assignment.isActive
-            ? ('Por evaluar', AppTone.primary, Icons.rate_review_outlined)
-            : ('No disponible', AppTone.neutral, Icons.lock_outline_rounded);
+            ? (
+                text.t('Por evaluar'),
+                AppTone.primary,
+                Icons.rate_review_outlined
+              )
+            : (
+                text.t('No disponible'),
+                AppTone.neutral,
+                Icons.lock_outline_rounded
+              );
     final courseName = assignment.courseName.trim().isEmpty
-        ? 'Curso sin nombre'
+        ? text.t('Curso sin nombre')
         : assignment.courseName;
     final teacherName = assignment.teacherFullName.trim().isEmpty
-        ? 'Nombre del docente no disponible'
+        ? text.t('Nombre del docente no disponible')
         : assignment.teacherFullName;
     final courseMetadata = [
       if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
-      if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
+      if (assignment.cycle > 0) text.term(assignment.cycle),
     ].join(' · ');
 
     return Padding(
@@ -283,13 +301,13 @@ class _AssignmentCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.m),
                 Text(
                   courseMetadata.isEmpty
-                      ? 'Información del curso no disponible'
+                      ? text.t('Información del curso no disponible')
                       : courseMetadata,
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.s),
                 Semantics(
-                  label: 'Docente: $teacherName',
+                  label: '${text.t('Docente')}: $teacherName',
                   child: Row(
                     children: [
                       Icon(

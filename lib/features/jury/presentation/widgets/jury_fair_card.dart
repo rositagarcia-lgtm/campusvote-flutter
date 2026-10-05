@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import 'voting_countdown.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Tarjeta de feria: franja de estado, datos, cuenta regresiva y acción.
 class FairCard extends StatelessWidget {
@@ -16,15 +17,16 @@ class FairCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = SettingsCopy.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
     final muted = appMuted(isDark);
     final enabled = fair.isOpen;
     final status = switch (fair.status) {
-      FairStatus.open => 'Abierta',
-      FairStatus.draft => 'En preparación',
-      FairStatus.closed => 'Cerrada',
-      FairStatus.unknown => 'Sin estado',
+      FairStatus.open => text.t('Abierta'),
+      FairStatus.draft => text.t('En preparación'),
+      FairStatus.closed => text.t('Cerrada'),
+      FairStatus.unknown => text.t('Sin estado'),
     };
     final site = fair.siteName;
 
@@ -32,8 +34,8 @@ class FairCard extends StatelessWidget {
       button: enabled,
       enabled: enabled,
       label: enabled
-          ? '${fair.name}. $status. Ver proyectos de tu categoría'
-          : '${fair.name}. $status. Esta feria no está disponible',
+          ? '${fair.name}. $status. ${text.t('Ver proyectos de tu categoría')}'
+          : '${fair.name}. $status. ${text.t('Esta feria no está disponible')}',
       child: Material(
         color: theme.colorScheme.surface,
         elevation: 0,
@@ -84,8 +86,8 @@ class FairCard extends StatelessWidget {
                         showDot: true,
                       ),
                       if (enabled)
-                        const StatusChip(
-                          label: 'Votación y rúbrica',
+                        StatusChip(
+                          label: text.t('Votación y rúbrica'),
                           tone: AppTone.info,
                           icon: Icons.how_to_vote_outlined,
                         ),
@@ -109,7 +111,7 @@ class FairCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Ver proyectos de tu categoría',
+                            text.t('Ver proyectos de tu categoría'),
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: accent,
                               fontWeight: FontWeight.w700,
@@ -134,7 +136,7 @@ class FairCard extends StatelessWidget {
                         const SizedBox(width: AppSpacing.s),
                         Expanded(
                           child: Text(
-                            'Esta feria no está disponible',
+                            text.t('Esta feria no está disponible'),
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: muted,
                               fontWeight: FontWeight.w600,

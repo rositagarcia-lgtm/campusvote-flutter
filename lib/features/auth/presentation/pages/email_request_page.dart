@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/fade_slide.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Acceso del ESTUDIANTE: código de un solo uso enviado al correo.
 ///
@@ -47,8 +48,10 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
 
   String? _validateEmail(String? value) {
     final v = (value ?? '').trim();
-    if (v.isEmpty) return 'Escribe tu correo';
-    if (!_emailPattern.hasMatch(v)) return 'Escribe un correo válido';
+    if (v.isEmpty) return SettingsCopy.of(context).t('Escribe tu correo');
+    if (!_emailPattern.hasMatch(v)) {
+      return SettingsCopy.of(context).t('Escribe un correo válido');
+    }
     return null;
   }
 
@@ -59,6 +62,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
     final isDark = theme.brightness == Brightness.dark;
     final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
     final error = state.errorMessage;
+    final text = SettingsCopy.of(context);
 
     return CampusVoteTheme(
       child: Scaffold(
@@ -69,7 +73,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back_rounded,
                 color: theme.textTheme.bodyLarge?.color),
-            tooltip: 'Volver',
+            tooltip: text.t('Volver'),
             onPressed: () => context.go('/splash'),
           ),
         ),
@@ -94,10 +98,10 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                         child: AuthHeader(
                           accent: accent,
                           icon: Icons.school_rounded,
-                          overline: 'Acceso estudiantil',
-                          title: 'Identifica tu cuenta',
-                          subtitle:
-                              'Usa tu correo institucional y recibe un código de acceso de un solo uso.',
+                          overline: text.t('Acceso estudiantil'),
+                          title: text.t('Identifica tu cuenta'),
+                          subtitle: text.t(
+                              'Usa tu correo institucional y recibe un código de acceso de un solo uso.'),
                           logoSize: 120,
                         ),
                       ),
@@ -110,8 +114,9 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               AppTextField(
-                                label: 'Correo institucional del estudiante',
-                                hint: 'nombre.apellido@universidad.edu',
+                                label: text
+                                    .t('Correo institucional del estudiante'),
+                                hint: text.t('nombre.apellido@universidad.edu'),
                                 keyboardType: TextInputType.emailAddress,
                                 controller: _emailCtrl,
                                 enabled: !state.submitting,
@@ -124,15 +129,15 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                                 const SizedBox(height: AppSpacing.l),
                                 AuthErrorBanner(
                                   message: error,
-                                  title: 'No se pudo enviar el código',
+                                  title: text.t('No se pudo enviar el código'),
                                   icon: Icons.mark_email_unread_outlined,
                                 ),
                               ],
                               const SizedBox(height: AppSpacing.l),
-                              const AuthInfoNote(
+                              AuthInfoNote(
                                 icon: Icons.mark_email_read_outlined,
-                                text:
-                                    'Si no ves el mensaje en unos minutos, revisa tu carpeta de spam.',
+                                text: text.t(
+                                    'Si no ves el mensaje en unos minutos, revisa tu carpeta de spam.'),
                               ),
                             ],
                           ),
@@ -142,7 +147,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                       FadeSlide(
                         delay: const Duration(milliseconds: 220),
                         child: AppButton(
-                          label: 'Recibir código de acceso',
+                          label: text.t('Recibir código de acceso'),
                           icon: Icons.mark_email_unread_outlined,
                           isLoading: state.submitting,
                           onPressed: state.submitting ? null : _submit,
@@ -155,8 +160,8 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                           onPressed: state.submitting
                               ? null
                               : () => context.go('/auth/jury/login'),
-                          child: const Text(
-                              'Acceso para jurado · usar contraseña'),
+                          child: Text(
+                              text.t('Acceso para jurado · usar contraseña')),
                         ),
                       ),
                     ],

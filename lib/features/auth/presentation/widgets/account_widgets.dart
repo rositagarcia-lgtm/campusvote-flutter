@@ -5,6 +5,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Bloque de "Sobre mí": sobretítulo de sección y tarjeta plana con borde fino.
 ///
@@ -80,7 +81,7 @@ class AccountOrganizationRow extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Organización de tu cuenta',
+                SettingsCopy.of(context).t('Organización de tu cuenta'),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: appMuted(isDark),
                 ),
@@ -113,12 +114,20 @@ class AccountInfoList extends StatelessWidget {
 
     return Column(
       children: [
-        _InfoRow(icon: Icons.badge_outlined, label: 'Nombre', value: name),
+        _InfoRow(
+            icon: Icons.badge_outlined,
+            label: SettingsCopy.of(context).t('Nombre'),
+            value: name),
         divider,
         _InfoRow(
-            icon: Icons.mail_outline_rounded, label: 'Correo', value: email),
+            icon: Icons.mail_outline_rounded,
+            label: SettingsCopy.of(context).t('Correo'),
+            value: email),
         divider,
-        _InfoRow(icon: Icons.shield_outlined, label: 'Rol', value: role),
+        _InfoRow(
+            icon: Icons.shield_outlined,
+            label: SettingsCopy.of(context).t('Rol'),
+            value: role),
       ],
     );
   }

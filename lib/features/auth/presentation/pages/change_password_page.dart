@@ -14,6 +14,7 @@ import '../../../../core/widgets/fade_slide.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
 import '../widgets/change_password_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 class ChangePasswordPage extends ConsumerStatefulWidget {
   /// Si es `true`, el cambio es OBLIGATORIO (primer login / mustChangePassword).
@@ -48,7 +49,9 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     if (!mounted) return;
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Contraseña actualizada correctamente')),
+        SnackBar(
+            content: Text(SettingsCopy.of(context)
+                .t('Contraseña actualizada correctamente'))),
       );
       if (widget.required) {
         // El 2FA no lo exige el backend para jurado/estudiante (tras el acceso
@@ -63,26 +66,39 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
       final msg = ref.read(authControllerProvider).errorMessage;
       if (msg != null) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+            .showSnackBar(SnackBar(content: Text(SettingsCopy.of(context).error(msg))));
       }
     }
   }
 
   String? _passwordValidator(String? value) {
-    if (value == null || value.isEmpty) return 'Requerido';
-    if (value.length < 8) return 'Mínimo 8 caracteres';
-    if (value.length > 72) return 'Máximo 72 caracteres';
-    if (!RegExp(r'[a-z]').hasMatch(value)) return 'Falta una minúscula';
-    if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Falta una mayúscula';
-    if (!RegExp(r'\d').hasMatch(value)) return 'Falta un número';
+    if (value == null || value.isEmpty) {
+      return SettingsCopy.of(context).t('Requerido');
+    }
+    if (value.length < 8) {
+      return SettingsCopy.of(context).t('Mínimo 8 caracteres');
+    }
+    if (value.length > 72) {
+      return SettingsCopy.of(context).t('Máximo 72 caracteres');
+    }
+    if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return SettingsCopy.of(context).t('Falta una minúscula');
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return SettingsCopy.of(context).t('Falta una mayúscula');
+    }
+    if (!RegExp(r'\d').hasMatch(value)) {
+      return SettingsCopy.of(context).t('Falta un número');
+    }
     if (!RegExp(r'[^A-Za-z0-9]').hasMatch(value)) {
-      return 'Falta un carácter especial';
+      return SettingsCopy.of(context).t('Falta un carácter especial');
     }
     return null;
   }
 
   Widget _visibilityToggle() => IconButton(
-        tooltip: _obscure ? 'Mostrar contraseñas' : 'Ocultar contraseñas',
+        tooltip: SettingsCopy.of(context)
+            .t(_obscure ? 'Mostrar contraseñas' : 'Ocultar contraseñas'),
         icon: Icon(
           _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           size: AppDimensions.iconMedium,
@@ -96,6 +112,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
+    final text = SettingsCopy.of(context);
 
     return PopScope(
       // En el cambio obligatorio no se puede salir sin actualizar la clave.
@@ -103,7 +120,9 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
       child: Scaffold(
         appBar: buildCampusVoteAppBar(
           context,
-          title: widget.required ? 'Cambiar contraseña' : 'Mi contraseña',
+          title: widget.required
+              ? text.t('Cambiar contraseña')
+              : text.t('Mi contraseña'),
           leading: widget.required ? const SizedBox.shrink() : null,
         ),
         body: SafeArea(
@@ -124,12 +143,12 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (widget.required) ...[
-                        const FadeSlide(
+                        FadeSlide(
                           child: NoticeBanner(
                             tone: AppTone.warning,
                             liveRegion: true,
-                            message:
-                                'Tu contraseña es temporal. Cámbiala para continuar.',
+                            message: text.t(
+                                'Tu contraseña es temporal. Cámbiala para continuar.'),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.l),
@@ -142,7 +161,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               AppTextField(
-                                label: 'Contraseña actual',
+                                label: text.t('Contraseña actual'),
                                 obscureText: _obscure,
                                 controller: _currentCtrl,
                                 enabled: !state.submitting,
@@ -150,12 +169,12 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                                 prefixIcon: Icons.lock_outline_rounded,
                                 suffix: _visibilityToggle(),
                                 validator: (v) => (v ?? '').isEmpty
-                                    ? 'Escribe tu contraseña actual'
+                                    ? text.t('Escribe tu contraseña actual')
                                     : null,
                               ),
                               const SizedBox(height: AppSpacing.xl),
                               AppTextField(
-                                label: 'Nueva contraseña',
+                                label: text.t('Nueva contraseña'),
                                 obscureText: _obscure,
                                 controller: _newCtrl,
                                 enabled: !state.submitting,
@@ -173,7 +192,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                               ),
                               const SizedBox(height: AppSpacing.l),
                               AppTextField(
-                                label: 'Confirmar nueva contraseña',
+                                label: text.t('Confirmar nueva contraseña'),
                                 obscureText: _obscure,
                                 controller: _confirmCtrl,
                                 enabled: !state.submitting,
@@ -181,14 +200,14 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                                 onSubmitted: (_) => _submit(),
                                 prefixIcon: Icons.lock_rounded,
                                 validator: (v) => v != _newCtrl.text
-                                    ? 'Las contraseñas no coinciden'
+                                    ? text.t('Las contraseñas no coinciden')
                                     : null,
                               ),
                               const SizedBox(height: AppSpacing.l),
-                              const AuthInfoNote(
+                              AuthInfoNote(
                                 icon: Icons.shield_outlined,
-                                text:
-                                    'Usa una contraseña única que no compartas con otros servicios.',
+                                text: text.t(
+                                    'Usa una contraseña única que no compartas con otros servicios.'),
                               ),
                             ],
                           ),
@@ -199,8 +218,8 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                         delay: const Duration(milliseconds: 200),
                         child: AppButton(
                           label: widget.required
-                              ? 'Cambiar y continuar'
-                              : 'Actualizar contraseña',
+                              ? text.t('Cambiar y continuar')
+                              : text.t('Actualizar contraseña'),
                           icon: Icons.check_rounded,
                           isLoading: state.submitting,
                           onPressed: state.submitting ? null : _submit,

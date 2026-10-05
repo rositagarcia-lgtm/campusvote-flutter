@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_palette.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Cabecera tipo "carnet": avatar, nombre, correo, rol y acción de foto.
 ///
@@ -65,7 +66,7 @@ class AccountIdentityHeader extends StatelessWidget {
                 bottom: -AppSpacing.xs,
                 child: Semantics(
                   button: true,
-                  label: 'Cambiar foto de perfil',
+                  label: SettingsCopy.of(context).t('Cambiar foto de perfil'),
                   excludeSemantics: true,
                   child: Material(
                     color: accent,
@@ -122,7 +123,7 @@ class AccountIdentityHeader extends StatelessWidget {
               borderRadius: AppRadii.rSmall,
             ),
             child: Semantics(
-              label: 'Rol: $roleLabel',
+              label: '${SettingsCopy.of(context).t('Rol')}: $roleLabel',
               excludeSemantics: true,
               child: Text(
                 roleLabel.toUpperCase(),

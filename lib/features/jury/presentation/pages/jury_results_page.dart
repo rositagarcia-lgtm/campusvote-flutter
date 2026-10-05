@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury/fair/:fairId/results` — ranking de la feria.
 ///
@@ -30,7 +31,8 @@ class JuryResultsPage extends ConsumerWidget {
     final reload = ref.read(fairResultsProvider(fairId).notifier).reload;
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Resultados'),
+      appBar: buildCampusVoteAppBar(context,
+          title: SettingsCopy.of(context).t('Resultados')),
       body: _bodyFor(results, reload),
     );
   }
@@ -63,6 +65,7 @@ class _Ranking extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = SettingsCopy.of(context);
     final entries = results.ranking.where((e) => e.position != null).toList()
       ..sort((a, b) => a.position!.compareTo(b.position!));
 
@@ -71,22 +74,22 @@ class _Ranking extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (!results.published)
-            const NoticeBanner(
-              message:
-                  'El organizer todavía no publica los resultados de esta feria.',
+            NoticeBanner(
+              message: text.t(
+                  'El organizer todavía no publica los resultados de esta feria.'),
               tone: AppTone.warning,
             ),
           if (results.published) ...[
             Text(
-              'Publicado el ${results.publishedAt?.toLocal() ?? ''}'
-              '${results.publishedByName != null ? ' por ${results.publishedByName}' : ''}',
+              text.publishedOn(results.publishedAt, results.publishedByName),
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: AppSpacing.m),
           ],
           if (entries.isEmpty)
-            const NoticeBanner(
-              message: 'Todavía no hay puestos publicados para esta feria.',
+            NoticeBanner(
+              message:
+                  text.t('Todavía no hay puestos publicados para esta feria.'),
               tone: AppTone.info,
               liveRegion: true,
             ),
@@ -126,7 +129,7 @@ class _RankTile extends StatelessWidget {
             ),
           ),
           StatusChip(
-            label: '${entry.votes} voto${entry.votes == 1 ? '' : 's'}',
+            label: SettingsCopy.of(context).votes(entry.votes),
             tone: entry.winner ? AppTone.primary : AppTone.neutral,
           ),
         ],
@@ -148,7 +151,7 @@ class _PositionBadge extends StatelessWidget {
     final winner = entry.winner;
 
     return Semantics(
-      label: 'Puesto ${entry.position}${winner ? ', ganador' : ''}',
+      label: SettingsCopy.of(context).rank(entry.position, winner),
       excludeSemantics: true,
       child: Container(
         width: AppDimensions.iconLarge * 1.5,

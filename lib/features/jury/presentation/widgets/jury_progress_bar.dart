@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Barra de avance del jurado: `evaluatedProjects / totalProjects`.
 ///
@@ -34,6 +35,7 @@ class JuryProgressBar extends StatelessWidget {
         (ratio ?? (total == 0 ? 0 : completed / total)).clamp(0.0, 1.0);
     final percent = percentage ?? (value * 100).round();
     final complete = value >= 1;
+    final text = SettingsCopy.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +44,7 @@ class JuryProgressBar extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                label ?? 'Progreso de evaluación',
+                label ?? text.t('Progreso de evaluación'),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -70,8 +72,8 @@ class JuryProgressBar extends StatelessWidget {
         const SizedBox(height: AppSpacing.s),
         Text(
           total == 0
-              ? 'La feria aún no tiene proyectos evaluables'
-              : '$completed de $total proyectos evaluados${complete ? ' · completado' : ''}',
+              ? text.t('La feria aún no tiene proyectos evaluables')
+              : text.evaluationProgress(completed, total, complete),
           style: theme.textTheme.bodySmall,
         ),
       ],

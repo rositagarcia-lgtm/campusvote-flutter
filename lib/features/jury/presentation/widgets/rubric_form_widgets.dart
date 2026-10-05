@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Tarjeta de puntaje de la rúbrica: total sobre 20 y estado de la hoja.
 class RubricScoreCard extends StatelessWidget {
@@ -27,12 +28,13 @@ class RubricScoreCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Puntaje', style: theme.textTheme.labelMedium),
+                Text(SettingsCopy.of(context).t('Puntaje'),
+                    style: theme.textTheme.labelMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   // El score solo existe cuando la hoja está finalizada.
                   score == null
-                      ? 'Pendiente de finalizar'
+                      ? SettingsCopy.of(context).t('Pendiente de finalizar')
                       : '${score.toStringAsFixed(1)} / 20',
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w800),
@@ -41,8 +43,8 @@ class RubricScoreCard extends StatelessWidget {
             ),
           ),
           if (evaluation.submittedAt != null)
-            const StatusChip(
-              label: 'Finalizado',
+            StatusChip(
+              label: SettingsCopy.of(context).t('Finalizado'),
               tone: AppTone.success,
               icon: Icons.check_circle_outline_rounded,
             ),
@@ -71,7 +73,7 @@ class RubricActionsBar extends StatelessWidget {
         children: [
           Expanded(
             child: AppButton.outlined(
-              label: 'Guardar borrador',
+              label: SettingsCopy.of(context).t('Guardar borrador'),
               onPressed:
                   state.saving ? null : () => controller.save(finalize: false),
               isLoading: state.saving,
@@ -80,7 +82,7 @@ class RubricActionsBar extends StatelessWidget {
           const SizedBox(width: AppSpacing.m),
           Expanded(
             child: AppButton(
-              label: 'Finalizar',
+              label: SettingsCopy.of(context).t('Finalizar'),
               // El backend exige cubrir TODOS los criterios activos.
               onPressed: state.canFinalize
                   ? () => controller.save(finalize: true)

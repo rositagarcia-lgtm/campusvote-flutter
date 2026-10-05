@@ -6,6 +6,7 @@ import 'app_button.dart';
 import 'app_page_layout.dart';
 import 'app_palette.dart';
 import 'app_status_chip.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Estado de error con reintento.
 ///
@@ -39,6 +40,7 @@ class AppErrorView extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final tone = appToneColors(AppTone.danger, isDark: isDark);
+    final text = SettingsCopy.of(context);
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(
@@ -72,7 +74,7 @@ class AppErrorView extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      overline,
+                      text.t(overline),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: appMuted(isDark),
@@ -82,7 +84,7 @@ class AppErrorView extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      title,
+                      text.t(title),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontFamily: 'serif',
@@ -94,14 +96,14 @@ class AppErrorView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.s),
               Text(
-                message,
+                text.error(message),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
               ),
               if (onRetry != null) ...[
                 const SizedBox(height: AppSpacing.xl),
                 AppButton.outlined(
-                  label: retryLabel,
+                  label: text.t(retryLabel),
                   icon: Icons.refresh_rounded,
                   onPressed: onRetry,
                 ),

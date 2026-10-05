@@ -4,6 +4,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_action_tile.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_qr_image.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Fila que confirma a qué correo se envió el código de un solo uso.
 ///
@@ -20,7 +21,7 @@ class SentToEmailRow extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Semantics(
-      label: 'Código enviado a $email',
+      label: '${SettingsCopy.of(context).t('Código enviado a')} $email',
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.symmetric(
@@ -41,7 +42,7 @@ class SentToEmailRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Código enviado a',
+                    SettingsCopy.of(context).t('Código enviado a'),
                     style: theme.textTheme.labelSmall
                         ?.copyWith(color: appMuted(isDark)),
                   ),
@@ -95,8 +96,9 @@ class _EmailOtpQrOptionState extends State<EmailOtpQrOption> {
       children: [
         ActionTile(
           icon: Icons.qr_code_2_rounded,
-          title: 'Verificar con código QR',
-          subtitle: 'Segunda opción: escanea el código sin abrir el correo',
+          title: SettingsCopy.of(context).t('Verificar con código QR'),
+          subtitle: SettingsCopy.of(context)
+              .t('Segunda opción: escanea el código sin abrir el correo'),
           accent: widget.accent,
           trailingIcon:
               _open ? Icons.expand_less_rounded : Icons.expand_more_rounded,
@@ -115,7 +117,7 @@ class _EmailOtpQrOptionState extends State<EmailOtpQrOption> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'SEGUNDA OPCIÓN',
+                  SettingsCopy.of(context).t('SEGUNDA OPCIÓN'),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: muted,
                     fontWeight: FontWeight.w700,
@@ -124,16 +126,16 @@ class _EmailOtpQrOptionState extends State<EmailOtpQrOption> {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Escanea el código con la aplicación institucional',
+                  SettingsCopy.of(context)
+                      .t('Escanea el código con la aplicación institucional'),
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Si no tienes el correo a la vista, apunta con la cámara o '
-                  'con la app de la institución. El QR sirve para el mismo '
-                  'código de 6 dígitos.',
+                  SettingsCopy.of(context).t(
+                      'Si no tienes el correo a la vista, apunta con la cámara o con la app de la institución. El QR sirve para el mismo código de 6 dígitos.'),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: muted,
                     height: 1.4,
@@ -144,12 +146,14 @@ class _EmailOtpQrOptionState extends State<EmailOtpQrOption> {
                   child: AppQrImage(
                     dataUrl: widget.dataUrl,
                     size: 200,
-                    semanticsLabel: 'Código QR de verificación de correo',
+                    semanticsLabel: SettingsCopy.of(context)
+                        .t('Código QR de verificación de correo'),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.m),
                 Text(
-                  'El QR caduca junto con el código enviado al correo.',
+                  SettingsCopy.of(context)
+                      .t('El QR caduca junto con el código enviado al correo.'),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: appFaint(isDark)),

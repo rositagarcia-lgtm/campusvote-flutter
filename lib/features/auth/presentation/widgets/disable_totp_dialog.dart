@@ -5,6 +5,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Diálogo de confirmación para deshabilitar 2FA (incluye input de contraseña).
 class TotpDisableCredentials {
@@ -46,14 +47,14 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AlertDialog(
-      title: const Text('Deshabilitar 2FA'),
+      title: Text(SettingsCopy.of(context).t('Deshabilitar 2FA')),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Confirma con tu contraseña y el código actual para deshabilitar '
-            'la verificación en dos pasos.',
+            SettingsCopy.of(context).t(
+                'Confirma con tu contraseña y el código actual para deshabilitar la verificación en dos pasos.'),
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: AppSpacing.m),
@@ -61,9 +62,9 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
             controller: _passwordCtrl,
             obscureText: true,
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'Contraseña',
-              prefixIcon: Icon(Icons.lock_outline_rounded),
+            decoration: InputDecoration(
+              labelText: SettingsCopy.of(context).t('Contraseña'),
+              prefixIcon: const Icon(Icons.lock_outline_rounded),
             ),
           ),
           const SizedBox(height: AppSpacing.m),
@@ -74,25 +75,25 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(6),
             ],
-            decoration: const InputDecoration(
-              labelText: 'Código TOTP actual',
-              prefixIcon: Icon(Icons.pin_outlined),
+            decoration: InputDecoration(
+              labelText: SettingsCopy.of(context).t('Código TOTP actual'),
+              prefixIcon: const Icon(Icons.pin_outlined),
             ),
           ),
           const SizedBox(height: AppSpacing.s),
-          const NoticeBanner(
+          NoticeBanner(
             tone: AppTone.warning,
-            message: 'Tu cuenta será menos segura.',
+            message: SettingsCopy.of(context).t('Tu cuenta será menos segura.'),
           ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text(SettingsCopy.of(context).t('Cancelar')),
         ),
         AppButton.danger(
-          label: 'Deshabilitar',
+          label: SettingsCopy.of(context).t('Deshabilitar'),
           expand: false,
           onPressed: () => Navigator.of(context).pop(
             TotpDisableCredentials(

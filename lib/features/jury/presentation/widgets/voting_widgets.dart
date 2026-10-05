@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Opción de proyecto en la votación: fila seleccionable con indicador de
 /// selección, nombre y categoría.
@@ -33,7 +34,7 @@ class VotingProjectOption extends StatelessWidget {
     final accessibleLabel = [
       project.name,
       if (project.categoryName != null) project.categoryName!,
-      selected ? 'Seleccionado' : 'No seleccionado',
+      SettingsCopy.of(context).t(selected ? 'Seleccionado' : 'No seleccionado'),
     ].join('. ');
 
     return Semantics(
@@ -79,7 +80,7 @@ class VotingProjectOption extends StatelessWidget {
                   if (selected) ...[
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Seleccionado',
+                      SettingsCopy.of(context).t('Seleccionado'),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: accent,
                         fontWeight: FontWeight.w700,
@@ -121,7 +122,7 @@ class VoteReceiptView extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              'Voto registrado',
+              SettingsCopy.of(context).t('Voto registrado'),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontFamily: 'serif',
@@ -131,8 +132,8 @@ class VoteReceiptView extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            'Guarda este comprobante. No muestra por quién votaste, '
-            'solo que participaste.',
+            SettingsCopy.of(context).t(
+                'Guarda este comprobante. No muestra por quién votaste, solo que participaste.'),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium,
           ),
@@ -140,10 +141,12 @@ class VoteReceiptView extends StatelessWidget {
           AppCard(
             child: Column(
               children: [
-                Text('Comprobante', style: theme.textTheme.labelMedium),
+                Text(SettingsCopy.of(context).t('Comprobante'),
+                    style: theme.textTheme.labelMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Semantics(
-                  label: 'Código de comprobante ${receipt.receiptCode}',
+                  label:
+                      SettingsCopy.of(context).receiptCode(receipt.receiptCode),
                   excludeSemantics: true,
                   child: SelectableText(
                     receipt.receiptCode,
@@ -158,9 +161,9 @@ class VoteReceiptView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.m),
-          const Center(
+          Center(
             child: StatusChip(
-              label: 'Voto anónimo',
+              label: SettingsCopy.of(context).t('Voto anónimo'),
               tone: AppTone.success,
               icon: Icons.lock_outline_rounded,
             ),
@@ -181,10 +184,8 @@ class VoteParticipationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final votedAt = status.votedAt?.toLocal();
-    final timestamp = votedAt == null
-        ? null
-        : '${votedAt.day.toString().padLeft(2, '0')}/${votedAt.month.toString().padLeft(2, '0')}/${votedAt.year} · ${votedAt.hour.toString().padLeft(2, '0')}:${votedAt.minute.toString().padLeft(2, '0')}';
+    final votedAt = status.votedAt;
+    final text = SettingsCopy.of(context);
 
     return PageScrollBody(
       child: Column(
@@ -200,7 +201,7 @@ class VoteParticipationView extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              'Participación confirmada',
+              text.t('Participación confirmada'),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
@@ -208,22 +209,23 @@ class VoteParticipationView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.s),
-          const Text(
-            'El servidor confirma que ya emitiste tu voto en esta feria. No es posible volver a votar.',
+          Text(
+            text.t(
+                'El servidor confirma que ya emitiste tu voto en esta feria. No es posible volver a votar.'),
             textAlign: TextAlign.center,
           ),
-          if (timestamp != null) ...[
+          if (votedAt != null) ...[
             const SizedBox(height: AppSpacing.m),
             Text(
-              'Registrado el $timestamp',
+              text.votedOn(votedAt),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall,
             ),
           ],
           const SizedBox(height: AppSpacing.l),
-          const NoticeBanner(
-            message:
-                'No se recibió un comprobante para esta respuesta. Tu selección permanece anónima y no se puede recuperar desde la app.',
+          NoticeBanner(
+            message: text.t(
+                'No se recibió un comprobante para esta respuesta. Tu selección permanece anónima y no se puede recuperar desde la app.'),
             tone: AppTone.info,
             icon: Icons.info_outline_rounded,
           ),

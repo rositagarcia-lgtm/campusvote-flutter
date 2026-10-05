@@ -5,6 +5,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../data/models/jury_models.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Resumen de progreso del jurado con barra y porcentaje.
 class ProgressBanner extends StatelessWidget {
@@ -19,11 +20,13 @@ class ProgressBanner extends StatelessWidget {
     final accent = theme.colorScheme.primary;
     final done = progress.completedProjects;
     final total = progress.totalProjects;
+    final text = SettingsCopy.of(context);
     final ratio = total > 0 ? (done / total).clamp(0.0, 1.0) : 0.0;
 
     return Semantics(
       button: true,
-      label: 'Evaluaste $done de $total proyectos. Ver mi progreso',
+      label:
+          '${text.evaluatedProjects(done, total)}. ${text.t('Ver mi progreso')}',
       excludeSemantics: true,
       child: Material(
         color: theme.colorScheme.surface,
@@ -41,14 +44,14 @@ class ProgressBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SectionHeader(
-                  label: 'Tu progreso',
+                  label: text.t('Tu progreso'),
                   trailing: Icon(
                     Icons.chevron_right_rounded,
                     color: appMuted(isDark),
                   ),
                 ),
                 Text(
-                  'Evaluaste $done de $total proyectos',
+                  text.evaluatedProjects(done, total),
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
@@ -99,7 +102,7 @@ class FairActionsBar extends StatelessWidget {
         Expanded(
           child: _ActionTile(
             icon: Icons.insights_rounded,
-            label: 'Progreso',
+            label: SettingsCopy.of(context).t('Progreso'),
             onTap: () => context.push('/jury/fair/$fairId/progress'),
           ),
         ),
@@ -107,7 +110,7 @@ class FairActionsBar extends StatelessWidget {
         Expanded(
           child: _ActionTile(
             icon: Icons.how_to_vote_rounded,
-            label: 'Votar',
+            label: SettingsCopy.of(context).t('Votar'),
             onTap: () => context.push('/jury/fair/$fairId/vote'),
           ),
         ),
@@ -167,6 +170,8 @@ class _ActionTile extends StatelessWidget {
                 const SizedBox(height: AppSpacing.s),
                 Text(
                   label,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
                   style: theme.textTheme.labelMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),

@@ -13,6 +13,7 @@ import '../state/two_factor_controller.dart';
 import '../widgets/account_summary_card.dart';
 import '../widgets/disable_totp_dialog.dart';
 import '../widgets/two_factor_card.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 class SecurityPage extends ConsumerStatefulWidget {
   const SecurityPage({super.key});
@@ -42,12 +43,13 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
       success: (_) {
         ref.read(twoFactorControllerProvider.notifier).markDisabled();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('2FA deshabilitado')),
+          SnackBar(
+              content: Text(SettingsCopy.of(context).t('2FA deshabilitado'))),
         );
       },
       failure: (f) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(f.message)),
+           SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
         );
       },
     );
@@ -56,9 +58,10 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
   Future<void> _onLogout() async {
     final confirm = await AppDialog.confirm(
       context,
-      title: 'Cerrar sesión',
-      message: '¿Estás seguro que deseas salir de CampusVote?',
-      confirmLabel: 'Salir',
+      title: SettingsCopy.of(context).t('Cerrar sesión'),
+      message: SettingsCopy.of(context)
+          .t('¿Estás seguro que deseas salir de CampusVote?'),
+      confirmLabel: SettingsCopy.of(context).t('Salir'),
       destructive: true,
     );
     if (!confirm || !mounted) return;
@@ -71,28 +74,29 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final tf = ref.watch(twoFactorControllerProvider);
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Seguridad'),
+      appBar: buildCampusVoteAppBar(context, title: text.t('Seguridad')),
       body: SafeArea(
         child: PageScrollBody(
           maxWidth: kFormMaxWidth,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SectionHeader(label: 'Cuenta'),
+              SectionHeader(label: text.t('Cuenta')),
               AccountHeaderCard(
-                displayName: auth.user?.displayName ?? 'Usuario',
+                displayName: auth.user?.displayName ?? text.t('Usuario'),
                 email: auth.user?.email ?? '',
                 avatarUrl: auth.user?.avatarUrl,
               ),
               const SizedBox(height: AppSpacing.xl),
-              const SectionHeader(label: 'Contraseña'),
+              SectionHeader(label: text.t('Contraseña')),
               PasswordCard(
                 onPressed: () => context.push('/security/password'),
               ),
               const SizedBox(height: AppSpacing.xl),
-              const SectionHeader(label: 'Verificación en dos pasos'),
+              SectionHeader(label: text.t('Verificación en dos pasos')),
               TwoFactorCard(
                 status: tf.status,
                 loading: tf.loading,
@@ -101,7 +105,7 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
                 onDisable: _onDisableTotp,
               ),
               const SizedBox(height: AppSpacing.xl),
-              const SectionHeader(label: 'Sesión'),
+              SectionHeader(label: text.t('Sesión')),
               SessionCard(onLogout: _onLogout),
             ],
           ),

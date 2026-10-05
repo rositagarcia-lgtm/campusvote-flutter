@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/widgets/app_logo.dart';
+import '../features/settings/presentation/settings_copy.dart';
 
 /// Encabezado institucional: logo, nombre y descriptor con filete.
 class WelcomeHeader extends StatelessWidget {
@@ -21,7 +22,7 @@ class WelcomeHeader extends StatelessWidget {
       children: [
         Semantics(
           image: true,
-          label: 'Logo de CampusVote',
+          label: SettingsCopy.of(context).t('Logo de CampusVote'),
           child: AppLogo.asset(size: 96),
         ),
         const SizedBox(height: AppSpacing.l),
@@ -39,7 +40,7 @@ class WelcomeHeader extends StatelessWidget {
         Container(width: 40, height: 3, color: accent),
         const SizedBox(height: AppSpacing.m),
         Text(
-          'VOTACIÓN Y EVALUACIÓN ACADÉMICA',
+          SettingsCopy.of(context).t('VOTACIÓN Y EVALUACIÓN ACADÉMICA'),
           textAlign: TextAlign.center,
           style: theme.textTheme.labelMedium?.copyWith(
             color: muted,

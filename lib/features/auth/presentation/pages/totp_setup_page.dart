@@ -17,6 +17,7 @@ import '../state/auth_providers.dart';
 import '../state/two_factor_controller.dart';
 import '../widgets/totp_qr_card.dart';
 import '../widgets/totp_secret_card.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 class TotpSetupPage extends ConsumerStatefulWidget {
   const TotpSetupPage({super.key});
@@ -71,7 +72,8 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
     final code = _codeCtrl.text.trim();
     if (code.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa los 6 dígitos')),
+        SnackBar(
+            content: Text(SettingsCopy.of(context).t('Ingresa los 6 dígitos'))),
       );
       return;
     }
@@ -87,7 +89,7 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
       failure: (f) {
         setState(() => _verifying = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(f.message)),
+           SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
         );
       },
     );
@@ -95,21 +97,22 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final text = SettingsCopy.of(context);
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Configurar 2FA'),
+      appBar: buildCampusVoteAppBar(context, title: text.t('Configurar 2FA')),
       body: SafeArea(
         child: _loadingSetup
-            ? const AppLoader(message: 'Generando código QR...')
+            ? AppLoader(message: text.t('Generando código QR...'))
             : _error != null
                 ? AppErrorView(message: _error!, onRetry: _init)
                 : ListView(
                     padding: const EdgeInsets.all(AppSpacing.l),
                     children: [
-                      const NoticeBanner(
+                      NoticeBanner(
                         icon: Icons.info_outline_rounded,
                         tone: AppTone.info,
-                        message: 'Escanea este QR con Google Authenticator, '
-                            'Microsoft Authenticator o similar.',
+                        message: text.t(
+                            'Escanea este QR con Google Authenticator, Microsoft Authenticator o similar.'),
                       ),
                       const SizedBox(height: AppSpacing.l),
                       TotpQrCard(
@@ -121,22 +124,22 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
                       const SizedBox(height: AppSpacing.l),
                       OtpCodeField(
                         controller: _codeCtrl,
-                        label: 'Código de la aplicación',
+                        label: text.t('Código de la aplicación'),
                         // Sin autofocus: primero hay que escanear el QR con el
                         // teléfono y el teclado taparía la imagen.
                         autofocus: false,
                       ),
                       const SizedBox(height: AppSpacing.l),
                       AppButton(
-                        label: 'Activar 2FA',
+                        label: text.t('Activar 2FA'),
                         icon: Icons.verified_user_rounded,
                         isLoading: _verifying,
                         onPressed: _verifying ? null : _verify,
                       ),
                       const SizedBox(height: AppSpacing.s),
-                      const AppBadge(
-                        label:
-                            'Después de activar, en cada login el sistema te pedirá el OTP además de tu contraseña.',
+                      AppBadge(
+                        label: text.t(
+                            'Después de activar, en cada login el sistema te pedirá el OTP además de tu contraseña.'),
                         background: AppColors.primarySoft,
                         foreground: AppColors.primary,
                         icon: Icons.lock_outline,

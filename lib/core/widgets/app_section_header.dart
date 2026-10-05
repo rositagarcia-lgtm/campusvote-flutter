@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Encabezado de sección: sobretítulo en mayúsculas, título opcional,
 /// descripción y contador en una píldora de borde fino.
@@ -117,7 +118,9 @@ class _CountPill extends StatelessWidget {
     final muted = appMuted(isDark);
 
     return Semantics(
-      label: '$count elementos',
+      label: SettingsCopy.of(context).isEnglish
+          ? '$count items'
+          : '$count elementos',
       excludeSemantics: true,
       child: Container(
         constraints: const BoxConstraints(

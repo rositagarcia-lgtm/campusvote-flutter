@@ -16,6 +16,7 @@ import '../../domain/entities/teaching_assignment.dart';
 import '../state/evaluate_controller.dart';
 import '../state/teaching_list_controller.dart';
 import '../widgets/teacher_rating_selector.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Formulario de calificación general y comentario opcional del estudiante.
 class TeacherEvaluationPage extends ConsumerStatefulWidget {
@@ -71,10 +72,10 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
 
   Future<bool?> _confirmSelection(TeachingAssignment assignment) {
     final course = assignment.courseName.trim().isEmpty
-        ? 'Curso no disponible'
+        ? SettingsCopy.of(context).t('Curso no disponible')
         : assignment.courseName;
     final teacher = assignment.teacherFullName.trim().isEmpty
-        ? 'Docente no disponible'
+        ? SettingsCopy.of(context).t('Docente no disponible')
         : assignment.teacherFullName;
     final comment = _commentController.text.trim();
 
@@ -82,26 +83,36 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         scrollable: true,
-        title: const Text('Revisa tu evaluación'),
+        title: Text(SettingsCopy.of(dialogContext).t('Revisa tu evaluación')),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Confirma la calificación antes de enviarla. El servidor indicará si quedó registrada.',
+              Text(
+                SettingsCopy.of(dialogContext).t(
+                    'Confirma la calificación antes de enviarla. El servidor indicará si quedó registrada.'),
               ),
               const SizedBox(height: AppSpacing.l),
-              _ReviewLine(label: 'Docente', value: teacher),
-              const SizedBox(height: AppSpacing.m),
-              _ReviewLine(label: 'Asignación', value: course),
-              const SizedBox(height: AppSpacing.m),
-              _ReviewLine(label: 'Calificación', value: '$_score de 5'),
+              _ReviewLine(
+                  label: SettingsCopy.of(dialogContext).t('Docente'),
+                  value: teacher),
               const SizedBox(height: AppSpacing.m),
               _ReviewLine(
-                label: 'Comentario',
-                value: comment.isEmpty ? 'Sin comentario' : comment,
+                  label: SettingsCopy.of(dialogContext).t('Asignación'),
+                  value: course),
+              const SizedBox(height: AppSpacing.m),
+              _ReviewLine(
+                  label: SettingsCopy.of(dialogContext).t('Calificación'),
+                  value:
+                      SettingsCopy.of(dialogContext).ratingOutOfFive(_score)),
+              const SizedBox(height: AppSpacing.m),
+              _ReviewLine(
+                label: SettingsCopy.of(dialogContext).t('Comentario'),
+                value: comment.isEmpty
+                    ? SettingsCopy.of(dialogContext).t('Sin comentario')
+                    : comment,
               ),
             ],
           ),
@@ -109,12 +120,12 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Seguir editando'),
+            child: Text(SettingsCopy.of(dialogContext).t('Seguir editando')),
           ),
           FilledButton.icon(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             icon: const Icon(Icons.send_outlined),
-            label: const Text('Enviar evaluación'),
+            label: Text(SettingsCopy.of(dialogContext).t('Enviar evaluación')),
           ),
         ],
       ),
@@ -127,13 +138,14 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
         ref.watch(evaluateTeacherControllerProvider(widget.assignmentId));
     final assignment = _assignment;
     final listState = ref.watch(teachingListControllerProvider);
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Evaluar docente',
+        title: text.t('Evaluar docente'),
         leading: IconButton(
-          tooltip: 'Volver a mis docentes',
+          tooltip: text.t('Volver a mis docentes'),
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/teaching'),
         ),
@@ -143,21 +155,22 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
           : assignment == null
               ? AppErrorView(
                   message: listState.errorMessage ??
-                      'No encontramos esta asignación entre tus docentes.',
+                      text.t(
+                          'No encontramos esta asignación entre tus docentes.'),
                   onRetry: () => context.go('/teaching'),
-                  retryLabel: 'Volver a mis docentes',
+                  retryLabel: text.t('Volver a mis docentes'),
                 )
               : assignment.evaluated
-                  ? const _UnavailableEvaluation(
-                      title: 'Evaluación completada',
-                      message:
-                          'El servidor indica que esta asignación ya fue evaluada.',
+                  ? _UnavailableEvaluation(
+                      title: text.t('Evaluación completada'),
+                      message: text.t(
+                          'El servidor indica que esta asignación ya fue evaluada.'),
                     )
                   : !assignment.isActive
-                      ? const _UnavailableEvaluation(
-                          title: 'Evaluación no disponible',
-                          message:
-                              'Esta asignación no está activa y no se puede evaluar ahora.',
+                      ? _UnavailableEvaluation(
+                          title: text.t('Evaluación no disponible'),
+                          message: text.t(
+                              'Esta asignación no está activa y no se puede evaluar ahora.'),
                         )
                       : _buildForm(context, state, assignment),
     );
@@ -169,15 +182,16 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
     TeachingAssignment assignment,
   ) {
     final theme = Theme.of(context);
+    final text = SettingsCopy.of(context);
     final locked = state.submitting ||
         state.checkingStatus ||
         state.needsStatusCheck ||
         state.confirmed;
     final teacherName = assignment.teacherFullName.trim().isEmpty
-        ? 'Docente no disponible'
+        ? text.t('Docente no disponible')
         : assignment.teacherFullName;
     final courseName = assignment.courseName.trim().isEmpty
-        ? 'Curso no disponible'
+        ? text.t('Curso no disponible')
         : assignment.courseName;
 
     return SafeArea(
@@ -202,7 +216,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                     Semantics(
                       header: true,
                       child: Text(
-                        'Califica al docente',
+                        text.t('Califica al docente'),
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -210,7 +224,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Indica una calificación general. Puedes añadir un comentario de mejora.',
+                      text.t(
+                          'Indica una calificación general. Puedes añadir un comentario de mejora.'),
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.l),
@@ -231,7 +246,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                             Semantics(
                               liveRegion: true,
                               child: Text(
-                                'La calificación es obligatoria. Elige de 1 a 5.',
+                                text.t(
+                                    'La calificación es obligatoria. Elige de 1 a 5.'),
                                 key: const ValueKey('teacher-score-error'),
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.error,
@@ -244,9 +260,10 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                     ),
                     const SizedBox(height: AppSpacing.l),
                     AppTextField(
-                      label: 'Comentario de mejora (opcional)',
-                      hint: 'Escribe una sugerencia concreta y respetuosa.',
-                      helperText: 'Hasta 2000 caracteres.',
+                      label: text.t('Comentario de mejora (opcional)'),
+                      hint: text
+                          .t('Escribe una sugerencia concreta y respetuosa.'),
+                      helperText: text.t('Hasta 2000 caracteres.'),
                       controller: _commentController,
                       maxLines: 5,
                       maxLength: 2000,
@@ -254,7 +271,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                       textInputAction: TextInputAction.newline,
                       validator: (value) => value != null &&
                               value.trim().length > 2000
-                          ? 'El comentario no puede superar 2000 caracteres.'
+                          ? text.t(
+                              'El comentario no puede superar 2000 caracteres.')
                           : null,
                     ),
                     if (state.errorMessage != null) ...[
@@ -275,8 +293,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                     if (state.needsStatusCheck) ...[
                       AppButton.outlined(
                         label: state.checkingStatus
-                            ? 'Consultando el estado'
-                            : 'Consultar estado de la evaluación',
+                            ? text.t('Consultando el estado')
+                            : text.t('Consultar estado de la evaluación'),
                         icon: Icons.refresh_rounded,
                         isLoading: state.checkingStatus,
                         onPressed: state.checkingStatus
@@ -291,8 +309,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                     ],
                     AppButton(
                       label: state.submitting
-                          ? 'Enviando evaluación'
-                          : 'Revisar y confirmar',
+                          ? text.t('Enviando evaluación')
+                          : text.t('Revisar y confirmar'),
                       icon: Icons.send_outlined,
                       isLoading: state.submitting,
                       onPressed: locked ? null : _reviewAndSubmit,
@@ -342,7 +360,7 @@ class _TeacherHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final courseMetadata = [
       if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
-      if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
+      if (assignment.cycle > 0) SettingsCopy.of(context).term(assignment.cycle),
     ].join(' · ');
 
     return AppCard(
@@ -380,8 +398,8 @@ class _TeacherHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.m),
-          const StatusChip(
-            label: 'Pendiente',
+          StatusChip(
+            label: SettingsCopy.of(context).t('Pendiente'),
             tone: AppTone.primary,
             icon: Icons.rate_review_outlined,
           ),
@@ -402,8 +420,8 @@ class _UnavailableEvaluation extends StatelessWidget {
         icon: Icons.assignment_outlined,
         title: title,
         message: message,
-        actionLabel: 'Volver a mis docentes',
+        actionLabel: SettingsCopy.of(context).t('Volver a mis docentes'),
         onAction: () => context.go('/teaching'),
-        overline: 'ESTADO DE LA ASIGNACIÓN',
+        overline: SettingsCopy.of(context).t('ESTADO DE LA ASIGNACIÓN'),
       );
 }

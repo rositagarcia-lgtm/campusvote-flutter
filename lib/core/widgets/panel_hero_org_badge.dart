@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Identidad de la organización dentro de un panel.
 ///
@@ -75,7 +76,7 @@ class _Initials extends StatelessWidget {
 
     return Semantics(
       image: true,
-      label: 'Identidad de $name',
+      label: SettingsCopy.of(context).organizationIdentity(name),
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(

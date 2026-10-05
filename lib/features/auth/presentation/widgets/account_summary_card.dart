@@ -5,6 +5,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_palette.dart';
 import 'account_identity.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Identidad de la cuenta: avatar, nombre y correo.
 ///
@@ -84,7 +85,7 @@ class PasswordCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.s),
               Expanded(
                 child: Text(
-                  'Tu contraseña',
+                  SettingsCopy.of(context).t('Tu contraseña'),
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
@@ -93,13 +94,13 @@ class PasswordCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            'Mantén tu contraseña fuerte. Se requieren 8+ caracteres con '
-            'mayúscula, minúscula, número y símbolo.',
+            SettingsCopy.of(context).t(
+                'Mantén tu contraseña fuerte. Se requieren 8+ caracteres con mayúscula, minúscula, número y símbolo.'),
             style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
           ),
           const SizedBox(height: AppSpacing.m),
           AppButton.outlined(
-            label: 'Cambiar contraseña',
+            label: SettingsCopy.of(context).t('Cambiar contraseña'),
             icon: Icons.edit_rounded,
             onPressed: onPressed,
           ),
@@ -128,7 +129,7 @@ class SessionCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.s),
               Expanded(
                 child: Text(
-                  'Sesión activa',
+                  SettingsCopy.of(context).t('Sesión activa'),
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
@@ -137,13 +138,13 @@ class SessionCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            'Cerrar la sesión invalidará los tokens guardados en este '
-            'dispositivo.',
+            SettingsCopy.of(context).t(
+                'Cerrar la sesión invalidará los tokens guardados en este dispositivo.'),
             style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
           ),
           const SizedBox(height: AppSpacing.m),
           AppButton.danger(
-            label: 'Cerrar sesión',
+            label: SettingsCopy.of(context).t('Cerrar sesión'),
             icon: Icons.logout_rounded,
             onPressed: onLogout,
           ),

@@ -5,6 +5,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../data/models/jury_models.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Panel de solo lectura para una rúbrica finalizada e inmutable.
 class ClosedEvaluationPanel extends StatelessWidget {
@@ -22,6 +23,7 @@ class ClosedEvaluationPanel extends StatelessWidget {
     final theme = Theme.of(context);
     final score = evaluation.score;
     final isDark = theme.brightness == Brightness.dark;
+    final text = SettingsCopy.of(context);
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.l),
@@ -47,7 +49,7 @@ class ClosedEvaluationPanel extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.l),
               Text(
-                'Evaluación cerrada',
+                text.t('Evaluación cerrada'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
@@ -55,7 +57,7 @@ class ClosedEvaluationPanel extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.s),
               Text(
-                'Esta rúbrica ya fue finalizada y no admite cambios.',
+                text.t('Esta rúbrica ya fue finalizada y no admite cambios.'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium,
               ),
@@ -71,40 +73,34 @@ class ClosedEvaluationPanel extends StatelessWidget {
               ],
               const SizedBox(height: AppSpacing.l),
               _SummaryRow(
-                label: 'Puntaje final',
+                label: text.t('Puntaje final'),
                 value: score == null
-                    ? 'No disponible'
+                    ? text.t('No disponible')
                     : '${score.toStringAsFixed(1)} / 20',
               ),
               _SummaryRow(
-                label: 'Criterios marcados',
-                value: '${evaluation.checkedCount ?? 0} de '
-                    '${evaluation.criteriaCount ?? evaluation.totalCriteria}',
+                label: text.t('Criterios marcados'),
+                value: text.selectedCriteria(
+                  evaluation.checkedCount ?? 0,
+                  evaluation.criteriaCount ?? evaluation.totalCriteria,
+                ),
               ),
               if (evaluation.submittedAt != null)
                 _SummaryRow(
-                  label: 'Finalizada',
-                  value: _formatDate(evaluation.submittedAt!),
+                  label: text.t('Finalizada'),
+                  value: text.formatDate(evaluation.submittedAt!),
                 ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.l),
         AppButton.outlined(
-          label: 'Volver a proyectos',
+          label: text.t('Volver a proyectos'),
           icon: Icons.arrow_back_rounded,
           onPressed: onBack,
         ),
       ],
     );
-  }
-
-  static String _formatDate(DateTime date) {
-    final local = date.toLocal();
-    return '${local.day.toString().padLeft(2, '0')}/'
-        '${local.month.toString().padLeft(2, '0')}/${local.year} · '
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
   }
 }
 

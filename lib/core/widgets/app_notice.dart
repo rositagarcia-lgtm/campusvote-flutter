@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_status_chip.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Aviso inline con franja lateral de color: errores, advertencias, avisos
 /// informativos y confirmaciones.
@@ -64,7 +65,9 @@ class NoticeBanner extends StatelessWidget {
                       const SizedBox(width: AppSpacing.s),
                       Expanded(
                         child: Text(
-                          message,
+                          this.tone == AppTone.danger
+                              ? SettingsCopy.of(context).error(message)
+                              : SettingsCopy.of(context).t(message),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: fg,
                             height: 1.4,

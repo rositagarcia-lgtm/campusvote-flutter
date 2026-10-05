@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 Color _muted(bool isDark) =>
     isDark ? AppColors.darkInkMuted : AppColors.inkMuted;
@@ -39,7 +40,7 @@ class AuthHeader extends StatelessWidget {
       children: [
         Semantics(
           image: true,
-          label: 'Logo de CampusVote',
+          label: SettingsCopy.of(context).t('Logo de CampusVote'),
           // Pre-login la identidad es la de CampusVote, no la del tenant.
           child: AppLogo.asset(size: logoSize),
         ),
@@ -49,12 +50,15 @@ class AuthHeader extends StatelessWidget {
           children: [
             Icon(icon, size: AppDimensions.iconSmall, color: accent),
             const SizedBox(width: AppSpacing.s),
-            Text(
-              overline.toUpperCase(),
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: accent,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.6,
+            Flexible(
+              child: Text(
+                overline.toUpperCase(),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.6,
+                ),
               ),
             ),
           ],
@@ -134,9 +138,11 @@ class AuthErrorBanner extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final text = SettingsCopy.of(context);
+
     return Semantics(
       liveRegion: true,
-      label: '$title: $message',
+      label: '${text.t(title)}: ${text.error(message)}',
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
@@ -163,7 +169,7 @@ class AuthErrorBanner extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              title,
+                              text.t(title),
                               style: theme.textTheme.labelLarge?.copyWith(
                                 color: AppColors.danger,
                                 fontWeight: FontWeight.w800,
@@ -171,7 +177,7 @@ class AuthErrorBanner extends StatelessWidget {
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
-                              message,
+                              text.error(message),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: AppColors.danger,
                                 height: 1.4,

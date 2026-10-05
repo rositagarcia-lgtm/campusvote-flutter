@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury/fair/:fairId/declaration` — declaración de imparcialidad.
 ///
@@ -32,7 +33,8 @@ class JuryDeclarationPage extends ConsumerWidget {
     final controller = ref.read(declarationFormProvider(fairId).notifier);
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Declaración de jurado'),
+      appBar: buildCampusVoteAppBar(context,
+          title: SettingsCopy.of(context).t('Declaración de jurado')),
       body: state.loading
           ? const AppLoader()
           : _Body(state: state, controller: controller),
@@ -66,6 +68,7 @@ class _BodyState extends State<_Body> {
     final isDark = theme.brightness == Brightness.dark;
     final state = widget.state;
     final controller = widget.controller;
+    final text = SettingsCopy.of(context);
 
     if (state.signed && state.status?.declaration != null) {
       final declaration = state.status!.declaration!;
@@ -74,8 +77,8 @@ class _BodyState extends State<_Body> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const StatusChip(
-                label: 'Declaración firmada',
+              StatusChip(
+                label: text.t('Declaración firmada'),
                 tone: AppTone.success,
                 icon: Icons.verified_rounded,
               ),
@@ -87,7 +90,7 @@ class _BodyState extends State<_Body> {
               if (declaration.signedAt != null) ...[
                 const SizedBox(height: AppSpacing.m),
                 Text(
-                  'Registrada el ${declaration.signedAt!.toLocal()}',
+                  text.recordedOn(declaration.signedAt!),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: appMuted(isDark),
                   ),
@@ -106,8 +109,8 @@ class _BodyState extends State<_Body> {
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
               Text(
-                'Declara tu imparcialidad antes de evaluar los proyectos de esta '
-                'feria. Queda registrada con tu usuario y la fecha.',
+                text.t(
+                    'Declara tu imparcialidad antes de evaluar los proyectos de esta feria. Queda registrada con tu usuario y la fecha.'),
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: AppSpacing.l),
@@ -120,9 +123,9 @@ class _BodyState extends State<_Body> {
                 const SizedBox(height: AppSpacing.m),
               ],
               AppTextField(
-                label: 'Declaración',
-                hint: 'Declaro que no tengo conflicto de interés con los '
-                    'proyectos de esta feria…',
+                label: text.t('Declaración'),
+                hint: text.t(
+                    'Declaro que no tengo conflicto de interés con los proyectos de esta feria…'),
                 controller: _text,
                 maxLines: 8,
                 maxLength: JuryDeclarationPage.maxLength,
@@ -137,7 +140,7 @@ class _BodyState extends State<_Body> {
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.l),
             child: AppButton(
-              label: 'Firmar declaración',
+              label: text.t('Firmar declaración'),
               onPressed: state.canSubmit ? () => controller.submit() : null,
               isLoading: state.submitting,
             ),

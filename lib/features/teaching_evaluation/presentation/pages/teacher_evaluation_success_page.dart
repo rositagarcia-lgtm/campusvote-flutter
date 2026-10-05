@@ -7,6 +7,7 @@ import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_empty_view.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../state/teaching_list_controller.dart';
 
 /// Confirmación visible únicamente cuando las asignaciones confirman el envío.
@@ -24,13 +25,16 @@ class TeacherEvaluationSuccessPage extends ConsumerWidget {
     final confirmed = assignments.any(
       (assignment) => assignment.id == assignmentId && assignment.evaluated,
     );
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: confirmed ? 'Evaluación registrada' : 'Estado de evaluación',
+        title: confirmed
+            ? text.t('Evaluación registrada')
+            : text.t('Estado de evaluación'),
         leading: IconButton(
-          tooltip: 'Volver a mis docentes',
+          tooltip: text.t('Volver a mis docentes'),
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/teaching'),
         ),
@@ -39,13 +43,12 @@ class TeacherEvaluationSuccessPage extends ConsumerWidget {
           ? _ConfirmedEvaluation(onReturn: () => context.go('/teaching'))
           : AppEmptyView(
               icon: Icons.cloud_sync_outlined,
-              title: 'No hay confirmación del servidor',
-              message: 'No podemos mostrar esta evaluación como completada. '
-                  'Vuelve a tus docentes y actualiza la lista para consultar '
-                  'el estado real.',
-              actionLabel: 'Volver a mis docentes',
+              title: text.t('No hay confirmación del servidor'),
+              message: text.t(
+                  'No podemos mostrar esta evaluación como completada. Vuelve a tus docentes y actualiza la lista para consultar el estado real.'),
+              actionLabel: text.t('Volver a mis docentes'),
               onAction: () => context.go('/teaching'),
-              overline: 'ESTADO PENDIENTE',
+              overline: text.t('ESTADO PENDIENTE'),
             ),
     );
   }
@@ -86,7 +89,7 @@ class _ConfirmedEvaluation extends StatelessWidget {
                   liveRegion: true,
                   header: true,
                   child: Text(
-                    'Evaluación registrada',
+                    SettingsCopy.of(context).t('Evaluación registrada'),
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -95,13 +98,14 @@ class _ConfirmedEvaluation extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s),
                 Text(
-                  'El servidor ya muestra esta asignación como completada.',
+                  SettingsCopy.of(context).t(
+                      'El servidor ya muestra esta asignación como completada.'),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 AppButton(
-                  label: 'Volver a mis docentes',
+                  label: SettingsCopy.of(context).t('Volver a mis docentes'),
                   icon: Icons.school_outlined,
                   onPressed: onReturn,
                 ),

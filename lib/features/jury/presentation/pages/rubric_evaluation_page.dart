@@ -13,6 +13,7 @@ import '../providers/jury_state.dart';
 import '../widgets/project_status_chip.dart';
 import '../widgets/rubric_criterion_tile.dart';
 import '../widgets/rubric_form_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury/fair/:fairId/project/:projectId/rubric`
 ///
@@ -39,10 +40,10 @@ class RubricEvaluationPage extends ConsumerWidget {
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Rúbrica',
+        title: SettingsCopy.of(context).t('Rúbrica'),
         actions: [
           IconButton(
-            tooltip: 'Votar en esta feria',
+            tooltip: SettingsCopy.of(context).t('Votar en esta feria'),
             icon: const Icon(Icons.how_to_vote_rounded),
             onPressed: () => context.push('/jury/fair/$fairId/vote'),
           ),
@@ -52,7 +53,9 @@ class RubricEvaluationPage extends ConsumerWidget {
           ? const AppLoader()
           : !state.hasData
               ? AppErrorView(
-                  message: state.errorMessage ?? 'No se pudo cargar la rúbrica',
+                  message: state.errorMessage ??
+                      SettingsCopy.of(context)
+                          .t('No se pudo cargar la rúbrica'),
                   onRetry: controller.load,
                 )
               : _RubricForm(
@@ -74,6 +77,7 @@ class _RubricForm extends StatelessWidget {
     final theme = Theme.of(context);
     final evaluation = state.evaluation!;
     final criteria = evaluation.rubric.criteria;
+    final text = SettingsCopy.of(context);
 
     return Column(
       children: [
@@ -108,9 +112,9 @@ class _RubricForm extends StatelessWidget {
               RubricScoreCard(state: state),
               const SizedBox(height: AppSpacing.l),
               if (state.submitted)
-                const NoticeBanner(
-                  message:
-                      'Esta evaluación ya fue finalizada y no admite cambios.',
+                NoticeBanner(
+                  message: text.t(
+                      'Esta evaluación ya fue finalizada y no admite cambios.'),
                   tone: AppTone.warning,
                 ),
               if (state.errorMessage != null) ...[
@@ -131,14 +135,14 @@ class _RubricForm extends StatelessWidget {
               ],
               Text(
                 evaluation.rubric.name.isEmpty
-                    ? 'Criterios de evaluación'
+                    ? text.t('Criterios de evaluación')
                     : evaluation.rubric.name,
                 style: theme.textTheme.titleMedium
                     ?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: AppSpacing.s),
               Text(
-                '${state.checkedCount} de ${criteria.length} criterios marcados',
+                text.checkedCriteria(state.checkedCount, criteria.length),
                 style: theme.textTheme.bodySmall,
               ),
               const SizedBox(height: AppSpacing.m),

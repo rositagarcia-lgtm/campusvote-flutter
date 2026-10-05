@@ -13,6 +13,7 @@ import '../../../../core/widgets/otp_code_field.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
 import '../widgets/email_otp_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Paso 2 del acceso del estudiante: verifica el código enviado al correo.
 class EmailOtpVerifyPage extends ConsumerStatefulWidget {
@@ -35,7 +36,9 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
   Future<void> _submit() async {
     if (_codeCtrl.text.trim().length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa un código de 6 dígitos')),
+        SnackBar(
+            content: Text(
+                SettingsCopy.of(context).t('Ingresa un código de 6 dígitos'))),
       );
       return;
     }
@@ -60,8 +63,9 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
       SnackBar(
         content: Text(
           ok
-              ? 'Te enviamos un nuevo código'
-              : 'Espera un minuto y vuelve a intentar',
+              ? SettingsCopy.of(context).t('Te enviamos un nuevo código')
+              : SettingsCopy.of(context)
+                  .t('Espera un minuto y vuelve a intentar'),
         ),
       ),
     );
@@ -76,6 +80,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
     final error = state.errorMessage;
     final email = state.pendingEmail;
     final qrCode = state.pendingQrCode;
+    final text = SettingsCopy.of(context);
 
     return CampusVoteTheme(
       child: Scaffold(
@@ -99,10 +104,10 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                       child: AuthHeader(
                         accent: accent,
                         icon: Icons.verified_user_outlined,
-                        overline: 'Verificación',
-                        title: 'Verifica tu correo',
-                        subtitle:
-                            'Ingresa el código de 6 dígitos que enviamos a tu correo.',
+                        overline: text.t('Verificación'),
+                        title: text.t('Verifica tu correo'),
+                        subtitle: text.t(
+                            'Ingresa el código de 6 dígitos que enviamos a tu correo.'),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
@@ -119,7 +124,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                             ],
                             OtpCodeField(
                               controller: _codeCtrl,
-                              label: 'Código de verificación',
+                              label: text.t('Código de verificación'),
                               onSubmitted: _submit,
                             ),
                             if (error != null) ...[
@@ -127,10 +132,10 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                               AuthErrorBanner(message: error),
                             ],
                             const SizedBox(height: AppSpacing.l),
-                            const AuthInfoNote(
+                            AuthInfoNote(
                               icon: Icons.mark_email_read_outlined,
-                              text:
-                                  'Si no lo recibes, revisa tu carpeta de spam o solicita uno nuevo.',
+                              text: text.t(
+                                  'Si no lo recibes, revisa tu carpeta de spam o solicita uno nuevo.'),
                             ),
                           ],
                         ),
@@ -140,7 +145,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                     FadeSlide(
                       delay: const Duration(milliseconds: 220),
                       child: AppButton(
-                        label: 'Verificar',
+                        label: text.t('Verificar'),
                         icon: Icons.verified_outlined,
                         isLoading: state.submitting,
                         onPressed: state.submitting ? null : _submit,
@@ -150,7 +155,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                     FadeSlide(
                       delay: const Duration(milliseconds: 300),
                       child: AppButton.outlined(
-                        label: 'Reenviar código',
+                        label: text.t('Reenviar código'),
                         icon: Icons.refresh_rounded,
                         isLoading: _resending,
                         onPressed:

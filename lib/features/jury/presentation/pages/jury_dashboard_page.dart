@@ -19,6 +19,7 @@ import '../../../notifications/notifications_controller.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/jury_fair_card.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury` — dashboard de ferias asignadas (`GET /fairs/my-assignments`).
 class JuryDashboardPage extends ConsumerWidget {
@@ -28,16 +29,15 @@ class JuryDashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fairs = ref.watch(juryDashboardProvider);
     final unreadCount = ref.watch(notificationsControllerProvider).unreadCount;
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Jurado',
+        title: text.t('Jurado'),
         actions: [
           IconButton(
-            tooltip: unreadCount > 0
-                ? 'Notificaciones: $unreadCount sin leer'
-                : 'Notificaciones',
+            tooltip: text.notificationsTooltip(unreadCount),
             onPressed: () => context.push('/jury/notifications'),
             icon: Badge(
               isLabelVisible: unreadCount > 0,
@@ -46,12 +46,12 @@ class JuryDashboardPage extends ConsumerWidget {
             ),
           ),
           IconButton(
-            tooltip: 'Actualizar',
+            tooltip: text.t('Actualizar'),
             icon: const Icon(Icons.refresh_rounded),
             onPressed: () => ref.read(juryDashboardProvider.notifier).reload(),
           ),
           IconButton(
-            tooltip: 'Cerrar sesión',
+            tooltip: text.t('Cerrar sesión'),
             icon: const Icon(Icons.logout_rounded),
             onPressed: () async {
               await ref.read(authControllerProvider.notifier).logout();
@@ -86,9 +86,10 @@ Widget _bodyFor(
       );
     case AsyncData(:final value):
       if (value.isEmpty) {
-        return const AppEmptyView(
+        return AppEmptyView(
           icon: Icons.event_busy_rounded,
-          message: 'No tienes ferias asignadas por ahora.',
+          message: SettingsCopy.of(context)
+              .t('No tienes ferias asignadas por ahora.'),
         );
       }
       return _FairsList(fairs: value);
@@ -105,6 +106,7 @@ class _FairsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final branding = ref.watch(brandingControllerProvider);
+    final text = SettingsCopy.of(context);
     final open = fairs.where((f) => f.isOpen).toList(growable: false);
     final others = fairs.where((f) => !f.isOpen).toList(growable: false);
 
@@ -119,13 +121,13 @@ class _FairsList extends ConsumerWidget {
         children: [
           FadeSlide(
             child: PanelHero(
-              title: 'Mis ferias de evaluación',
-              subtitle:
-                  'Revisa proyectos, aplica la rúbrica y registra tus decisiones académicas.',
+              title: text.t('Mis ferias de evaluación'),
+              subtitle: text.t(
+                  'Revisa proyectos, aplica la rúbrica y registra tus decisiones académicas.'),
               icon: Icons.gavel_rounded,
               badge: open.isNotEmpty
-                  ? '${open.length} feria${open.length == 1 ? '' : 's'} abierta${open.length == 1 ? '' : 's'}'
-                  : 'Sin ferias abiertas',
+                  ? text.openFairs(open.length)
+                  : text.t('Sin ferias abiertas'),
               organizationLogoUrl: branding.logoUrl,
               organizationName: branding.name,
             ),
@@ -135,9 +137,9 @@ class _FairsList extends ConsumerWidget {
             delay: const Duration(milliseconds: 80),
             child: StatsStrip(
               items: [
-                StatItem(label: 'Asignadas', value: fairs.length),
+                StatItem(label: text.t('Asignadas'), value: fairs.length),
                 StatItem(
-                  label: 'Abiertas',
+                  label: text.t('Abiertas'),
                   value: open.length,
                   highlight: open.isNotEmpty,
                 ),
@@ -147,8 +149,8 @@ class _FairsList extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xl),
           if (open.isNotEmpty) ...[
             SectionHeader(
-              label: 'Ferias disponibles',
-              subtitle: 'Puedes entrar y comenzar tu evaluación.',
+              label: text.t('Ferias disponibles'),
+              subtitle: text.t('Puedes entrar y comenzar tu evaluación.'),
               count: open.length,
             ),
             ..._cards(open, startAt: 0),
@@ -156,8 +158,8 @@ class _FairsList extends ConsumerWidget {
           if (others.isNotEmpty) ...[
             if (open.isNotEmpty) const SizedBox(height: AppSpacing.l),
             SectionHeader(
-              label: 'Historial',
-              subtitle: 'Ferias en preparación o ya cerradas.',
+              label: text.t('Historial'),
+              subtitle: text.t('Ferias en preparación o ya cerradas.'),
               count: others.length,
             ),
             ..._cards(others, startAt: open.length),
