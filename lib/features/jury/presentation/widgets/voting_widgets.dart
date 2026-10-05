@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
@@ -29,14 +30,19 @@ class VotingProjectOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final accent = theme.colorScheme.primary;
+    final accessibleLabel = [
+      project.name,
+      if (project.categoryName != null) project.categoryName!,
+      selected ? 'Seleccionado' : 'No seleccionado',
+    ].join('. ');
 
     return Semantics(
+      button: true,
       inMutuallyExclusiveGroup: true,
       selected: selected,
       enabled: enabled,
-      label: project.categoryName == null
-          ? project.name
-          : '${project.name}. ${project.categoryName}',
+      onTap: enabled ? onTap : null,
+      label: accessibleLabel,
       excludeSemantics: true,
       child: AppCard(
         color: selected ? theme.colorScheme.primaryContainer : null,
@@ -68,6 +74,16 @@ class VotingProjectOption extends StatelessWidget {
                     Text(
                       project.categoryName!,
                       style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                  if (selected) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Seleccionado',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ],
@@ -148,6 +164,68 @@ class VoteReceiptView extends StatelessWidget {
               tone: AppTone.success,
               icon: Icons.lock_outline_rounded,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// La consulta de estado confirma participación cuando el POST tuvo una
+/// respuesta ambigua. No se inventa ni se vuelve a mostrar un comprobante.
+class VoteParticipationView extends StatelessWidget {
+  const VoteParticipationView({super.key, required this.status});
+
+  final VotingStatusModel status;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final votedAt = status.votedAt?.toLocal();
+    final timestamp = votedAt == null
+        ? null
+        : '${votedAt.day.toString().padLeft(2, '0')}/${votedAt.month.toString().padLeft(2, '0')}/${votedAt.year} · ${votedAt.hour.toString().padLeft(2, '0')}:${votedAt.minute.toString().padLeft(2, '0')}';
+
+    return PageScrollBody(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: AppSpacing.xxl),
+          Icon(
+            Icons.verified_outlined,
+            size: AppDimensions.iconLarge * 2,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: AppSpacing.l),
+          Semantics(
+            header: true,
+            child: Text(
+              'Participación confirmada',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s),
+          const Text(
+            'El servidor confirma que ya emitiste tu voto en esta feria. No es posible volver a votar.',
+            textAlign: TextAlign.center,
+          ),
+          if (timestamp != null) ...[
+            const SizedBox(height: AppSpacing.m),
+            Text(
+              'Registrado el $timestamp',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
+          const SizedBox(height: AppSpacing.l),
+          const NoticeBanner(
+            message:
+                'No se recibió un comprobante para esta respuesta. Tu selección permanece anónima y no se puede recuperar desde la app.',
+            tone: AppTone.info,
+            icon: Icons.info_outline_rounded,
           ),
         ],
       ),

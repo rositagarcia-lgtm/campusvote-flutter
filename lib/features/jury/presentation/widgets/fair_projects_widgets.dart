@@ -86,7 +86,7 @@ class ProgressBanner extends StatelessWidget {
   }
 }
 
-/// Accesos rápidos de la feria: progreso, votar y resultados.
+/// Accesos del jurado a su progreso y a la votación oficial.
 class FairActionsBar extends StatelessWidget {
   const FairActionsBar({super.key, required this.fairId});
 
@@ -109,14 +109,6 @@ class FairActionsBar extends StatelessWidget {
             icon: Icons.how_to_vote_rounded,
             label: 'Votar',
             onTap: () => context.push('/jury/fair/$fairId/vote'),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.m),
-        Expanded(
-          child: _ActionTile(
-            icon: Icons.leaderboard_rounded,
-            label: 'Resultados',
-            onTap: () => context.push('/jury/fair/$fairId/results'),
           ),
         ),
       ],

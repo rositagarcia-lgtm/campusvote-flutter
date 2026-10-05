@@ -35,19 +35,19 @@ class TeachingAssignmentModel {
         ? Map<String, dynamic>.from(json['teacher'] as Map)
         : <String, dynamic>{};
 
+    final cycleValue = json['cycle'] ?? course['cycle'];
     return TeachingAssignmentModel(
       id: (json['id'] ?? '').toString(),
       courseId: (json['courseId'] ?? course['id'] ?? '').toString(),
       teacherId: (json['teacherId'] ?? teacher['id'] ?? '').toString(),
       courseCode: (course['code'] ?? '').toString(),
       courseName: (course['name'] ?? '').toString(),
-      cycle: (json['cycle'] ?? course['cycle'] ?? 0) is num
-          ? ((json['cycle'] ?? course['cycle']) as num).toInt()
-          : 0,
+      cycle: cycleValue is num ? cycleValue.toInt() : 0,
       teacherFirstName: (teacher['firstName'] ?? '').toString(),
       teacherLastName: (teacher['lastName'] ?? '').toString(),
       evaluated: json['evaluated'] == true,
-      isActive: json['isActive'] != false,
+      // Una asignación solo se considera activa si el backend lo confirma.
+      isActive: json['isActive'] == true,
     );
   }
 

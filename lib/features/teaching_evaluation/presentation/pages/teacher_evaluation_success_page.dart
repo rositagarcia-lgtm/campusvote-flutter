@@ -2,90 +2,111 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_empty_view.dart';
+import '../state/teaching_list_controller.dart';
 
-/// Confirmación de evaluación enviada.
+/// Confirmación visible únicamente cuando las asignaciones confirman el envío.
 class TeacherEvaluationSuccessPage extends ConsumerWidget {
-  final String assignmentId;
   const TeacherEvaluationSuccessPage({
     super.key,
     required this.assignmentId,
   });
 
+  final String assignmentId;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final assignments = ref.watch(teachingListControllerProvider).items;
+    final confirmed = assignments.any(
+      (assignment) => assignment.id == assignmentId && assignment.evaluated,
+    );
+
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Evaluación enviada',
+        title: confirmed ? 'Evaluación registrada' : 'Estado de evaluación',
         leading: IconButton(
+          tooltip: 'Volver a mis docentes',
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/teaching'),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
+      body: confirmed
+          ? _ConfirmedEvaluation(onReturn: () => context.go('/teaching'))
+          : AppEmptyView(
+              icon: Icons.cloud_sync_outlined,
+              title: 'No hay confirmación del servidor',
+              message: 'No podemos mostrar esta evaluación como completada. '
+                  'Vuelve a tus docentes y actualiza la lista para consultar '
+                  'el estado real.',
+              actionLabel: 'Volver a mis docentes',
+              onAction: () => context.go('/teaching'),
+              overline: 'ESTADO PENDIENTE',
+            ),
+    );
+  }
+}
+
+class _ConfirmedEvaluation extends StatelessWidget {
+  const _ConfirmedEvaluation({required this.onReturn});
+
+  final VoidCallback onReturn;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Center(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(),
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.7, end: 1),
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeOutBack,
-                builder: (context, scale, child) => Transform.scale(
-                  scale: scale,
-                  child: child,
-                ),
-                child: Container(
-                  width: 120,
-                  height: 120,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: context.brandPrimarySoft,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    Icons.check_circle_rounded,
-                    size: 72,
+                    Icons.check_rounded,
+                    size: 44,
                     color: context.brandPrimary,
                   ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                'Gracias por tu evaluación',
-                style: theme.textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.m),
-              Text(
-                'Tu respuesta fue registrada de forma anónima y no puede '
-                'ser modificada. La institución la usará como insumo para '
-                'mejorar la enseñanza.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge,
-              ),
-              const Spacer(),
-              AppButton(
-                label: 'Volver a mis docentes',
-                icon: Icons.school_rounded,
-                onPressed: () => context.go('/teaching'),
-              ),
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                'No puedes evaluar dos veces al mismo docente y curso.',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppColors.inkFaint,
+                const SizedBox(height: AppSpacing.xl),
+                Semantics(
+                  liveRegion: true,
+                  header: true,
+                  child: Text(
+                    'Evaluación registrada',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: AppSpacing.s),
+                Text(
+                  'El servidor ya muestra esta asignación como completada.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge,
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                AppButton(
+                  label: 'Volver a mis docentes',
+                  icon: Icons.school_outlined,
+                  onPressed: onReturn,
+                ),
+              ],
+            ),
           ),
         ),
       ),

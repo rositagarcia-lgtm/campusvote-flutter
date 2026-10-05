@@ -87,7 +87,10 @@ class RubricFormController extends StateNotifier<RubricFormState> {
   /// Precarga la hoja del backend y arma `answers` con TODOS los criterios
   /// activos (marcados o no), que es lo que el PUT exige al finalizar.
   Future<void> load() async {
-    state = state.copyWith(loading: true, clearError: true);
+    state = state.copyWith(
+      loading: true,
+      clearError: true,
+    );
     try {
       final evaluation =
           await _repo.getProjectRubric(args.fairId, args.projectId);
@@ -171,7 +174,11 @@ class VotingFormController extends StateNotifier<VotingFormState> {
   final String fairId;
 
   Future<void> load() async {
-    state = state.copyWith(loading: true, clearError: true);
+    state = state.copyWith(
+      loading: true,
+      requiresStatusRefresh: true,
+      clearError: true,
+    );
     try {
       final repo = _ref.read(juryRepositoryProvider);
       final results = await Future.wait([
@@ -180,12 +187,34 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       ]);
       state = state.copyWith(
         loading: false,
+        requiresStatusRefresh: false,
         status: results[0] as VotingStatusModel,
         projects: results[1] as List<FairProjectModel>,
       );
     } catch (e) {
       state =
           state.copyWith(loading: false, errorMessage: describeJuryError(e));
+    }
+  }
+
+  /// Reconciliación ligera tras una respuesta ambigua del voto: no vuelve a
+  /// solicitar proyectos para desbloquear una selección ya cargada.
+  Future<void> refreshStatus() async {
+    state = state.copyWith(loading: true, clearError: true);
+    try {
+      final status =
+          await _ref.read(juryRepositoryProvider).getVotingStatus(fairId);
+      state = state.copyWith(
+        loading: false,
+        status: status,
+        requiresStatusRefresh: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        loading: false,
+        requiresStatusRefresh: true,
+        errorMessage: describeJuryError(e),
+      );
     }
   }
 
@@ -210,14 +239,31 @@ class VotingFormController extends StateNotifier<VotingFormState> {
           fairId: fairId,
           fairStatus: state.status?.fairStatus ?? FairStatus.open,
           hasVoted: true,
-          votedAt: DateTime.now(),
         ),
         clearSelection: true,
       );
       return true;
     } catch (e) {
-      state =
-          state.copyWith(submitting: false, errorMessage: describeJuryError(e));
+      final message = describeJuryError(e);
+      state = state.copyWith(
+        submitting: false,
+        requiresStatusRefresh: true,
+        errorMessage: message,
+      );
+      // El POST pudo llegar al servidor aunque la respuesta se haya perdido.
+      // Consultamos participación antes de habilitar cualquier reintento.
+      try {
+        final status =
+            await _ref.read(juryRepositoryProvider).getVotingStatus(fairId);
+        state = state.copyWith(
+          status: status,
+          requiresStatusRefresh: false,
+          errorMessage: status.hasVoted ? null : message,
+        );
+      } catch (_) {
+        // Sin respuesta del estado, la selección queda bloqueada hasta que el
+        // usuario recupere conectividad y fuerce una nueva consulta.
+      }
       return false;
     }
   }

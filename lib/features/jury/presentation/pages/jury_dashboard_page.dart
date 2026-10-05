@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_stats.dart';
 import '../../../../core/widgets/fade_slide.dart';
 import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
+import '../../../notifications/notifications_controller.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/jury_fair_card.dart';
@@ -26,12 +27,24 @@ class JuryDashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fairs = ref.watch(juryDashboardProvider);
+    final unreadCount = ref.watch(notificationsControllerProvider).unreadCount;
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Panel del jurado',
+        title: 'Jurado',
         actions: [
+          IconButton(
+            tooltip: unreadCount > 0
+                ? 'Notificaciones: $unreadCount sin leer'
+                : 'Notificaciones',
+            onPressed: () => context.push('/jury/notifications'),
+            icon: Badge(
+              isLabelVisible: unreadCount > 0,
+              label: Text(unreadCount > 99 ? '99+' : '$unreadCount'),
+              child: const Icon(Icons.notifications_outlined),
+            ),
+          ),
           IconButton(
             tooltip: 'Actualizar',
             icon: const Icon(Icons.refresh_rounded),
@@ -106,8 +119,9 @@ class _FairsList extends ConsumerWidget {
         children: [
           FadeSlide(
             child: PanelHero(
-              title: 'Panel del jurado',
-              subtitle: 'Evalúa proyectos y vota en tus ferias asignadas',
+              title: 'Mis ferias de evaluación',
+              subtitle:
+                  'Revisa proyectos, aplica la rúbrica y registra tus decisiones académicas.',
               icon: Icons.gavel_rounded,
               badge: open.isNotEmpty
                   ? '${open.length} feria${open.length == 1 ? '' : 's'} abierta${open.length == 1 ? '' : 's'}'
@@ -133,14 +147,19 @@ class _FairsList extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xl),
           if (open.isNotEmpty) ...[
             SectionHeader(
-              label: 'Abiertas · evaluar y votar',
+              label: 'Ferias disponibles',
+              subtitle: 'Puedes entrar y comenzar tu evaluación.',
               count: open.length,
             ),
             ..._cards(open, startAt: 0),
           ],
           if (others.isNotEmpty) ...[
             if (open.isNotEmpty) const SizedBox(height: AppSpacing.l),
-            SectionHeader(label: 'Otras ferias', count: others.length),
+            SectionHeader(
+              label: 'Historial',
+              subtitle: 'Ferias en preparación o ya cerradas.',
+              count: others.length,
+            ),
             ..._cards(others, startAt: open.length),
           ],
         ],

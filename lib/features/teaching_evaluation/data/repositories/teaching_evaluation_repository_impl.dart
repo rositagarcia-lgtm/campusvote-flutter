@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../../../core/config/endpoints.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/result.dart';
@@ -14,10 +16,21 @@ class TeachingEvaluationRepositoryImpl implements TeachingEvaluationRepository {
   Future<Result<List<TeachingAssignment>>> getMyAssignments() async {
     try {
       final res = await _client.get(ApiEndpoints.myTeachingAssignments);
+      _throwForHttpError(res, ApiEndpoints.myTeachingAssignments);
       final raw = res.data;
+      if (raw is Map && raw['success'] == false) {
+        throw const FormatException('El servidor rechazó la consulta.');
+      }
       final list = raw is Map
-          ? (raw['data'] is List ? raw['data'] : <dynamic>[])
-          : (raw is List ? raw : <dynamic>[]);
+          ? raw['data']
+          : raw is List
+              ? raw
+              : null;
+      if (list is! List) {
+        throw const FormatException(
+          'El servidor devolvió una lista de asignaciones no válida.',
+        );
+      }
       final models = list
           .whereType<Map>()
           .map((m) =>
@@ -45,10 +58,18 @@ class TeachingEvaluationRepositoryImpl implements TeachingEvaluationRepository {
           if (comment != null && comment.isNotEmpty) 'comment': comment,
         },
       );
-      final m = res.data is Map
-          ? Map<String, dynamic>.from(
-              (res.data as Map)['data'] as Map? ?? const {})
-          : const <String, dynamic>{};
+      _throwForHttpError(res, ApiEndpoints.evaluateTeacher);
+      if (res.data is Map && (res.data as Map)['success'] == false) {
+        throw const FormatException('El servidor no confirmó la evaluación.');
+      }
+      final responseBody = res.data;
+      final rawData = responseBody is Map ? responseBody['data'] : null;
+      if (rawData is! Map) {
+        throw const FormatException(
+          'El servidor no devolvió la confirmación de la evaluación.',
+        );
+      }
+      final m = Map<String, dynamic>.from(rawData);
       return Success(TeacherEvaluationResult(
         id: (m['id'] ?? '').toString(),
         score: m['score'] is num ? (m['score'] as num).toInt() : score,
@@ -59,5 +80,15 @@ class TeachingEvaluationRepositoryImpl implements TeachingEvaluationRepository {
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
     }
+  }
+
+  void _throwForHttpError(Response<dynamic> response, String path) {
+    final statusCode = response.statusCode ?? 500;
+    if (statusCode < 400) return;
+    throw DioException(
+      requestOptions: RequestOptions(path: path),
+      response: response,
+      type: DioExceptionType.badResponse,
+    );
   }
 }

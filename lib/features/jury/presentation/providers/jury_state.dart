@@ -90,6 +90,7 @@ class VotingFormState {
     this.projects = const [],
     this.loading = true,
     this.submitting = false,
+    this.requiresStatusRefresh = false,
     this.selectedProjectId,
     this.receipt,
     this.errorMessage,
@@ -102,13 +103,20 @@ class VotingFormState {
   /// Se pone en true ANTES del POST: el backend rechaza el segundo voto con
   /// 409, así que el botón no puede reactivarse hasta tener respuesta.
   final bool submitting;
+
+  /// Una respuesta perdida del POST puede ocultar que el servidor ya registró
+  /// el voto. En ese caso se exige reconciliar con GET antes de permitir otro.
+  final bool requiresStatusRefresh;
   final String? selectedProjectId;
   final VoteReceiptModel? receipt;
   final String? errorMessage;
 
   /// Regla 5: bloqueada si la feria no está abierta o ya voted.
   bool get canVote =>
-      (status?.canVote ?? false) && !submitting && receipt == null;
+      (status?.canVote ?? false) &&
+      !submitting &&
+      !requiresStatusRefresh &&
+      receipt == null;
   bool get hasVoted => status?.hasVoted ?? false;
 
   VotingFormState copyWith({
@@ -116,6 +124,7 @@ class VotingFormState {
     List<FairProjectModel>? projects,
     bool? loading,
     bool? submitting,
+    bool? requiresStatusRefresh,
     String? selectedProjectId,
     VoteReceiptModel? receipt,
     String? errorMessage,
@@ -127,6 +136,8 @@ class VotingFormState {
         projects: projects ?? this.projects,
         loading: loading ?? this.loading,
         submitting: submitting ?? this.submitting,
+        requiresStatusRefresh:
+            requiresStatusRefresh ?? this.requiresStatusRefresh,
         selectedProjectId: clearSelection
             ? null
             : (selectedProjectId ?? this.selectedProjectId),

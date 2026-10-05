@@ -8,36 +8,35 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
-import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../domain/entities/teaching_assignment.dart';
 import '../state/teaching_list_controller.dart';
 
-/// Inicio del ESTUDIANTE: sus asignaciones docentes del periodo.
-///
-/// - "Por evaluar": asignaciones activas sin evaluación.
-/// - "Evaluadas": ya respondidas (no se pueden repetir; el backend lo impide).
+/// Inicio del estudiante: asignaciones docentes entregadas por el backend.
 class TeachingHomePage extends ConsumerWidget {
   const TeachingHomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(teachingListControllerProvider);
-    final ctrl = ref.read(teachingListControllerProvider.notifier);
+    final controller = ref.read(teachingListControllerProvider.notifier);
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Mis docentes',
+        title: 'Evaluación docente',
         actions: [
           IconButton(
-            tooltip: 'Actualizar',
+            tooltip: 'Actualizar asignaciones',
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: ctrl.refresh,
+            onPressed: state.loading ? null : controller.refresh,
           ),
           IconButton(
             tooltip: 'Cerrar sesión',
@@ -49,78 +48,122 @@ class TeachingHomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: _Body(state: state, onRefresh: ctrl.refresh),
+      body: _TeachingAssignmentsBody(
+        state: state,
+        onRefresh: controller.refresh,
+      ),
       bottomNavigationBar: const AppBottomNav(selectedIndex: 0),
     );
   }
 }
 
-class _Body extends ConsumerWidget {
+class _TeachingAssignmentsBody extends ConsumerWidget {
+  const _TeachingAssignmentsBody({
+    required this.state,
+    required this.onRefresh,
+  });
+
   final TeachingListState state;
   final Future<void> Function() onRefresh;
-
-  const _Body({required this.state, required this.onRefresh});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (state.loading && state.items.isEmpty) return const AppLoader();
     if (state.errorMessage != null && state.items.isEmpty) {
-      return AppErrorView(message: state.errorMessage!, onRetry: onRefresh);
+      return AppErrorView(
+        message: state.errorMessage!,
+        onRetry: () => onRefresh(),
+      );
     }
     if (state.isEmpty) {
-      return const AppEmptyView(
+      return AppEmptyView(
         icon: Icons.school_outlined,
-        message: 'Aún no tienes docentes asignados en este periodo. Cuando tu '
-            'organización asigne docentes a tu carrera y ciclo, aparecerán aquí.',
+        title: 'Sin asignaciones docentes',
+        message: 'Cuando haya docentes asignados a tu carrera y ciclo, '
+            'aparecerán aquí para que puedas evaluarlos.',
+        actionLabel: 'Actualizar lista',
+        onAction: () => onRefresh(),
       );
     }
 
-    final pending = state.pending.where((a) => a.isActive).toList();
-    final unavailable = state.pending.where((a) => !a.isActive).toList();
-    final done = state.done;
+    final pending = state.pending.where((item) => item.isActive).toList();
+    final unavailable = state.pending.where((item) => !item.isActive).toList();
+    final completed = state.done;
     final branding = ref.watch(brandingControllerProvider);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.l),
         children: [
-          PanelHero(
-            title: 'Panel del estudiante',
-            subtitle: 'Evalúa el desempeño de tus docentes de forma anónima',
-            icon: Icons.school_rounded,
-            badge: pending.isNotEmpty
-                ? '${pending.length} docente${pending.length == 1 ? '' : 's'} por evaluar'
-                : 'Todo evaluado este periodo',
-            organizationLogoUrl: branding.logoUrl,
-            organizationName: branding.name,
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 880),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PanelHero(
+                    title: 'Tus docentes',
+                    subtitle:
+                        'Consulta tus asignaciones y califica a cada docente.',
+                    icon: Icons.school_rounded,
+                    badge: pending.isNotEmpty
+                        ? '${pending.length} pendiente${pending.length == 1 ? '' : 's'}'
+                        : completed.isNotEmpty
+                            ? 'Sin pendientes'
+                            : 'Sin evaluaciones pendientes',
+                    organizationLogoUrl: branding.logoUrl,
+                    organizationName: branding.name,
+                  ),
+                  if (state.loading) ...[
+                    const SizedBox(height: AppSpacing.m),
+                    const LinearProgressIndicator(),
+                  ],
+                  if (state.errorMessage != null) ...[
+                    const SizedBox(height: AppSpacing.m),
+                    NoticeBanner(
+                      message: state.errorMessage!,
+                      tone: AppTone.danger,
+                      liveRegion: true,
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.xl),
+                  if (pending.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: 'Por evaluar',
+                      subtitle: 'Elige una asignación pendiente para comenzar.',
+                      count: pending.length,
+                    ),
+                    for (final assignment in pending)
+                      _AssignmentCard(assignment: assignment),
+                  ],
+                  if (unavailable.isNotEmpty) ...[
+                    if (pending.isNotEmpty)
+                      const SizedBox(height: AppSpacing.l),
+                    _SectionHeader(
+                      title: 'No disponibles',
+                      subtitle: 'Estas asignaciones no están activas.',
+                      count: unavailable.length,
+                    ),
+                    for (final assignment in unavailable)
+                      _AssignmentCard(assignment: assignment),
+                  ],
+                  if (completed.isNotEmpty) ...[
+                    if (pending.isNotEmpty || unavailable.isNotEmpty)
+                      const SizedBox(height: AppSpacing.l),
+                    _SectionHeader(
+                      title: 'Completadas',
+                      subtitle: 'El servidor confirma estas evaluaciones.',
+                      count: completed.length,
+                    ),
+                    for (final assignment in completed)
+                      _AssignmentCard(assignment: assignment),
+                  ],
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: AppSpacing.l),
-          if (pending.isNotEmpty) ...[
-            const _SectionHeader(
-              title: 'Por evaluar',
-              subtitle: 'Tu opinión suma a la mejora de la enseñanza',
-            ),
-            for (final a in pending) _AssignmentCard(assignment: a),
-          ],
-          if (unavailable.isNotEmpty) ...[
-            if (pending.isNotEmpty) const SizedBox(height: AppSpacing.l),
-            const _SectionHeader(
-              title: 'No disponibles',
-              subtitle: 'Estas asignaciones no están activas en este periodo.',
-            ),
-            for (final a in unavailable) _AssignmentCard(assignment: a),
-          ],
-          if (done.isNotEmpty) ...[
-            if (pending.isNotEmpty) const SizedBox(height: AppSpacing.l),
-            const _SectionHeader(
-              title: 'Evaluados',
-              subtitle: 'Gracias por tu participación',
-            ),
-            for (final a in done) _AssignmentCard(assignment: a),
-          ],
-          const SizedBox(height: AppSpacing.xxl),
-          const _AnonymityNote(),
         ],
       ),
     );
@@ -128,9 +171,15 @@ class _Body extends ConsumerWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.subtitle,
+    required this.count,
+  });
+
   final String title;
   final String subtitle;
-  const _SectionHeader({required this.title, required this.subtitle});
+  final int count;
 
   @override
   Widget build(BuildContext context) {
@@ -140,10 +189,13 @@ class _SectionHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
+          Semantics(
+            header: true,
+            child: Text(
+              '$title · $count',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -155,129 +207,114 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _AssignmentCard extends StatelessWidget {
-  final TeachingAssignment assignment;
   const _AssignmentCard({required this.assignment});
+
+  final TeachingAssignment assignment;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final enabled = assignment.isActive && !assignment.evaluated;
+    final (statusLabel, tone, statusIcon) = assignment.evaluated
+        ? ('Completada', AppTone.success, Icons.check_circle_outline_rounded)
+        : assignment.isActive
+            ? ('Por evaluar', AppTone.primary, Icons.rate_review_outlined)
+            : ('No disponible', AppTone.neutral, Icons.lock_outline_rounded);
+    final courseName = assignment.courseName.trim().isEmpty
+        ? 'Curso sin nombre'
+        : assignment.courseName;
+    final teacherName = assignment.teacherFullName.trim().isEmpty
+        ? 'Nombre del docente no disponible'
+        : assignment.teacherFullName;
+    final courseMetadata = [
+      if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
+      if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
+    ].join(' · ');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
       child: AppCard(
         padding: EdgeInsets.zero,
-        bordered: true,
-        elevated: enabled,
         child: InkWell(
-          borderRadius: AppRadii.rMedium,
+          borderRadius: AppRadii.rLarge,
           onTap: enabled
               ? () => context.go('/teaching/evaluate/${assignment.id}')
               : null,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.l),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: enabled
-                        ? context.brandPrimarySoft
-                        : AppColors.background,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.menu_book_rounded,
-                    color: enabled ? context.brandPrimary : AppColors.inkFaint,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.m),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        assignment.courseName,
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: enabled
+                            ? context.brandPrimarySoft
+                            : AppColors.background,
+                        borderRadius: AppRadii.rMedium,
+                      ),
+                      child: Icon(
+                        Icons.menu_book_outlined,
+                        color:
+                            enabled ? context.brandPrimary : AppColors.inkFaint,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.m),
+                    Expanded(
+                      child: Text(
+                        courseName,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        '${assignment.courseCode} · Ciclo ${assignment.cycle}',
-                        style: theme.textTheme.bodySmall,
+                    ),
+                    if (enabled) ...[
+                      const SizedBox(width: AppSpacing.s),
+                      Icon(Icons.chevron_right_rounded,
+                          color: theme.colorScheme.primary),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.m),
+                Text(
+                  courseMetadata.isEmpty
+                      ? 'Información del curso no disponible'
+                      : courseMetadata,
+                  style: theme.textTheme.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.s),
+                Semantics(
+                  label: 'Docente: $teacherName',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline_rounded,
+                        size: AppDimensions.iconSmall,
+                        color: theme.textTheme.bodySmall?.color,
                       ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.person_outline_rounded,
-                            size: AppDimensions.iconSmall,
-                            color: theme.textTheme.bodySmall?.color,
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Flexible(
-                            child: Text(
-                              assignment.teacherFullName,
-                              style: theme.textTheme.bodySmall,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: Text(
+                          teacherName,
+                          style: theme.textTheme.bodySmall,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.m),
-                assignment.evaluated
-                    ? const Icon(
-                        Icons.check_circle_rounded,
-                        color: AppColors.success,
-                      )
-                    : !assignment.isActive
-                        ? Icon(
-                            Icons.lock_outline_rounded,
-                            color: theme.textTheme.bodySmall?.color,
-                          )
-                        : Icon(
-                            Icons.chevron_right_rounded,
-                            color: theme.textTheme.bodySmall?.color,
-                          ),
+                const SizedBox(height: AppSpacing.m),
+                StatusChip(label: statusLabel, tone: tone, icon: statusIcon),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _AnonymityNote extends StatelessWidget {
-  const _AnonymityNote();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: BoxDecoration(
-        color: context.brandPrimarySoft,
-        borderRadius: AppRadii.rMedium,
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.lock_outline_rounded, color: context.brandPrimary),
-          const SizedBox(width: AppSpacing.s),
-          Expanded(
-            child: Text(
-              'Las evaluaciones son anónimas. Toma las decisiones finales '
-              'se basan en el promedio de todas las respuestas.',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ),
-        ],
       ),
     );
   }

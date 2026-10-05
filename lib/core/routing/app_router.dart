@@ -19,9 +19,9 @@ import '../../features/jury/presentation/pages/fair_projects_page.dart';
 import '../../features/jury/presentation/pages/jury_dashboard_page.dart';
 import '../../features/jury/presentation/pages/jury_declaration_page.dart';
 import '../../features/jury/presentation/pages/jury_progress_page.dart';
-import '../../features/jury/presentation/pages/jury_results_page.dart';
 import '../../features/jury/presentation/pages/rubric_evaluation_page.dart';
 import '../../features/jury/presentation/pages/voting_page.dart';
+import '../../features/notifications/notifications_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
@@ -159,6 +159,10 @@ GoRouter buildAppRouter(
         builder: (_, __) => const JuryDashboardPage(),
         routes: [
           GoRoute(
+            path: 'notifications',
+            builder: (_, __) => const NotificationsPage(),
+          ),
+          GoRoute(
             path: 'fair/:fairId',
             builder: (_, s) =>
                 FairProjectsPage(fairId: s.pathParameters['fairId']!),
@@ -184,11 +188,6 @@ GoRouter buildAppRouter(
                 path: 'vote',
                 builder: (_, s) =>
                     VotingPage(fairId: s.pathParameters['fairId']!),
-              ),
-              GoRoute(
-                path: 'results',
-                builder: (_, s) =>
-                    JuryResultsPage(fairId: s.pathParameters['fairId']!),
               ),
             ],
           ),

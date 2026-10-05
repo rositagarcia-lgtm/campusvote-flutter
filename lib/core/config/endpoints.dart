@@ -76,3 +76,13 @@ class JuryEndpoints {
       '/api/fairs/$fairId/jury/declaration';
   static String results(String fairId) => '/api/fairs/$fairId/results';
 }
+
+/// Bandeja autenticada del usuario; el backend limita cada registro al dueño.
+class NotificationEndpoints {
+  const NotificationEndpoints._();
+
+  static const String list = '/api/notifications';
+  static const String unreadCount = '/api/notifications/unread-count';
+  static const String markAllRead = '/api/notifications/mark-all-read';
+  static String markRead(String id) => '/api/notifications/$id';
+}

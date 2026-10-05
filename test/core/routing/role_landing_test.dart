@@ -12,14 +12,15 @@ void main() {
       expect(landingPathForRole(AuthRole.student), '/teaching');
     });
 
-    test('los demás roles caen en la vista de docentes', () {
-      expect(landingPathForRole(AuthRole.teacher), '/teaching');
-      expect(landingPathForRole(AuthRole.admin), '/teaching');
+    test('los roles sin panel propio aterrizan en la cuenta', () {
+      expect(landingPathForRole(AuthRole.teacher), '/account');
+      expect(landingPathForRole(AuthRole.admin), '/account');
+      expect(landingPathForRole(AuthRole.superAdmin), '/account');
     });
 
     test('un rol ausente no deja la app sin destino', () {
-      expect(landingPathForRole(null), '/teaching');
-      expect(landingPathForRole('UNKNOWN'), '/teaching');
+      expect(landingPathForRole(null), '/account');
+      expect(landingPathForRole('UNKNOWN'), '/account');
     });
   });
 
