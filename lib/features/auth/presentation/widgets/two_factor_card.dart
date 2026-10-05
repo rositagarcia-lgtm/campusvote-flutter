@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../domain/entities/totp.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Estado de la verificación en dos pasos con su acción principal.
 ///
@@ -33,6 +34,7 @@ class TwoFactorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final text = SettingsCopy.of(context);
 
     return AppCard(
       child: Column(
@@ -48,7 +50,7 @@ class TwoFactorCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.s),
               Expanded(
                 child: Text(
-                  'Verificación en dos pasos (2FA)',
+                  text.t('Verificación en dos pasos (2FA)'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -62,7 +64,7 @@ class TwoFactorCard extends StatelessWidget {
                 )
               else
                 StatusChip(
-                  label: status.enabled ? 'Activo' : 'Inactivo',
+                  label: status.enabled ? text.t('Activo') : text.t('Inactivo'),
                   icon: status.enabled
                       ? Icons.verified_user_rounded
                       : Icons.lock_open_rounded,
@@ -74,19 +76,19 @@ class TwoFactorCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.m),
             NoticeBanner(
               tone: AppTone.danger,
-              message: errorMessage!,
+              message: text.t(errorMessage!),
               liveRegion: true,
             ),
           ],
           const SizedBox(height: AppSpacing.s),
           Text(
-            status.enabled
+            text.t(status.enabled
                 ? '2FA está activo. Al iniciar sesión, además de tu contraseña '
                     'deberás ingresar un código de 6 dígitos de tu aplicación '
                     'autenticadora.'
                 : 'Agrega una capa extra de seguridad. Al iniciar sesión, '
                     'además de tu contraseña deberás ingresar un código de '
-                    'tu aplicación autenticadora.',
+                    'tu aplicación autenticadora.'),
             style: theme.textTheme.bodySmall?.copyWith(
               color: appMuted(isDark),
               height: 1.5,
@@ -95,8 +97,9 @@ class TwoFactorCard extends StatelessWidget {
           if (status.enabled) ...[
             const SizedBox(height: AppSpacing.s),
             Text(
-              'Códigos de respaldo restantes: '
-              '${status.backupCodesRemaining}',
+              text.isEnglish
+                  ? 'Backup codes remaining: ${status.backupCodesRemaining}'
+                  : 'Códigos de respaldo restantes: ${status.backupCodesRemaining}',
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -105,13 +108,13 @@ class TwoFactorCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.m),
           if (status.enabled)
             AppButton.danger(
-              label: 'Deshabilitar 2FA',
+              label: text.t('Deshabilitar 2FA'),
               icon: Icons.lock_open_rounded,
               onPressed: onDisable,
             )
           else
             AppButton(
-              label: 'Configurar 2FA',
+              label: text.t('Configurar 2FA'),
               icon: Icons.qr_code_2_rounded,
               onPressed: onSetup,
             ),

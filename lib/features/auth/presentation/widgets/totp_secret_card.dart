@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_palette.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Secreto TOTP para enrolar la aplicación a mano, con acción de copiar.
 ///
@@ -22,7 +23,7 @@ class TotpSecretCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SECRETO (ENTRADA MANUAL)',
+            SettingsCopy.of(context).t('SECRETO (ENTRADA MANUAL)'),
             style: theme.textTheme.labelSmall?.copyWith(
               color: appMuted(isDark),
               fontWeight: FontWeight.w700,
@@ -43,12 +44,14 @@ class TotpSecretCard extends StatelessWidget {
             child: TextButton.icon(
               icon:
                   const Icon(Icons.copy_rounded, size: AppDimensions.iconSmall),
-              label: const Text('Copiar'),
+              label: Text(SettingsCopy.of(context).t('Copiar')),
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: secret));
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Secreto copiado')),
+                  SnackBar(
+                      content:
+                          Text(SettingsCopy.of(context).t('Secreto copiado'))),
                 );
               },
             ),

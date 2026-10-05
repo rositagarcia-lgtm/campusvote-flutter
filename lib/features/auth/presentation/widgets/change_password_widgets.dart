@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_palette.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Lista viva de los requisitos de contraseña.
 ///
@@ -22,20 +23,21 @@ class PasswordRequirements extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final muted = appMuted(isDark);
+    final text = SettingsCopy.of(context);
 
     final rules = <(String, bool)>[
-      ('Mínimo 8 caracteres', password.length >= 8),
-      ('Una minúscula', RegExp(r'[a-z]').hasMatch(password)),
-      ('Una mayúscula', RegExp(r'[A-Z]').hasMatch(password)),
-      ('Un número', RegExp(r'\d').hasMatch(password)),
-      ('Un símbolo', RegExp(r'[^A-Za-z0-9]').hasMatch(password)),
+      (text.t('Mínimo 8 caracteres'), password.length >= 8),
+      (text.t('Una minúscula'), RegExp(r'[a-z]').hasMatch(password)),
+      (text.t('Una mayúscula'), RegExp(r'[A-Z]').hasMatch(password)),
+      (text.t('Un número'), RegExp(r'\d').hasMatch(password)),
+      (text.t('Un símbolo'), RegExp(r'[^A-Za-z0-9]').hasMatch(password)),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'REQUISITOS',
+          text.t('REQUISITOS'),
           style: theme.textTheme.labelSmall?.copyWith(
             color: muted,
             fontWeight: FontWeight.w700,
@@ -49,7 +51,8 @@ class PasswordRequirements extends StatelessWidget {
           children: [
             for (final (label, met) in rules)
               Semantics(
-                label: '$label: ${met ? 'cumplido' : 'pendiente'}',
+                label:
+                    '$label: ${met ? text.t('cumplido') : text.t('pendiente')}',
                 excludeSemantics: true,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

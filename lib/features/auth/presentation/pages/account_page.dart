@@ -18,6 +18,7 @@ import '../../domain/entities/auth_role.dart';
 import '../state/auth_controller.dart';
 import '../widgets/account_identity.dart';
 import '../widgets/account_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// "Sobre mí": foto de perfil, datos de la cuenta y de la organización,
 /// acceso a seguridad y cierre de sesión.
@@ -35,16 +36,17 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     final user = auth.user;
     final branding = ref.watch(brandingControllerProvider);
     final accent = context.brandPrimary;
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: 'Sobre mí',
+        title: text.t('Sobre mí'),
         actions: [
           IconButton(
-            tooltip: 'Seguridad',
-            icon: const Icon(Icons.shield_outlined),
-            onPressed: () => context.push('/security'),
+            tooltip: text.t('Configuración'),
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -59,38 +61,38 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               AccountIdentityHeader(
                 accent: accent,
                 avatarUrl: user?.avatarUrl,
-                displayName: user?.displayName ?? 'Usuario',
+                displayName: user?.displayName ?? text.t('Usuario'),
                 email: user?.email ?? '',
-                roleLabel: AuthRole.label(user?.role),
+                roleLabel: text.t(AuthRole.label(user?.role)),
                 uploading: auth.submitting,
                 onPickPhoto: _pickPhoto,
               ),
               const SizedBox(height: AppSpacing.xl),
               AccountSection(
-                overline: 'Institución',
+                overline: text.t('Institución'),
                 child: AccountOrganizationRow(branding: branding),
               ),
               const SizedBox(height: AppSpacing.xl),
               AccountSection(
-                overline: 'Tu cuenta',
+                overline: text.t('Tu cuenta'),
                 count: 3,
                 child: AccountInfoList(
                   name: user?.displayName ?? '—',
                   email: user?.email ?? '—',
-                  role: AuthRole.label(user?.role),
+                  role: text.t(AuthRole.label(user?.role)),
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
               ActionTile(
                 accent: accent,
                 icon: Icons.lock_outline_rounded,
-                title: 'Seguridad y contraseña',
-                subtitle: 'Gestiona tu acceso y protege tu cuenta',
+                title: text.t('Seguridad y contraseña'),
+                subtitle: text.t('Gestiona tu acceso y protege tu cuenta'),
                 onTap: () => context.push('/security'),
               ),
               const SizedBox(height: AppSpacing.m),
               AppButton.danger(
-                label: 'Cerrar sesión',
+                label: text.t('Cerrar sesión'),
                 icon: Icons.logout_rounded,
                 onPressed: _confirmLogout,
               ),
@@ -105,9 +107,10 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   Future<void> _confirmLogout() async {
     final confirm = await AppDialog.confirm(
       context,
-      title: 'Cerrar sesión',
-      message: '¿Seguro que quieres salir de la aplicación?',
-      confirmLabel: 'Salir',
+      title: SettingsCopy.of(context).t('Cerrar sesión'),
+      message: SettingsCopy.of(context)
+          .t('¿Seguro que quieres salir de la aplicación?'),
+      confirmLabel: SettingsCopy.of(context).t('Salir'),
       destructive: true,
     );
     if (confirm != true || !mounted) return;
@@ -126,17 +129,17 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera_rounded),
-              title: const Text('Tomar foto'),
+              title: Text(SettingsCopy.of(sheetCtx).t('Tomar foto')),
               onTap: () => Navigator.pop(sheetCtx, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded),
-              title: const Text('Elegir de la galería'),
+              title: Text(SettingsCopy.of(sheetCtx).t('Elegir de la galería')),
               onTap: () => Navigator.pop(sheetCtx, ImageSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.close_rounded),
-              title: const Text('Cancelar'),
+              title: Text(SettingsCopy.of(sheetCtx).t('Cancelar')),
               onTap: () => Navigator.pop(sheetCtx),
             ),
           ],
@@ -155,7 +158,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      _toast('No se pudo abrir la cámara o galería');
+      _toast(
+          SettingsCopy.of(context).t('No se pudo abrir la cámara o galería'));
       return;
     }
     if (picked == null) return;
@@ -164,7 +168,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         .read(authControllerProvider.notifier)
         .changeAvatar(File(picked.path));
     if (!mounted) return;
-    _toast(ok ? 'Foto de perfil actualizada' : 'No se pudo actualizar la foto');
+    _toast(SettingsCopy.of(context).t(
+        ok ? 'Foto de perfil actualizada' : 'No se pudo actualizar la foto'));
   }
 
   void _toast(String message) {

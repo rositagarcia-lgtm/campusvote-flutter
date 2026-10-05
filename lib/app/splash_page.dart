@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/branding/branding_controller.dart';
+import '../core/settings/app_preferences.dart';
 import '../core/theme/app_dimensions.dart';
+import '../features/settings/presentation/settings_copy.dart';
 import 'splash_intro_video.dart';
 import 'splash_widgets.dart';
 
@@ -33,6 +35,10 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     }
 
     final branding = ref.watch(brandingControllerProvider);
+    final text = SettingsCopy.of(context);
+    final language = ref.watch(
+      appPreferencesProvider.select((preferences) => preferences.language),
+    );
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
     final studentColor = theme.colorScheme.primary;
@@ -54,22 +60,46 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: PopupMenuButton<AppLanguage>(
+                      tooltip: text.languageLabel,
+                      icon: Icon(Icons.language_rounded, color: muted),
+                      iconSize: AppDimensions.iconMedium,
+                      onSelected: (selected) => ref
+                          .read(appPreferencesProvider.notifier)
+                          .setLanguage(selected),
+                      itemBuilder: (context) => [
+                        CheckedPopupMenuItem(
+                          value: AppLanguage.spanish,
+                          checked: language == AppLanguage.spanish,
+                          child: Text(text.spanish),
+                        ),
+                        CheckedPopupMenuItem(
+                          value: AppLanguage.english,
+                          checked: language == AppLanguage.english,
+                          child: Text(text.english),
+                        ),
+                      ],
+                    ),
+                  ),
                   WelcomeHeader(name: branding.name),
                   const SizedBox(height: AppSpacing.xxl),
-                  const SectionHeading(
-                    overline: 'BIENVENIDO',
-                    title: 'Elige cómo participar',
-                    subtitle: 'Cada perfil tiene un acceso propio.',
+                  SectionHeading(
+                    overline: text.t('Acceso'),
+                    title: text.t('Elige cómo participar'),
+                    subtitle: text.t('Selecciona tu perfil para continuar.'),
                   ),
                   const SizedBox(height: AppSpacing.l),
                   AccessCard(
                     icon: Icons.school_outlined,
                     actionIcon: Icons.mail_outline_rounded,
                     accent: studentColor,
-                    title: 'Estudiante',
-                    subtitle:
-                        'Evalúa a tus docentes con un código enviado a tu correo institucional.',
-                    action: 'Continuar con mi correo',
+                    title: text.t('Estudiante'),
+                    subtitle: text.t(
+                      'Evalúa a tus docentes con un código enviado a tu correo. No necesitas contraseña.',
+                    ),
+                    action: text.t('Continuar con mi correo'),
                     onTap: () => context.go('/auth/email-request'),
                   ),
                   const SizedBox(height: AppSpacing.m),
@@ -77,10 +107,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                     icon: Icons.gavel_outlined,
                     actionIcon: Icons.lock_outline_rounded,
                     accent: juryColor,
-                    title: 'Jurado',
-                    subtitle:
-                        'Revisa proyectos y vota con las credenciales que recibiste.',
-                    action: 'Ingresar como jurado',
+                    title: text.t('Jurado'),
+                    subtitle: text.t(
+                      'Califica proyectos e ingresa con las credenciales enviadas por el administrador.',
+                    ),
+                    action: text.t('Ingresar como jurado'),
                     onTap: () => context.go('/auth/jury/login'),
                   ),
                   const SizedBox(height: AppSpacing.xl),
@@ -95,7 +126,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                       const SizedBox(width: AppSpacing.s),
                       Flexible(
                         child: Text(
-                          'Acceso para la comunidad académica',
+                          text.t(
+                              'Acceso exclusivo para la comunidad académica'),
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: muted,

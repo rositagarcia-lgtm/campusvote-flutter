@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/fade_slide.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Acceso del ESTUDIANTE: código de un solo uso enviado al correo.
 ///
@@ -55,6 +56,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
+    final text = SettingsCopy.of(context);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
@@ -94,10 +96,11 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                         child: AuthHeader(
                           accent: accent,
                           icon: Icons.school_rounded,
-                          overline: 'Acceso estudiantil',
-                          title: 'Identifica tu cuenta',
-                          subtitle:
-                              'Usa tu correo institucional y recibe un código de acceso de un solo uso.',
+                          overline: text.t('Acceso estudiantil'),
+                          title: text.t('Identifica tu cuenta'),
+                          subtitle: text.t(
+                            'Usa tu correo institucional y recibe un código de acceso de un solo uso.',
+                          ),
                           logoSize: 64,
                         ),
                       ),

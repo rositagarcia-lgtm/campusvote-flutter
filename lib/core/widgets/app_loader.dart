@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Loader institucional: spinner fino con mensaje en tono secundario.
 class AppLoader extends StatelessWidget {
@@ -37,7 +38,7 @@ class AppLoader extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 280),
                 child: Text(
-                  message!,
+                  SettingsCopy.of(context).t(message!),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: appMuted(isDark),

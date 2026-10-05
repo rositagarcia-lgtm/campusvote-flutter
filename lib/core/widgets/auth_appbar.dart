@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// AppBar transparente de los flujos de acceso, con botón de volver.
 ///
@@ -25,7 +26,7 @@ PreferredSizeWidget buildAuthAppBar(
     leading: IconButton(
       icon: const Icon(Icons.arrow_back_rounded),
       color: ink,
-      tooltip: 'Volver',
+      tooltip: SettingsCopy.of(context).t('Volver'),
       onPressed: onBack,
       constraints: const BoxConstraints(
         minWidth: AppDimensions.touchTarget,

@@ -11,6 +11,7 @@ import '../../../../core/widgets/fade_slide.dart';
 import '../../../../core/widgets/otp_code_field.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 class TotpPage extends ConsumerStatefulWidget {
   const TotpPage({super.key});
@@ -31,7 +32,9 @@ class _TotpPageState extends ConsumerState<TotpPage> {
   Future<void> _submit() async {
     if (_codeCtrl.text.trim().length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa un código de 6 dígitos')),
+        SnackBar(
+            content: Text(
+                SettingsCopy.of(context).t('Ingresa un código de 6 dígitos'))),
       );
       return;
     }
@@ -52,6 +55,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
     final error = state.errorMessage;
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
       appBar: buildAuthAppBar(context, onBack: () => context.go('/splash')),
@@ -74,10 +78,10 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                     child: AuthHeader(
                       accent: accent,
                       icon: Icons.security_rounded,
-                      overline: 'Verificación en dos pasos',
-                      title: 'Ingresa tu código',
-                      subtitle:
-                          'Ingresa el código de 6 dígitos de tu aplicación autenticadora.',
+                      overline: text.t('Verificación en dos pasos'),
+                      title: text.t('Ingresa tu código'),
+                      subtitle: text.t(
+                          'Ingresa el código de 6 dígitos de tu aplicación autenticadora.'),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
@@ -90,7 +94,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                         children: [
                           OtpCodeField(
                             controller: _codeCtrl,
-                            label: 'Código de verificación',
+                            label: text.t('Código de verificación'),
                             onSubmitted: _submit,
                           ),
                           if (error != null) ...[
@@ -98,10 +102,10 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                             AuthErrorBanner(message: error),
                           ],
                           const SizedBox(height: AppSpacing.l),
-                          const AuthInfoNote(
+                          AuthInfoNote(
                             icon: Icons.timer_outlined,
-                            text:
-                                'Usa el código vigente: tu aplicación lo renueva cada pocos segundos.',
+                            text: text.t(
+                                'Usa el código vigente: tu aplicación lo renueva cada pocos segundos.'),
                           ),
                         ],
                       ),
@@ -111,7 +115,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                   FadeSlide(
                     delay: const Duration(milliseconds: 220),
                     child: AppButton(
-                      label: 'Verificar',
+                      label: text.t('Verificar'),
                       icon: Icons.verified_outlined,
                       isLoading: state.submitting,
                       onPressed: state.submitting ? null : _submit,

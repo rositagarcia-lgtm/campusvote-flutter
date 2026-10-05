@@ -13,6 +13,7 @@ import '../../../../core/widgets/fade_slide.dart';
 import '../state/auth_controller.dart';
 import '../widgets/auth_form_widgets.dart';
 import '../widgets/jury_login_widgets.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Acceso del JURADO: correo + contraseña.
 ///
@@ -88,6 +89,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
+    final text = SettingsCopy.of(context);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = isDark ? AppColors.accentLight : AppColors.accent;
@@ -121,10 +123,11 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                         child: AuthHeader(
                           accent: accent,
                           icon: Icons.gavel_rounded,
-                          overline: 'Acceso de evaluación',
-                          title: 'Portal del jurado',
-                          subtitle:
-                              'Ingresa con las credenciales institucionales asignadas por el administrador.',
+                          overline: text.t('Acceso de evaluación'),
+                          title: text.t('Portal del jurado'),
+                          subtitle: text.t(
+                            'Ingresa con las credenciales institucionales asignadas por el administrador.',
+                          ),
                           logoSize: 64,
                         ),
                       ),

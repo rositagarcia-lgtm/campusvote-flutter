@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 const _ratingTapTarget = 48.0;
 
@@ -23,6 +24,7 @@ class TeacherRatingSelector extends StatelessWidget {
     final theme = Theme.of(context);
     final selectedColor = context.brandPrimary;
     final unselectedColor = theme.colorScheme.onSurface.withValues(alpha: 0.48);
+    final text = SettingsCopy.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -30,7 +32,7 @@ class TeacherRatingSelector extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            'Calificación general',
+            text.t('Calificación general'),
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -39,8 +41,8 @@ class TeacherRatingSelector extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Text(
           value == 0
-              ? 'Selecciona una calificación de 1 a 5.'
-              : 'Seleccionaste $value de 5.',
+              ? text.t('Selecciona una calificación de 1 a 5.')
+              : text.selectedRating(value),
           style: theme.textTheme.bodySmall,
         ),
         const SizedBox(height: AppSpacing.s),
@@ -53,7 +55,7 @@ class TeacherRatingSelector extends StatelessWidget {
                     button: true,
                     selected: value == score,
                     enabled: enabled,
-                    label: '$score de 5 estrellas',
+                    label: text.ratingStars(score),
                     onTap: enabled ? () => onChanged(score) : null,
                     child: ExcludeSemantics(
                       child: InkResponse(

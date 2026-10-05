@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Estado del proyecto dentro de la feria (`APPROVED`, `SUBMITTED`, …).
 ///
@@ -22,6 +23,7 @@ class ProjectStatusChip extends StatelessWidget {
       _ => (status, AppTone.neutral),
     };
 
-    return StatusChip(label: label, tone: tone, showDot: true);
+    return StatusChip(
+        label: SettingsCopy.of(context).t(label), tone: tone, showDot: true);
   }
 }

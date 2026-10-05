@@ -52,7 +52,7 @@ class AuthHeader extends StatelessWidget {
                   const SizedBox(width: AppSpacing.s),
                   Flexible(
                     child: Text(
-                      overline.toUpperCase(),
+                      overline,
                       maxLines: 2,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: accent,
