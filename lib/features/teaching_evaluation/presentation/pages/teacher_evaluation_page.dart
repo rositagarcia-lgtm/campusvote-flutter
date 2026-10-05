@@ -3,10 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_notice.dart';
@@ -214,34 +212,27 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.l),
-                    AppCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          TeacherRatingSelector(
-                            value: _score,
-                            enabled: !locked,
-                            onChanged: (score) => setState(() {
-                              _score = score;
-                              _scoreError = false;
-                            }),
-                          ),
-                          if (_scoreError) ...[
-                            const SizedBox(height: AppSpacing.s),
-                            Semantics(
-                              liveRegion: true,
-                              child: Text(
-                                'La calificación es obligatoria. Elige de 1 a 5.',
-                                key: const ValueKey('teacher-score-error'),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
+                    TeacherRatingSelector(
+                      value: _score,
+                      enabled: !locked,
+                      onChanged: (score) => setState(() {
+                        _score = score;
+                        _scoreError = false;
+                      }),
                     ),
+                    if (_scoreError) ...[
+                      const SizedBox(height: AppSpacing.s),
+                      Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          'La calificación es obligatoria. Elige de 1 a 5.',
+                          key: const ValueKey('teacher-score-error'),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.l),
                     AppTextField(
                       label: 'Comentario de mejora (opcional)',
@@ -345,48 +336,37 @@ class _TeacherHeader extends StatelessWidget {
       if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
     ].join(' · ');
 
-    return AppCard(
-      color: context.brandPrimarySoft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.person_outline_rounded,
-                  size: 32, color: context.brandPrimary),
-              const SizedBox(width: AppSpacing.m),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      teacherName,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(courseName, style: theme.textTheme.bodyMedium),
-                    if (courseMetadata.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(courseMetadata, style: theme.textTheme.bodySmall),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'DOCENTE A EVALUAR',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.2,
           ),
-          const SizedBox(height: AppSpacing.m),
-          const StatusChip(
-            label: 'Pendiente',
-            tone: AppTone.primary,
-            icon: Icons.rate_review_outlined,
+        ),
+        const SizedBox(height: AppSpacing.s),
+        Text(
+          teacherName,
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w800,
           ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(courseName, style: theme.textTheme.bodyLarge),
+        if (courseMetadata.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(courseMetadata, style: theme.textTheme.bodySmall),
         ],
-      ),
+        const SizedBox(height: AppSpacing.m),
+        const StatusChip(
+          label: 'Pendiente',
+          tone: AppTone.primary,
+          icon: Icons.rate_review_outlined,
+        ),
+      ],
     );
   }
 }

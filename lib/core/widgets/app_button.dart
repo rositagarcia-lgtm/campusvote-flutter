@@ -113,10 +113,12 @@ class AppButton extends StatelessWidget {
             maxLines: 2,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleSmall?.copyWith(
+            style:
+                (dense ? theme.textTheme.labelLarge : theme.textTheme.bodyLarge)
+                    ?.copyWith(
               color: fg,
               fontWeight: FontWeight.w700,
-              letterSpacing: 0.3,
+              letterSpacing: 0,
             ),
           ),
         ),
@@ -134,13 +136,12 @@ class AppButton extends StatelessWidget {
         borderRadius: AppRadii.rMedium,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minHeight:
-                dense ? AppDimensions.touchTarget : AppDimensions.buttonHeight,
+            minHeight: dense ? 48 : AppDimensions.buttonHeight,
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppSpacing.l,
-              vertical: dense ? AppSpacing.s : AppSpacing.m,
+              vertical: dense ? 0 : AppSpacing.m,
             ),
             child: content,
           ),

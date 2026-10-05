@@ -125,7 +125,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
                           title: 'Portal del jurado',
                           subtitle:
                               'Ingresa con las credenciales institucionales asignadas por el administrador.',
-                          logoSize: 112,
+                          logoSize: 64,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl),

@@ -46,7 +46,7 @@ class SectionHeader extends StatelessWidget {
     final rule = appBorder(isDark);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
+      padding: const EdgeInsets.only(bottom: AppSpacing.s),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -82,7 +82,6 @@ class SectionHeader extends StatelessWidget {
             Text(
               title!,
               style: theme.textTheme.titleLarge?.copyWith(
-                fontFamily: 'serif',
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -114,7 +113,7 @@ class _CountPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final muted = appMuted(isDark);
+    final accent = theme.colorScheme.primary;
 
     return Semantics(
       label: '$count elementos',
@@ -122,20 +121,21 @@ class _CountPill extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(
           minWidth: AppDimensions.touchTarget * 0.5,
+          minHeight: AppDimensions.touchTarget * 0.5,
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.s,
           vertical: AppSpacing.xs,
         ),
         decoration: BoxDecoration(
-          border: Border.all(color: appBorder(isDark)),
-          borderRadius: AppRadii.rSmall,
+          color: accent.withValues(alpha: isDark ? 0.2 : 0.08),
+          borderRadius: BorderRadius.circular(999),
         ),
         alignment: Alignment.center,
         child: Text(
           '$count',
           style: theme.textTheme.labelSmall?.copyWith(
-            color: muted,
+            color: accent,
             fontWeight: FontWeight.w700,
           ),
         ),

@@ -8,7 +8,6 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/fade_slide.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/fair_projects_widgets.dart';
@@ -76,6 +75,15 @@ class _ProjectsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // El progreso alimenta el banner superior sin pedir un endpoint extra.
     final progress = ref.watch(juryProgressProvider(fairId));
+    final assignments = ref.watch(juryDashboardProvider).asData?.value;
+    String? fairName;
+    for (final assignment in assignments ?? const <FairAssignmentModel>[]) {
+      if (assignment.fairId == fairId) {
+        fairName = assignment.name;
+        break;
+      }
+    }
+    final theme = Theme.of(context);
 
     return PageScrollBody(
       // Siempre desplazable para que el pull-to-refresh funcione con poco
@@ -86,28 +94,40 @@ class _ProjectsList extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (progress.hasValue) ...[
-            FadeSlide(
-              child: ProgressBanner(progress: progress.requireValue),
+          Text(
+            'FERIA ASIGNADA',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
             ),
-            const SizedBox(height: AppSpacing.m),
-          ],
-          FadeSlide(
-            delay: const Duration(milliseconds: 80),
-            child: FairActionsBar(fairId: fairId),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Semantics(
+            header: true,
+            child: Text(
+              fairName ?? 'Proyectos de tu categoría',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
-          SectionHeader(label: 'Proyectos', count: projects.length),
+          if (progress.hasValue) ...[
+            ProgressBanner(progress: progress.requireValue),
+            const SizedBox(height: AppSpacing.l),
+          ],
+          FairActionsBar(fairId: fairId),
+          const SizedBox(height: AppSpacing.xl),
+          SectionHeader(
+            label: 'TU CATEGORÍA',
+            title: 'Proyectos aprobados',
+            count: projects.length,
+          ),
           for (var i = 0; i < projects.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.m),
-              child: FadeSlide(
-                // Tope de 360 ms para que las listas largas no demoren.
-                delay: Duration(
-                  milliseconds: 160 + (i * 60).clamp(0, 360),
-                ),
-                child: ProjectCard(fairId: fairId, project: projects[i]),
-              ),
+              child: ProjectCard(fairId: fairId, project: projects[i]),
             ),
         ],
       ),

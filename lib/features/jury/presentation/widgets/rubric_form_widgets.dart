@@ -67,28 +67,36 @@ class RubricActionsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionFooter(
-      child: Row(
-        children: [
-          Expanded(
-            child: AppButton.outlined(
-              label: 'Guardar borrador',
-              onPressed:
-                  state.saving ? null : () => controller.save(finalize: false),
-              isLoading: state.saving,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.m),
-          Expanded(
-            child: AppButton(
-              label: 'Finalizar',
-              // El backend exige cubrir TODOS los criterios activos.
-              onPressed: state.canFinalize
-                  ? () => controller.save(finalize: true)
-                  : null,
-              isLoading: state.saving,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final draft = AppButton.outlined(
+            label: 'Guardar borrador',
+            onPressed:
+                state.saving ? null : () => controller.save(finalize: false),
+            isLoading: state.saving,
+          );
+          final submit = AppButton(
+            label: 'Finalizar',
+            // El backend exige cubrir TODOS los criterios activos.
+            onPressed: state.canFinalize
+                ? () => controller.save(finalize: true)
+                : null,
+            isLoading: state.saving,
+          );
+          if (constraints.maxWidth < 360) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [submit, const SizedBox(height: AppSpacing.s), draft],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: draft),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(child: submit),
+            ],
+          );
+        },
       ),
     );
   }

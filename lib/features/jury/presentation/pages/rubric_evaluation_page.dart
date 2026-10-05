@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
@@ -81,77 +82,94 @@ class _RubricForm extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
-              if (evaluation.projectName != null) ...[
-                Text(
-                  evaluation.projectName!,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontFamily: 'serif',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.s),
-                Wrap(
-                  spacing: AppSpacing.s,
-                  runSpacing: AppSpacing.s,
+              ConstrainedContent(
+                maxWidth: kListMaxWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (evaluation.projectStatus != null)
-                      ProjectStatusChip(status: evaluation.projectStatus!),
-                    if (evaluation.categoryName != null)
+                    if (evaluation.projectName != null) ...[
                       Text(
-                        evaluation.categoryName!,
-                        style: theme.textTheme.bodySmall,
+                        'EVALUACIÓN DEL PROYECTO',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
+                      const SizedBox(height: AppSpacing.s),
+                      Text(
+                        evaluation.projectName!,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.s),
+                      Wrap(
+                        spacing: AppSpacing.s,
+                        runSpacing: AppSpacing.s,
+                        children: [
+                          if (evaluation.projectStatus != null)
+                            ProjectStatusChip(
+                                status: evaluation.projectStatus!),
+                          if (evaluation.categoryName != null)
+                            Text(
+                              evaluation.categoryName!,
+                              style: theme.textTheme.bodySmall,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.m),
+                    ],
+                    RubricScoreCard(state: state),
+                    const SizedBox(height: AppSpacing.l),
+                    if (state.submitted)
+                      const NoticeBanner(
+                        message:
+                            'Esta evaluación ya fue finalizada y no admite cambios.',
+                        tone: AppTone.warning,
+                      ),
+                    if (state.errorMessage != null) ...[
+                      if (state.submitted) const SizedBox(height: AppSpacing.m),
+                      NoticeBanner(
+                        message: state.errorMessage!,
+                        tone: AppTone.danger,
+                        liveRegion: true,
+                      ),
+                    ],
+                    if (state.successMessage != null) ...[
+                      if (state.submitted) const SizedBox(height: AppSpacing.m),
+                      NoticeBanner(
+                        message: state.successMessage!,
+                        tone: AppTone.success,
+                        liveRegion: true,
+                      ),
+                    ],
+                    Text(
+                      evaluation.rubric.name.isEmpty
+                          ? 'Criterios de evaluación'
+                          : evaluation.rubric.name,
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: AppSpacing.s),
+                    Text(
+                      '${state.checkedCount} de ${criteria.length} criterios marcados',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: AppSpacing.m),
+                    for (final criterion in criteria)
+                      RubricCriterionTile(
+                        position: criterion.position,
+                        title: criterion.name,
+                        description: criterion.description,
+                        value: state.answers[criterion.id] ?? false,
+                        enabled: !state.locked,
+                        onChanged: (_) => controller.toggle(criterion.id),
+                      ),
+                    const SizedBox(height: AppSpacing.xxl),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.m),
-              ],
-              RubricScoreCard(state: state),
-              const SizedBox(height: AppSpacing.l),
-              if (state.submitted)
-                const NoticeBanner(
-                  message:
-                      'Esta evaluación ya fue finalizada y no admite cambios.',
-                  tone: AppTone.warning,
-                ),
-              if (state.errorMessage != null) ...[
-                if (state.submitted) const SizedBox(height: AppSpacing.m),
-                NoticeBanner(
-                  message: state.errorMessage!,
-                  tone: AppTone.danger,
-                  liveRegion: true,
-                ),
-              ],
-              if (state.successMessage != null) ...[
-                if (state.submitted) const SizedBox(height: AppSpacing.m),
-                NoticeBanner(
-                  message: state.successMessage!,
-                  tone: AppTone.success,
-                  liveRegion: true,
-                ),
-              ],
-              Text(
-                evaluation.rubric.name.isEmpty
-                    ? 'Criterios de evaluación'
-                    : evaluation.rubric.name,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                '${state.checkedCount} de ${criteria.length} criterios marcados',
-                style: theme.textTheme.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.m),
-              for (final criterion in criteria)
-                RubricCriterionTile(
-                  position: criterion.position,
-                  title: criterion.name,
-                  description: criterion.description,
-                  value: state.answers[criterion.id] ?? false,
-                  enabled: !state.locked,
-                  onChanged: (_) => controller.toggle(criterion.id),
-                ),
-              const SizedBox(height: AppSpacing.xxl),
             ],
           ),
         ),

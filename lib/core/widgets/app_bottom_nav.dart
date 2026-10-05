@@ -5,20 +5,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/domain/entities/auth_role.dart';
 import '../../features/auth/presentation/state/auth_controller.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
+import 'app_palette.dart';
 
-/// Barra de navegación inferior flotante compartida por los paneles.
-///
-/// - destino 0: el panel del rol (jurado → ferias, resto → docentes).
-/// - destino 1: "Sobre mí" (perfil, foto, seguridad, salir).
-///
-/// La pestaña activa se expande en una píldora con ícono y etiqueta; las
-/// demás muestran solo el ícono (con etiqueta accesible y tooltip).
+/// Navegación estable para el panel del rol y el perfil.
 class AppBottomNav extends ConsumerWidget {
-  final int selectedIndex;
-
   const AppBottomNav({super.key, required this.selectedIndex});
+
+  final int selectedIndex;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +22,7 @@ class AppBottomNav extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
-    final border = isDark ? AppColors.darkBorder : AppColors.primarySoft;
+    final muted = appMuted(isDark);
 
     final items = [
       _NavItem(
@@ -43,53 +37,44 @@ class AppBottomNav extends ConsumerWidget {
       ),
     ];
 
-    void onSelect(int i) {
-      if (i == selectedIndex) return;
+    void onSelect(int index) {
+      if (index == selectedIndex) return;
       HapticFeedback.selectionClick();
-      if (i == 0) {
-        context.go(isJury ? '/jury' : '/teaching');
-      } else {
-        context.go('/account');
-      }
+      context.go(index == 0 ? (isJury ? '/jury' : '/teaching') : '/account');
     }
 
     return SafeArea(
       top: false,
-      child: Center(
-        heightFactor: 1,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(
-              AppSpacing.l,
-              AppSpacing.xs,
-              AppSpacing.l,
-              AppSpacing.s,
-            ),
-            padding: const EdgeInsets.all(AppSpacing.s),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: border),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+      child: SizedBox(
+        height: 72,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            border: Border(top: BorderSide(color: appBorder(isDark))),
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.l,
+                  vertical: AppSpacing.xs,
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (var i = 0; i < items.length; i++)
-                  _NavButton(
-                    item: items[i],
-                    selected: i == selectedIndex,
-                    accent: accent,
-                    onTap: () => onSelect(i),
-                  ),
-              ],
+                child: Row(
+                  children: [
+                    for (var i = 0; i < items.length; i++)
+                      Expanded(
+                        child: _NavButton(
+                          item: items[i],
+                          selected: i == selectedIndex,
+                          accent: accent,
+                          muted: muted,
+                          onTap: () => onSelect(i),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -99,38 +84,35 @@ class AppBottomNav extends ConsumerWidget {
 }
 
 class _NavItem {
-  final IconData icon;
-  final IconData selectedIcon;
-  final String label;
-
   const _NavItem({
     required this.icon,
     required this.selectedIcon,
     required this.label,
   });
+
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
 }
 
 class _NavButton extends StatelessWidget {
-  final _NavItem item;
-  final bool selected;
-  final Color accent;
-  final VoidCallback onTap;
-
   const _NavButton({
     required this.item,
     required this.selected,
     required this.accent,
+    required this.muted,
     required this.onTap,
   });
 
+  final _NavItem item;
+  final bool selected;
+  final Color accent;
+  final Color muted;
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final muted = isDark ? AppColors.darkInkMuted : AppColors.inkMuted;
     final color = selected ? accent : muted;
-    const duration = Duration(milliseconds: 260);
-
     return Semantics(
       button: true,
       selected: selected,
@@ -142,50 +124,33 @@ class _NavButton extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(22),
-            child: AnimatedContainer(
-              duration: duration,
-              curve: Curves.easeOutCubic,
-              height: AppDimensions.touchTarget,
-              constraints: const BoxConstraints(
-                minWidth: AppDimensions.touchTarget,
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: selected ? AppSpacing.l : AppSpacing.m,
-              ),
-              decoration: BoxDecoration(
-                color: selected
-                    ? accent.withValues(alpha: isDark ? 0.22 : 0.12)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+            borderRadius: AppRadii.rMedium,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Container(
+                    width: AppDimensions.touchTarget,
+                    height: 2,
+                    color: selected ? accent : Colors.transparent,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
                   Icon(
                     selected ? item.selectedIcon : item.icon,
-                    size: AppDimensions.iconLarge,
+                    size: AppDimensions.iconMedium,
                     color: color,
                   ),
-                  AnimatedSize(
-                    duration: duration,
-                    curve: Curves.easeOutCubic,
-                    alignment: Alignment.centerLeft,
-                    child: selected
-                        ? Padding(
-                            padding: const EdgeInsets.only(left: AppSpacing.s),
-                            child: Text(
-                              item.label,
-                              maxLines: 1,
-                              softWrap: false,
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                color: color,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: color,
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w500,
+                        ),
                   ),
                 ],
               ),

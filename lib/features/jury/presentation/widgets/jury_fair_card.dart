@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import 'voting_countdown.dart';
 
-/// Tarjeta de feria: franja de estado, datos, cuenta regresiva y acción.
+/// Asignación de feria. La única acción navegable corresponde a una feria
+/// abierta; las asignaciones cerradas o en preparación se presentan como
+/// información para evitar sugerir una acción que no está disponible.
 class FairCard extends StatelessWidget {
   const FairCard({super.key, required this.fair});
 
@@ -19,82 +22,64 @@ class FairCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
     final muted = appMuted(isDark);
-    final enabled = fair.isOpen;
+    final open = fair.isOpen;
     final status = switch (fair.status) {
       FairStatus.open => 'Abierta',
       FairStatus.draft => 'En preparación',
       FairStatus.closed => 'Cerrada',
-      FairStatus.unknown => 'Sin estado',
+      FairStatus.unknown => 'Estado sin confirmar',
     };
-    final site = fair.siteName;
 
     return Semantics(
-      button: enabled,
-      enabled: enabled,
-      label: enabled
-          ? '${fair.name}. $status. Ver proyectos de tu categoría'
-          : '${fair.name}. $status. Esta feria no está disponible',
+      container: true,
       child: Material(
         color: theme.colorScheme.surface,
-        elevation: 0,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.rLarge,
+          borderRadius: AppRadii.rMedium,
           side: BorderSide(color: appBorder(isDark)),
         ),
-        child: InkWell(
-          onTap:
-              enabled ? () => context.push('/jury/fair/${fair.fairId}') : null,
-          child: IntrinsicHeight(
-            child: Padding(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(height: 3, color: open ? accent : appBorder(isDark)),
+            Padding(
               padding: const EdgeInsets.all(AppSpacing.l),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     fair.name,
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      height: 1.25,
+                    ),
                   ),
-                  if (site != null) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    Row(
-                      children: [
-                        Icon(Icons.place_outlined,
-                            size: AppDimensions.iconSmall, color: muted),
-                        const SizedBox(width: AppSpacing.xs),
-                        Expanded(
-                          child: Text(
-                            site,
-                            style: theme.textTheme.bodySmall
-                                ?.copyWith(color: muted),
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: AppSpacing.m),
+                  StatusChip(
+                    label: status,
+                    tone: open ? AppTone.success : AppTone.neutral,
+                    icon: open
+                        ? Icons.radio_button_checked_rounded
+                        : Icons.lock_outline_rounded,
+                  ),
+                  if (fair.siteName case final site?) ...[
+                    const SizedBox(height: AppSpacing.s),
+                    _FairMetadata(
+                      icon: Icons.place_outlined,
+                      text: site,
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.m),
-                  Wrap(
-                    spacing: AppSpacing.s,
-                    runSpacing: AppSpacing.s,
-                    children: [
-                      StatusChip(
-                        label: status,
-                        tone: enabled ? AppTone.success : AppTone.neutral,
-                        showDot: true,
-                      ),
-                      if (enabled)
-                        const StatusChip(
-                          label: 'Votación y rúbrica',
-                          tone: AppTone.info,
-                          icon: Icons.how_to_vote_outlined,
-                        ),
-                    ],
-                  ),
-                  // `endsAt`/`startsAt` vienen de la asignación; si la
-                  // feria no trae fechas, el contador se oculta en vez
-                  // de inventar una.
-                  if (enabled) ...[
+                  if (fair.description.trim().isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.m),
+                    Text(
+                      fair.description.trim(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
+                    ),
+                  ],
+                  if (open && fair.endsAt != null) ...[
                     const SizedBox(height: AppSpacing.m),
                     VotingCountdown(
                       startsAt: fair.startsAt,
@@ -102,42 +87,33 @@ class FairCard extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: AppSpacing.m),
-                  Divider(height: 1, thickness: 1, color: appBorder(isDark)),
+                  Divider(height: 1, color: appBorder(isDark)),
                   const SizedBox(height: AppSpacing.m),
-                  if (enabled)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Ver proyectos de tu categoría',
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              color: accent,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          size: AppDimensions.iconMedium,
-                          color: accent,
-                        ),
-                      ],
+                  if (open)
+                    AppButton(
+                      label: 'Abrir feria',
+                      icon: Icons.arrow_forward_rounded,
+                      dense: true,
+                      onPressed: () =>
+                          context.push('/jury/fair/${fair.fairId}'),
                     )
                   else
                     Row(
                       children: [
                         Icon(
-                          Icons.lock_outline_rounded,
+                          Icons.info_outline_rounded,
                           size: AppDimensions.iconMedium,
                           color: muted,
                         ),
                         const SizedBox(width: AppSpacing.s),
                         Expanded(
                           child: Text(
-                            'Esta feria no está disponible',
-                            style: theme.textTheme.labelLarge?.copyWith(
+                            fair.status == FairStatus.closed
+                                ? 'La participación en esta feria terminó.'
+                                : 'Esta feria todavía no está disponible.',
+                            style: theme.textTheme.bodySmall?.copyWith(
                               color: muted,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -146,9 +122,34 @@ class FairCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _FairMetadata extends StatelessWidget {
+  const _FairMetadata({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = appMuted(theme.brightness == Brightness.dark);
+    return Row(
+      children: [
+        Icon(icon, size: AppDimensions.iconSmall, color: muted),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodySmall?.copyWith(color: muted),
+          ),
+        ),
+      ],
     );
   }
 }

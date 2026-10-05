@@ -45,7 +45,12 @@ class VotingProjectOption extends StatelessWidget {
       label: accessibleLabel,
       excludeSemantics: true,
       child: AppCard(
-        color: selected ? theme.colorScheme.primaryContainer : null,
+        color: selected
+            ? accent.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.16 : 0.08,
+              )
+            : null,
+        borderColor: selected ? accent : null,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.l,
           vertical: AppSpacing.m,

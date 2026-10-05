@@ -91,18 +91,26 @@ class _VotingBody extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
               Text(
-                fairName ?? 'Votación oficial de la feria',
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+                'VOTACIÓN OFICIAL',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.2,
+                ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: AppSpacing.s),
               Text(
-                'Selecciona un proyecto aprobado. Puedes emitir un solo voto; '
-                'el servidor valida la asignación y el período de votación. '
-                'Tu selección no se guarda en este dispositivo.',
-                style: theme.textTheme.bodySmall,
+                fairName ?? 'Votación oficial de la feria',
+                style: theme.textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
-              const SizedBox(height: AppSpacing.l),
+              const SizedBox(height: AppSpacing.s),
+              Text(
+                'Elige un proyecto. Podrás revisar tu selección antes de emitir '
+                'tu único voto.',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: AppSpacing.xl),
               if (!status.isOpen)
                 const NoticeBanner(
                   message:
@@ -161,7 +169,9 @@ class _VotingBody extends StatelessWidget {
                   state.selectedProjectId == null
                       ? 'Elige un proyecto'
                       : 'Proyecto seleccionado',
-                  style: theme.textTheme.labelLarge,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.s),
                 for (final project in state.projects) ...[

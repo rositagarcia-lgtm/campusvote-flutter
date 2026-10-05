@@ -30,7 +30,7 @@ class ProjectCard extends StatelessWidget {
         elevation: 0,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.rLarge,
+          borderRadius: AppRadii.rMedium,
           side: BorderSide(color: appBorder(isDark)),
         ),
         child: InkWell(
@@ -136,7 +136,6 @@ class _ProjectLogo extends StatelessWidget {
         initial,
         style: theme.textTheme.titleMedium?.copyWith(
           color: accent,
-          fontFamily: 'serif',
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -174,13 +173,25 @@ class _MetaChip extends StatelessWidget {
     final theme = Theme.of(context);
     final muted = appMuted(theme.brightness == Brightness.dark);
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: AppDimensions.iconSmall, color: muted),
-        const SizedBox(width: AppSpacing.xs),
-        Text(text, style: theme.textTheme.bodySmall?.copyWith(color: muted)),
-      ],
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.sizeOf(context).width - AppSpacing.xxl * 2,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: AppDimensions.iconSmall, color: muted),
+          const SizedBox(width: AppSpacing.xs),
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(color: muted),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -3,18 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/branding/branding_controller.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_panel_intro.dart';
+import '../../../../core/widgets/app_palette.dart';
+import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_chip.dart';
-import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../domain/entities/teaching_assignment.dart';
 import '../state/teaching_list_controller.dart';
@@ -103,18 +104,16 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  PanelHero(
+                  AppPanelIntro(
+                    organizationName: branding.name,
+                    organizationLogoUrl: branding.logoUrl,
                     title: 'Tus docentes',
                     subtitle:
                         'Consulta tus asignaciones y califica a cada docente.',
-                    icon: Icons.school_rounded,
-                    badge: pending.isNotEmpty
-                        ? '${pending.length} pendiente${pending.length == 1 ? '' : 's'}'
-                        : completed.isNotEmpty
-                            ? 'Sin pendientes'
-                            : 'Sin evaluaciones pendientes',
-                    organizationLogoUrl: branding.logoUrl,
-                    organizationName: branding.name,
+                    primaryValue: pending.length,
+                    primaryLabel: 'pendientes',
+                    secondaryValue: completed.length,
+                    secondaryLabel: 'completadas',
                   ),
                   if (state.loading) ...[
                     const SizedBox(height: AppSpacing.m),
@@ -130,7 +129,8 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                   ],
                   const SizedBox(height: AppSpacing.xl),
                   if (pending.isNotEmpty) ...[
-                    _SectionHeader(
+                    SectionHeader(
+                      label: 'SIGUIENTE ACCIÓN',
                       title: 'Por evaluar',
                       subtitle: 'Elige una asignación pendiente para comenzar.',
                       count: pending.length,
@@ -141,7 +141,8 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                   if (unavailable.isNotEmpty) ...[
                     if (pending.isNotEmpty)
                       const SizedBox(height: AppSpacing.l),
-                    _SectionHeader(
+                    SectionHeader(
+                      label: 'ASIGNACIONES',
                       title: 'No disponibles',
                       subtitle: 'Estas asignaciones no están activas.',
                       count: unavailable.length,
@@ -152,7 +153,8 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                   if (completed.isNotEmpty) ...[
                     if (pending.isNotEmpty || unavailable.isNotEmpty)
                       const SizedBox(height: AppSpacing.l),
-                    _SectionHeader(
+                    SectionHeader(
+                      label: 'SEGUIMIENTO',
                       title: 'Completadas',
                       subtitle: 'El servidor confirma estas evaluaciones.',
                       count: completed.length,
@@ -164,42 +166,6 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({
-    required this.title,
-    required this.subtitle,
-    required this.count,
-  });
-
-  final String title;
-  final String subtitle;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(
-              '$title · $count',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(subtitle, style: theme.textTheme.bodySmall),
         ],
       ),
     );
@@ -230,90 +196,54 @@ class _AssignmentCard extends StatelessWidget {
       if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
       if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
     ].join(' · ');
+    final muted = appMuted(theme.brightness == Brightness.dark);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
       child: AppCard(
-        padding: EdgeInsets.zero,
-        child: InkWell(
-          borderRadius: AppRadii.rLarge,
-          onTap: enabled
-              ? () => context.go('/teaching/evaluate/${assignment.id}')
-              : null,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              courseName,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Row(
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: enabled
-                            ? context.brandPrimarySoft
-                            : AppColors.background,
-                        borderRadius: AppRadii.rMedium,
-                      ),
-                      child: Icon(
-                        Icons.menu_book_outlined,
-                        color:
-                            enabled ? context.brandPrimary : AppColors.inkFaint,
-                      ),
+                Icon(Icons.person_outline_rounded,
+                    size: AppDimensions.iconSmall, color: muted),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    teacherName,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(width: AppSpacing.m),
-                    Expanded(
-                      child: Text(
-                        courseName,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (enabled) ...[
-                      const SizedBox(width: AppSpacing.s),
-                      Icon(Icons.chevron_right_rounded,
-                          color: theme.colorScheme.primary),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.m),
-                Text(
-                  courseMetadata.isEmpty
-                      ? 'Información del curso no disponible'
-                      : courseMetadata,
-                  style: theme.textTheme.bodySmall,
-                ),
-                const SizedBox(height: AppSpacing.s),
-                Semantics(
-                  label: 'Docente: $teacherName',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.person_outline_rounded,
-                        size: AppDimensions.iconSmall,
-                        color: theme.textTheme.bodySmall?.color,
-                      ),
-                      const SizedBox(width: AppSpacing.xs),
-                      Expanded(
-                        child: Text(
-                          teacherName,
-                          style: theme.textTheme.bodySmall,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.m),
-                StatusChip(label: statusLabel, tone: tone, icon: statusIcon),
               ],
             ),
-          ),
+            if (courseMetadata.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(courseMetadata, style: theme.textTheme.bodySmall),
+            ],
+            const SizedBox(height: AppSpacing.m),
+            StatusChip(label: statusLabel, tone: tone, icon: statusIcon),
+            if (enabled) ...[
+              const SizedBox(height: AppSpacing.l),
+              AppButton.outlined(
+                label: 'Evaluar docente',
+                icon: Icons.arrow_forward_rounded,
+                dense: true,
+                onPressed: () =>
+                    context.go('/teaching/evaluate/${assignment.id}'),
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -37,7 +37,7 @@ class AppEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final faint = appFaint(isDark);
+    final muted = appMuted(isDark);
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(
@@ -50,20 +50,10 @@ class AppEmptyView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: AppDimensions.touchTarget,
-                height: AppDimensions.touchTarget,
-                decoration: BoxDecoration(
-                  color: faint.withValues(alpha: 0.14),
-                  borderRadius: AppRadii.rMedium,
-                ),
-                child: Icon(
-                  icon,
-                  // Microajuste: la ilustración necesita respirar dentro del
-                  // cuadro táctil de 44.
-                  size: AppDimensions.iconLarge * 1.25,
-                  color: faint,
-                ),
+              Icon(
+                icon,
+                size: AppDimensions.iconLarge * 1.5,
+                color: theme.colorScheme.primary,
               ),
               const SizedBox(height: AppSpacing.l),
               Semantics(
@@ -73,7 +63,7 @@ class AppEmptyView extends StatelessWidget {
                     Text(
                       overline,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: appMuted(isDark),
+                        color: muted,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.4,
                       ),
@@ -84,8 +74,7 @@ class AppEmptyView extends StatelessWidget {
                         title!,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleLarge?.copyWith(
-                          fontFamily: 'serif',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],

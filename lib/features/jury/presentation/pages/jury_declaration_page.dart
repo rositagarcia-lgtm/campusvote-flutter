@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
@@ -70,31 +69,36 @@ class _BodyState extends State<_Body> {
     if (state.signed && state.status?.declaration != null) {
       final declaration = state.status!.declaration!;
       return PageScrollBody(
-        child: AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const StatusChip(
-                label: 'Declaración firmada',
-                tone: AppTone.success,
-                icon: Icons.verified_rounded,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const StatusChip(
+              label: 'Declaración firmada',
+              tone: AppTone.success,
+              icon: Icons.verified_rounded,
+            ),
+            const SizedBox(height: AppSpacing.l),
+            Text(
+              'Tu declaración',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
+            ),
+            const SizedBox(height: AppSpacing.m),
+            Text(
+              declaration.statement,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+            ),
+            if (declaration.signedAt != null) ...[
               const SizedBox(height: AppSpacing.m),
               Text(
-                declaration.statement,
-                style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-              ),
-              if (declaration.signedAt != null) ...[
-                const SizedBox(height: AppSpacing.m),
-                Text(
-                  'Registrada el ${declaration.signedAt!.toLocal()}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: appMuted(isDark),
-                  ),
+                'Registrada el ${declaration.signedAt!.toLocal()}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: appMuted(isDark),
                 ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
       );
     }
@@ -105,37 +109,60 @@ class _BodyState extends State<_Body> {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
-              Text(
-                'Declara tu imparcialidad antes de evaluar los proyectos de esta '
-                'feria. Queda registrada con tu usuario y la fecha.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.l),
-              if (state.errorMessage != null) ...[
-                NoticeBanner(
-                  message: state.errorMessage!,
-                  tone: AppTone.danger,
-                  liveRegion: true,
+              ConstrainedContent(
+                maxWidth: kListMaxWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'DECLARACIÓN DEL JURADO',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s),
+                    Text(
+                      'Imparcialidad y compromiso',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.m),
+                    Text(
+                      'Declara tu imparcialidad antes de evaluar los proyectos de esta '
+                      'feria. Queda registrada con tu usuario y la fecha.',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.l),
+                    if (state.errorMessage != null) ...[
+                      NoticeBanner(
+                        message: state.errorMessage!,
+                        tone: AppTone.danger,
+                        liveRegion: true,
+                      ),
+                      const SizedBox(height: AppSpacing.m),
+                    ],
+                    AppTextField(
+                      label: 'Declaración',
+                      hint: 'Declaro que no tengo conflicto de interés con los '
+                          'proyectos de esta feria…',
+                      controller: _text,
+                      maxLines: 8,
+                      maxLength: JuryDeclarationPage.maxLength,
+                      enabled: !state.submitting,
+                      onChanged: controller.updateStatement,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.m),
-              ],
-              AppTextField(
-                label: 'Declaración',
-                hint: 'Declaro que no tengo conflicto de interés con los '
-                    'proyectos de esta feria…',
-                controller: _text,
-                maxLines: 8,
-                maxLength: JuryDeclarationPage.maxLength,
-                enabled: !state.submitting,
-                onChanged: controller.updateStatement,
               ),
             ],
           ),
         ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
+        ActionFooter(
+          child: ConstrainedContent(
+            maxWidth: kListMaxWidth,
             child: AppButton(
               label: 'Firmar declaración',
               onPressed: state.canSubmit ? () => controller.submit() : null,

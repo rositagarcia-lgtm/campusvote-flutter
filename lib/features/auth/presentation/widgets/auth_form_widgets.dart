@@ -10,8 +10,7 @@ Color _muted(bool isDark) =>
 Color _border(bool isDark) =>
     isDark ? AppColors.darkBorder : AppColors.primarySoft;
 
-/// Encabezado institucional reutilizable: logo, sobretítulo del rol, título,
-/// filete de color y subtítulo.
+/// Encabezado de acceso con marca compacta y título legible.
 class AuthHeader extends StatelessWidget {
   const AuthHeader({
     super.key,
@@ -20,7 +19,7 @@ class AuthHeader extends StatelessWidget {
     required this.overline,
     required this.title,
     required this.subtitle,
-    this.logoSize = 112,
+    this.logoSize = 64,
   });
 
   final Color accent;
@@ -36,48 +35,54 @@ class AuthHeader extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Semantics(
-          image: true,
-          label: 'Logo de CampusVote',
-          // Pre-login la identidad es la de CampusVote, no la del tenant.
-          child: AppLogo.asset(size: logoSize),
-        ),
-        const SizedBox(height: AppSpacing.l),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: AppDimensions.iconSmall, color: accent),
-            const SizedBox(width: AppSpacing.s),
-            Text(
-              overline.toUpperCase(),
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: accent,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.6,
+            Semantics(
+              image: true,
+              label: 'Logo de CampusVote',
+              child: AppLogo.asset(size: logoSize),
+            ),
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: Row(
+                children: [
+                  Icon(icon, size: AppDimensions.iconSmall, color: accent),
+                  const SizedBox(width: AppSpacing.s),
+                  Flexible(
+                    child: Text(
+                      overline.toUpperCase(),
+                      maxLines: 2,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.s),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontFamily: 'serif',
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.3,
+        const SizedBox(height: AppSpacing.xl),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              height: 1.15,
+            ),
           ),
         ),
-        const SizedBox(height: AppSpacing.m),
-        Container(width: 40, height: 3, color: accent),
-        const SizedBox(height: AppSpacing.m),
+        const SizedBox(height: AppSpacing.s),
         Text(
           subtitle,
-          textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: _muted(isDark),
-            height: 1.5,
+            height: 1.45,
           ),
         ),
       ],
@@ -85,7 +90,7 @@ class AuthHeader extends StatelessWidget {
   }
 }
 
-/// Tarjeta plana con filete superior de color que agrupa el formulario.
+/// Superficie que agrupa únicamente los campos del acceso.
 class AuthFormCard extends StatelessWidget {
   const AuthFormCard({super.key, required this.accent, required this.child});
 
@@ -100,17 +105,13 @@ class AuthFormCard extends StatelessWidget {
     return Material(
       color: theme.colorScheme.surface,
       elevation: 0,
-      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: AppRadii.rLarge,
+        borderRadius: AppRadii.rMedium,
         side: BorderSide(color: _border(isDark)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(height: 4, color: accent),
-          Padding(padding: const EdgeInsets.all(AppSpacing.l), child: child),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.l),
+        child: child,
       ),
     );
   }

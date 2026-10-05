@@ -15,6 +15,7 @@ class AppCard extends StatelessWidget {
     this.padding,
     this.onTap,
     this.color,
+    this.borderColor,
     this.bordered = true,
     this.elevated = false,
   });
@@ -23,6 +24,7 @@ class AppCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final VoidCallback? onTap;
   final Color? color;
+  final Color? borderColor;
   final bool bordered;
 
   /// Ignorado a propósito: las tarjetas del sistema son planas.
@@ -37,7 +39,9 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? theme.colorScheme.surface,
         borderRadius: AppRadii.rLarge,
-        border: bordered ? Border.all(color: appBorder(isDark)) : null,
+        border: bordered
+            ? Border.all(color: borderColor ?? appBorder(isDark))
+            : null,
       ),
       padding: padding ??
           const EdgeInsets.symmetric(

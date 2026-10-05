@@ -98,7 +98,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
                           title: 'Identifica tu cuenta',
                           subtitle:
                               'Usa tu correo institucional y recibe un código de acceso de un solo uso.',
-                          logoSize: 120,
+                          logoSize: 64,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl),

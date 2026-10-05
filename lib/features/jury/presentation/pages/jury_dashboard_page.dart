@@ -9,11 +9,10 @@ import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_panel_intro.dart';
 import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/app_stats.dart';
-import '../../../../core/widgets/fade_slide.dart';
-import '../../../../core/widgets/panel_hero.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../../notifications/notifications_controller.dart';
 import '../../data/models/jury_models.dart';
@@ -107,6 +106,8 @@ class _FairsList extends ConsumerWidget {
     final branding = ref.watch(brandingControllerProvider);
     final open = fairs.where((f) => f.isOpen).toList(growable: false);
     final others = fairs.where((f) => !f.isOpen).toList(growable: false);
+    final theme = Theme.of(context);
+    final muted = appMuted(theme.brightness == Brightness.dark);
 
     return PageScrollBody(
       // Siempre desplazable para que el pull-to-refresh funcione con poco
@@ -117,68 +118,51 @@ class _FairsList extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FadeSlide(
-            child: PanelHero(
-              title: 'Mis ferias de evaluación',
-              subtitle:
-                  'Revisa proyectos, aplica la rúbrica y registra tus decisiones académicas.',
-              icon: Icons.gavel_rounded,
-              badge: open.isNotEmpty
-                  ? '${open.length} feria${open.length == 1 ? '' : 's'} abierta${open.length == 1 ? '' : 's'}'
-                  : 'Sin ferias abiertas',
-              organizationLogoUrl: branding.logoUrl,
-              organizationName: branding.name,
-            ),
+          AppPanelIntro(
+            organizationName: branding.name,
+            organizationLogoUrl: branding.logoUrl,
+            title: 'Tus ferias',
+            subtitle:
+                'Consulta tus asignaciones y entra a las ferias disponibles.',
+            primaryValue: open.length,
+            primaryLabel: 'disponibles',
+            secondaryValue: fairs.length,
+            secondaryLabel: 'asignadas',
           ),
-          const SizedBox(height: AppSpacing.m),
-          FadeSlide(
-            delay: const Duration(milliseconds: 80),
-            child: StatsStrip(
-              items: [
-                StatItem(label: 'Asignadas', value: fairs.length),
-                StatItem(
-                  label: 'Abiertas',
-                  value: open.length,
-                  highlight: open.isNotEmpty,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.l),
           if (open.isNotEmpty) ...[
             SectionHeader(
-              label: 'Ferias disponibles',
-              subtitle: 'Puedes entrar y comenzar tu evaluación.',
+              label: 'DISPONIBLES',
+              title: 'Ferias abiertas',
               count: open.length,
             ),
-            ..._cards(open, startAt: 0),
+            ..._cards(open),
+          ] else ...[
+            Text(
+              'No hay ferias abiertas en este momento.',
+              style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+            ),
           ],
           if (others.isNotEmpty) ...[
-            if (open.isNotEmpty) const SizedBox(height: AppSpacing.l),
+            const SizedBox(height: AppSpacing.xl),
             SectionHeader(
-              label: 'Historial',
-              subtitle: 'Ferias en preparación o ya cerradas.',
+              label: 'OTRAS ASIGNACIONES',
+              title: 'No disponibles',
               count: others.length,
             ),
-            ..._cards(others, startAt: open.length),
+            ..._cards(others),
           ],
         ],
       ),
     );
   }
 
-  /// Tarjetas con entrada escalonada (tope de 360 ms para listas largas).
-  List<Widget> _cards(List<FairAssignmentModel> list, {required int startAt}) {
+  List<Widget> _cards(List<FairAssignmentModel> list) {
     return [
       for (var i = 0; i < list.length; i++)
         Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.m),
-          child: FadeSlide(
-            delay: Duration(
-              milliseconds: 160 + ((startAt + i) * 60).clamp(0, 360),
-            ),
-            child: FairCard(fair: list[i]),
-          ),
+          child: FairCard(fair: list[i]),
         ),
     ];
   }

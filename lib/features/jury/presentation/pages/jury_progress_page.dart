@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_page_layout.dart';
@@ -81,23 +80,30 @@ class _ProgressBody extends StatelessWidget {
         children: [
           if (progress.fairName != null) ...[
             Text(
+              'FERIA ASIGNADA',
+              style: theme.textTheme.labelSmall?.copyWith(
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Text(
               progress.fairName!,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontFamily: 'serif',
+              style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: AppSpacing.l),
+            const SizedBox(height: AppSpacing.xl),
           ],
-          AppCard(
-            child: JuryProgressBar(
-              completed: progress.completedProjects,
-              total: progress.totalProjects,
-              percentage: progress.progressPercentage,
-              label: 'Evaluaciones finalizadas',
-            ),
+          JuryProgressBar(
+            completed: progress.completedProjects,
+            total: progress.totalProjects,
+            percentage: progress.progressPercentage,
+            label: 'Evaluaciones finalizadas',
           ),
-          const SizedBox(height: AppSpacing.m),
+          const SizedBox(height: AppSpacing.xl),
+          const SectionHeader(label: 'Mi participación'),
           _StatusRow(
             icon: progress.hasVoted
                 ? Icons.how_to_vote_rounded
@@ -106,7 +112,6 @@ class _ProgressBody extends StatelessWidget {
             value: progress.hasVoted ? 'Voto emitido' : 'Pendiente',
             done: progress.hasVoted,
           ),
-          const SizedBox(height: AppSpacing.s),
           _StatusRow(
             icon: signed
                 ? Icons.assignment_turned_in_rounded
@@ -118,11 +123,9 @@ class _ProgressBody extends StatelessWidget {
           if (signed) ...[
             const SizedBox(height: AppSpacing.l),
             const SectionHeader(label: 'Declaración registrada'),
-            AppCard(
-              child: Text(
-                progress.declaration!.statement,
-                style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-              ),
+            Text(
+              progress.declaration!.statement,
+              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
             ),
           ],
           const SizedBox(height: AppSpacing.l),
@@ -154,26 +157,35 @@ class _StatusRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AppCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.l,
-        vertical: AppSpacing.m,
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: AppDimensions.iconMedium,
-            color: done ? theme.colorScheme.primary : theme.disabledColor,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: AppDimensions.iconMedium,
+                color: done ? theme.colorScheme.primary : theme.disabledColor,
+              ),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              StatusChip(
+                label: value,
+                tone: done ? AppTone.primary : AppTone.neutral,
+              ),
+            ],
           ),
-          const SizedBox(width: AppSpacing.m),
-          Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
-          StatusChip(
-            label: value,
-            tone: done ? AppTone.primary : AppTone.neutral,
-          ),
-        ],
-      ),
+        ),
+        const Divider(height: 1),
+      ],
     );
   }
 }

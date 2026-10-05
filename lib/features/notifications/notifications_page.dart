@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../core/widgets/app_appbar.dart';
 import '../../core/widgets/app_button.dart';
-import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_empty_view.dart';
 import '../../core/widgets/app_loader.dart';
 import '../../core/widgets/app_notice.dart';
@@ -79,6 +78,15 @@ class NotificationsPage extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.l),
         children: [
+          Text(
+            'TUS AVISOS',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+          const SizedBox(height: AppSpacing.m),
           if (state.error != null) ...[
             NoticeBanner(
               message: state.error!,
@@ -93,7 +101,7 @@ class NotificationsPage extends ConsumerWidget {
               loading: state.updatingId == notification.id,
               onTap: () => _open(context, controller, notification),
             ),
-            const SizedBox(height: AppSpacing.s),
+            const Divider(height: 1),
           ],
           if (controller.hasMore) ...[
             const SizedBox(height: AppSpacing.m),
@@ -167,54 +175,67 @@ class _NotificationTile extends StatelessWidget {
       label:
           '$typeLabel. ${notification.title}. ${notification.isRead ? 'Leída' : 'No leída'}',
       excludeSemantics: true,
-      child: AppCard(
-        onTap: loading ? null : onTap,
-        padding: const EdgeInsets.all(AppSpacing.m),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              notification.isRead
-                  ? Icons.notifications_none_rounded
-                  : Icons.notifications_active_outlined,
-              color: notification.isRead
-                  ? theme.colorScheme.onSurfaceVariant
-                  : theme.colorScheme.primary,
-              size: AppDimensions.iconLarge,
+      child: Material(
+        color: notification.isRead
+            ? Colors.transparent
+            : theme.colorScheme.primary.withValues(alpha: 0.045),
+        borderRadius: AppRadii.rSmall,
+        child: InkWell(
+          onTap: loading ? null : onTap,
+          borderRadius: AppRadii.rSmall,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s,
+              vertical: AppSpacing.m,
             ),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(typeLabel, style: theme.textTheme.labelSmall),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    notification.title,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: notification.isRead
-                          ? FontWeight.w500
-                          : FontWeight.w700,
-                    ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  notification.isRead
+                      ? Icons.notifications_none_rounded
+                      : Icons.notifications_active_outlined,
+                  color: notification.isRead
+                      ? theme.colorScheme.onSurfaceVariant
+                      : theme.colorScheme.primary,
+                  size: AppDimensions.iconLarge,
+                ),
+                const SizedBox(width: AppSpacing.m),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(typeLabel, style: theme.textTheme.labelSmall),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        notification.title,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: notification.isRead
+                              ? FontWeight.w500
+                              : FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(notification.message,
+                          style: theme.textTheme.bodySmall),
+                      if (dateLabel != null) ...[
+                        const SizedBox(height: AppSpacing.s),
+                        Text(dateLabel, style: theme.textTheme.labelSmall),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(notification.message, style: theme.textTheme.bodySmall),
-                  if (dateLabel != null) ...[
-                    const SizedBox(height: AppSpacing.s),
-                    Text(dateLabel, style: theme.textTheme.labelSmall),
-                  ],
-                ],
-              ),
+                ),
+                if (loading)
+                  const SizedBox(
+                    width: AppDimensions.iconMedium,
+                    height: AppDimensions.iconMedium,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (!notification.isRead)
+                  Icon(Icons.circle, size: 9, color: theme.colorScheme.primary),
+              ],
             ),
-            if (loading)
-              const SizedBox(
-                width: AppDimensions.iconMedium,
-                height: AppDimensions.iconMedium,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else if (!notification.isRead)
-              Icon(Icons.circle, size: 9, color: theme.colorScheme.primary),
-          ],
+          ),
         ),
       ),
     );
