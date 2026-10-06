@@ -6,19 +6,16 @@ import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_panel_intro.dart';
-import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
-import '../../domain/entities/teaching_assignment.dart';
 import '../state/teaching_list_controller.dart';
+import '../widgets/assignment_card.dart';
 
 /// Inicio del estudiante: asignaciones docentes entregadas por el backend.
 class TeachingHomePage extends ConsumerWidget {
@@ -136,7 +133,7 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       count: pending.length,
                     ),
                     for (final assignment in pending)
-                      _AssignmentCard(assignment: assignment),
+                      AssignmentCard(assignment: assignment),
                   ],
                   if (unavailable.isNotEmpty) ...[
                     if (pending.isNotEmpty)
@@ -148,7 +145,7 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       count: unavailable.length,
                     ),
                     for (final assignment in unavailable)
-                      _AssignmentCard(assignment: assignment),
+                      AssignmentCard(assignment: assignment),
                   ],
                   if (completed.isNotEmpty) ...[
                     if (pending.isNotEmpty || unavailable.isNotEmpty)
@@ -160,7 +157,7 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       count: completed.length,
                     ),
                     for (final assignment in completed)
-                      _AssignmentCard(assignment: assignment),
+                      AssignmentCard(assignment: assignment),
                   ],
                 ],
               ),
@@ -172,80 +169,3 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
   }
 }
 
-class _AssignmentCard extends StatelessWidget {
-  const _AssignmentCard({required this.assignment});
-
-  final TeachingAssignment assignment;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final enabled = assignment.isActive && !assignment.evaluated;
-    final (statusLabel, tone, statusIcon) = assignment.evaluated
-        ? ('Completada', AppTone.success, Icons.check_circle_outline_rounded)
-        : assignment.isActive
-            ? ('Por evaluar', AppTone.primary, Icons.rate_review_outlined)
-            : ('No disponible', AppTone.neutral, Icons.lock_outline_rounded);
-    final courseName = assignment.courseName.trim().isEmpty
-        ? 'Curso sin nombre'
-        : assignment.courseName;
-    final teacherName = assignment.teacherFullName.trim().isEmpty
-        ? 'Nombre del docente no disponible'
-        : assignment.teacherFullName;
-    final courseMetadata = [
-      if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
-      if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
-    ].join(' · ');
-    final muted = appMuted(theme.brightness == Brightness.dark);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              courseName,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s),
-            Row(
-              children: [
-                Icon(Icons.person_outline_rounded,
-                    size: AppDimensions.iconSmall, color: muted),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    teacherName,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            if (courseMetadata.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(courseMetadata, style: theme.textTheme.bodySmall),
-            ],
-            const SizedBox(height: AppSpacing.m),
-            StatusChip(label: statusLabel, tone: tone, icon: statusIcon),
-            if (enabled) ...[
-              const SizedBox(height: AppSpacing.l),
-              AppButton.outlined(
-                label: 'Evaluar docente',
-                icon: Icons.arrow_forward_rounded,
-                dense: true,
-                onPressed: () =>
-                    context.go('/teaching/evaluate/${assignment.id}'),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}

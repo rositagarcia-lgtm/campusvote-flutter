@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_palette.dart';
+import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_card.dart';
+import '../../../../../core/widgets/app_palette.dart';
 import 'account_identity.dart';
-import '../../../settings/presentation/settings_copy.dart';
+import '../../../../settings/presentation/settings_copy.dart';
+import '../../../domain/entities/auth_role.dart';
 
 /// Identidad de la cuenta: avatar, nombre y correo.
 ///
@@ -15,12 +16,14 @@ class AccountHeaderCard extends StatelessWidget {
   final String displayName;
   final String email;
   final String? avatarUrl;
+  final String? role;
 
   const AccountHeaderCard({
     super.key,
     required this.displayName,
     required this.email,
     this.avatarUrl,
+    this.role,
   });
 
   @override
@@ -57,6 +60,38 @@ class AccountHeaderCard extends StatelessWidget {
                     color: appMuted(isDark),
                   ),
                 ),
+                if (role != null && role!.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.s),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.s,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary
+                          .withValues(alpha: isDark ? 0.16 : 0.08),
+                      borderRadius: AppRadii.rSmall,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.shield_outlined,
+                          size: AppDimensions.iconSmall,
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          AuthRole.label(role),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
 import 'panel_hero_org_badge.dart';
+import 'panel_overview_number.dart';
 
 /// Encabezado de trabajo para los paneles del jurado y del estudiante.
 /// La identidad de la organización viene del branding cargado en la sesión.
@@ -167,7 +168,7 @@ class AppPanelIntro extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: _OverviewNumber(
+                child: PanelOverviewNumber(
                   value: primaryValue,
                   label: primaryLabel,
                   color: accent,
@@ -176,7 +177,7 @@ class AppPanelIntro extends StatelessWidget {
               ),
               Container(height: 44, width: 1, color: rule),
               Expanded(
-                child: _OverviewNumber(
+                child: PanelOverviewNumber(
                   value: secondaryValue,
                   label: secondaryLabel,
                   color: theme.colorScheme.onSurface,
@@ -186,7 +187,7 @@ class AppPanelIntro extends StatelessWidget {
               if (tertiaryValue != null && tertiaryLabel != null) ...[
                 Container(height: 44, width: 1, color: rule),
                 Expanded(
-                  child: _OverviewNumber(
+                  child: PanelOverviewNumber(
                     value: tertiaryValue!,
                     label: tertiaryLabel!,
                     color: theme.colorScheme.onSurfaceVariant,
@@ -202,55 +203,3 @@ class AppPanelIntro extends StatelessWidget {
   }
 }
 
-class _OverviewNumber extends StatelessWidget {
-  const _OverviewNumber({
-    required this.value,
-    required this.label,
-    required this.color,
-    this.compact = false,
-  });
-
-  final int value;
-  final String label;
-  final Color color;
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final muted = appMuted(theme.brightness == Brightness.dark);
-    final displayLabel = value == 1 && label.endsWith('s')
-        ? label.substring(0, label.length - 1)
-        : label;
-    return Semantics(
-      label: '$value $displayLabel',
-      excludeSemantics: true,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? AppSpacing.xs : AppSpacing.m,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              '$value',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-                height: 1.1,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              displayLabel,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelMedium?.copyWith(color: muted),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

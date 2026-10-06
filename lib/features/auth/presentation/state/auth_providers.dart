@@ -6,6 +6,7 @@ import '../../data/datasources/auth_user_persister.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth_usecases.dart';
+import '../../domain/usecases/totp_usecases.dart';
 
 final authUserPersisterProvider = Provider<AuthUserPersister>((ref) {
   final storage = ref.watch(localStorageProvider);

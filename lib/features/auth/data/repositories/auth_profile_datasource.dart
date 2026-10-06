@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -43,6 +44,7 @@ class AuthProfileDataSource {
   Future<Result<AuthUser>> updateProfile(Map<String, dynamic> fields) async {
     try {
       final res = await _client.put(ApiEndpoints.updateMe, body: fields);
+      debugPrint('>>> updateProfile response: ${res.data}');
       final r = ApiResponse<Map<String, dynamic>>.fromJson(
         _asMap(res.data),
         _asMap,
@@ -88,6 +90,7 @@ class AuthProfileDataSource {
       );
       if (!r.success) return FailureResult(_failureFromApi(r));
       final raw = r.data?['url']?.toString() ?? '';
+      debugPrint('>>> avatar raw url: "$raw"');
       if (raw.isEmpty) {
         return const FailureResult(UnknownFailure(
           message: 'El servidor no devolvió la URL de la imagen',

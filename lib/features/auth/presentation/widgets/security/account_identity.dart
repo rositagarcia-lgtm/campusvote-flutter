@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_palette.dart';
-import '../../../settings/presentation/settings_copy.dart';
+import '../../../../../core/config/app_env.dart';
+import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/app_card.dart';
+import '../../../../../core/widgets/app_palette.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 
 /// Cabecera tipo "carnet": avatar, nombre, correo, rol y acción de foto.
 ///
@@ -178,8 +179,9 @@ class AccountAvatar extends StatelessWidget {
       ),
     );
 
-    final url = avatarUrl;
-    if (url == null || url.isEmpty) return fallback;
+    final url = AppEnv.mediaUrl(avatarUrl);
+    debugPrint('>>> AccountAvatar url: avatarUrl="$avatarUrl" resolved="$url"');
+    if (url == null) return fallback;
     return ClipOval(
       child: Image.network(
         url,

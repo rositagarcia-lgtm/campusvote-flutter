@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_notice.dart';
-import '../../../../core/widgets/app_status_chip.dart';
-import '../../../settings/presentation/settings_copy.dart';
+import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_notice.dart';
+import '../../../../../core/widgets/app_status_chip.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 
 /// Diálogo de confirmación para deshabilitar 2FA (incluye input de contraseña).
 class TotpDisableCredentials {

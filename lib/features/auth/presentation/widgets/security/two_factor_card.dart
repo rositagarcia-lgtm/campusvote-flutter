@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_notice.dart';
-import '../../../../core/widgets/app_palette.dart';
-import '../../../../core/widgets/app_status_chip.dart';
-import '../../domain/entities/totp.dart';
-import '../../../settings/presentation/settings_copy.dart';
+import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_card.dart';
+import '../../../../../core/widgets/app_notice.dart';
+import '../../../../../core/widgets/app_palette.dart';
+import '../../../../../core/widgets/app_status_chip.dart';
+import '../../../domain/entities/totp.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 
 /// Estado de la verificación en dos pasos con su acción principal.
 ///
@@ -95,13 +95,36 @@ class TwoFactorCard extends StatelessWidget {
             ),
           ),
           if (status.enabled) ...[
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              text.isEnglish
-                  ? 'Backup codes remaining: ${status.backupCodesRemaining}'
-                  : 'Códigos de respaldo restantes: ${status.backupCodesRemaining}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w600,
+            const SizedBox(height: AppSpacing.m),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.m),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.orange : Colors.orange)
+                    .withValues(alpha: isDark ? 0.14 : 0.08),
+                borderRadius: AppRadii.rMedium,
+                border: Border.all(
+                  color: Colors.orange.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.key_rounded,
+                      size: AppDimensions.iconMedium,
+                      color: isDark ? Colors.orange[300] : Colors.orange[800]),
+                  const SizedBox(width: AppSpacing.s),
+                  Expanded(
+                    child: Text(
+                      text.isEnglish
+                          ? 'Backup codes remaining: ${status.backupCodesRemaining}'
+                          : 'Códigos de respaldo restantes: ${status.backupCodesRemaining}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.orange[200] : Colors.orange[900],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

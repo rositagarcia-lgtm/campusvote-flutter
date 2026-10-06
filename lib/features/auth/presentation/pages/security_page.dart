@@ -10,9 +10,9 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../state/auth_controller.dart';
 import '../state/auth_providers.dart';
 import '../state/two_factor_controller.dart';
-import '../widgets/account_summary_card.dart';
-import '../widgets/disable_totp_dialog.dart';
-import '../widgets/two_factor_card.dart';
+import '../widgets/security/account_summary_card.dart';
+import '../widgets/security/disable_totp_dialog.dart';
+import '../widgets/security/two_factor_card.dart';
 import '../../../settings/presentation/settings_copy.dart';
 
 class SecurityPage extends ConsumerStatefulWidget {
@@ -89,6 +89,7 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
                 displayName: auth.user?.displayName ?? text.t('Usuario'),
                 email: auth.user?.email ?? '',
                 avatarUrl: auth.user?.avatarUrl,
+                role: auth.user?.role,
               ),
               const SizedBox(height: AppSpacing.xl),
               SectionHeader(label: text.t('Contraseña')),

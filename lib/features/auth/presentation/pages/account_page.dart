@@ -17,7 +17,7 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../domain/entities/auth_role.dart';
 import '../state/auth_controller.dart';
-import '../widgets/account_identity.dart';
+import '../widgets/security/account_identity.dart';
 import '../widgets/account_widgets.dart';
 import '../../../settings/presentation/settings_copy.dart';
 
