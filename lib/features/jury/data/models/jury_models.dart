@@ -38,6 +38,7 @@ class FairAssignmentModel {
     required this.name,
     required this.description,
     required this.status,
+    this.imageUrl,
     this.startsAt,
     this.endsAt,
     this.assignedAt,
@@ -50,6 +51,7 @@ class FairAssignmentModel {
   final String name;
   final String description;
   final FairStatus status;
+  final String? imageUrl;
   final DateTime? startsAt;
   final DateTime? endsAt;
   final DateTime? assignedAt;
@@ -68,6 +70,7 @@ class FairAssignmentModel {
       name: _text(fair['name']) ?? '',
       description: fair['description']?.toString() ?? '',
       status: parseFairStatus(_text(fair['status'])),
+      imageUrl: _text(fair['image_url'] ?? fair['imageUrl']),
       startsAt: _date(fair['starts_at'] ?? fair['startsAt']),
       endsAt: _date(fair['ends_at'] ?? fair['endsAt']),
       assignedAt: _date(json['assigned_at'] ?? json['assignedAt']),
@@ -87,6 +90,7 @@ class FairAssignmentModel {
           'name': name,
           'description': description,
           'status': status.name.toUpperCase(),
+          'image_url': imageUrl,
           'starts_at': startsAt?.toIso8601String(),
           'ends_at': endsAt?.toIso8601String(),
         },

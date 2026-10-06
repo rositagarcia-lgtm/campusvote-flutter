@@ -207,6 +207,25 @@ class AuthSessionDataSource {
     }
   }
 
+  Future<Result<void>> requestPasswordReset({required String email}) async {
+    try {
+      final res = await _client.post(
+        ApiEndpoints.passwordResetRequest,
+        body: {'email': email},
+      );
+      final r = ApiResponse<Map<String, dynamic>>.fromJson(
+        _asMap(res.data),
+        _asMap,
+      );
+      if (!r.success || r.data?['requested'] != true) {
+        return FailureResult(_failureFromApi(r));
+      }
+      return const Success(null);
+    } catch (error) {
+      return FailureResult(mapExceptionToFailure(error));
+    }
+  }
+
   /// Completa el login sin contraseña con el código recibido por correo.
   Future<Result<LoginResult>> verifyEmailLogin({
     required String tempToken,

@@ -16,6 +16,7 @@ class JuryProgressBar extends StatelessWidget {
     this.ratio,
     this.percentage,
     this.label,
+    this.showCaption = true,
   });
 
   final int completed;
@@ -28,6 +29,10 @@ class JuryProgressBar extends StatelessWidget {
   final int? percentage;
   final String? label;
 
+  /// Muestra el resumen `x de y` bajo la barra. Se desactiva cuando quien la
+  /// usa ya presenta esos datos en otro componente.
+  final bool showCaption;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -36,6 +41,9 @@ class JuryProgressBar extends StatelessWidget {
     final percent = percentage ?? (value * 100).round();
     final complete = value >= 1;
     final text = SettingsCopy.of(context);
+    // Sin proyectos evaluables no hay nada que medir: se oculta el porcentaje
+    // en lugar de mostrar un 0 % que parece un avance real.
+    final measurable = total > 0 || ratio != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,13 +58,14 @@ class JuryProgressBar extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              '$percent%',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: context.brandPrimary,
+            if (measurable)
+              Text(
+                '$percent%',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: context.brandPrimary,
+                ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: AppSpacing.s),
@@ -70,12 +79,13 @@ class JuryProgressBar extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s),
-        Text(
-          total == 0
-              ? text.t('La feria aún no tiene proyectos evaluables')
-              : text.evaluationProgress(completed, total, complete),
-          style: theme.textTheme.bodySmall,
-        ),
+        if (showCaption)
+          Text(
+            !measurable
+                ? text.t('La feria aún no tiene proyectos evaluables')
+                : text.evaluationProgress(completed, total, complete),
+            style: theme.textTheme.bodySmall,
+          ),
       ],
     );
   }

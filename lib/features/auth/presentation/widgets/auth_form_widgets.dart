@@ -104,13 +104,13 @@ class AuthFormCard extends StatelessWidget {
 
     return Material(
       color: theme.colorScheme.surface,
-      elevation: 0,
+      elevation: 1,
       shape: RoundedRectangleBorder(
-        borderRadius: AppRadii.rMedium,
+        borderRadius: AppRadii.rLarge,
         side: BorderSide(color: _border(isDark)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.l),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: child,
       ),
     );

@@ -76,7 +76,7 @@ void main() {
       GoRoute(
         path: '/auth/email-request',
         builder: (context, _) => Scaffold(
-          body: Text(SettingsCopy.of(context).t('Acceso estudiantil')),
+          body: Text(SettingsCopy.of(context).t('Acceso con código')),
         ),
       ),
       GoRoute(
@@ -131,7 +131,7 @@ void main() {
     await tester.ensureVisible(find.text('Continue with my email'));
     await tester.tap(find.text('Continue with my email'));
     await tester.pumpAndSettle();
-    expect(find.text('Student access'), findsOneWidget);
+    expect(find.text('Code-based access'), findsOneWidget);
 
     router.go('/splash');
     await tester.pumpAndSettle();

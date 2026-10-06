@@ -42,6 +42,9 @@ final verifyLoginTotpUseCaseProvider = Provider(
 final requestEmailLoginUseCaseProvider = Provider(
     (ref) => RequestEmailLoginUseCase(ref.watch(authRepositoryProvider)));
 
+final requestPasswordResetUseCaseProvider = Provider(
+    (ref) => RequestPasswordResetUseCase(ref.watch(authRepositoryProvider)));
+
 final verifyEmailLoginUseCaseProvider = Provider(
     (ref) => VerifyEmailLoginUseCase(ref.watch(authRepositoryProvider)));
 

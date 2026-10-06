@@ -101,8 +101,7 @@ class AccountIdentityHeader extends StatelessWidget {
               displayName,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(
-                fontFamily: 'serif',
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -174,7 +173,6 @@ class AccountAvatar extends StatelessWidget {
         initial,
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               color: Colors.white,
-              fontFamily: 'serif',
               fontWeight: FontWeight.w700,
             ),
       ),

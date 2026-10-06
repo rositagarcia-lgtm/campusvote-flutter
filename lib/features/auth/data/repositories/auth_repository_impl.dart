@@ -67,6 +67,10 @@ class AuthRepositoryImpl implements AuthRepository, AuthRefresher {
       _session.resendEmailLogin(tempToken: tempToken);
 
   @override
+  Future<Result<void>> requestPasswordReset({required String email}) =>
+      _session.requestPasswordReset(email: email);
+
+  @override
   Future<Result<TokenPair>> refresh({required String refreshToken}) =>
       _session.refresh(refreshToken: refreshToken);
 

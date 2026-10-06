@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/branding/branding_controller.dart';
@@ -59,17 +60,38 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        final systemUiStyle = SystemUiOverlayStyle(
+          statusBarColor: theme.scaffoldBackgroundColor,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+          systemNavigationBarColor: theme.colorScheme.surface,
+          systemNavigationBarIconBrightness:
+              isDark ? Brightness.light : Brightness.dark,
+          systemNavigationBarDividerColor: theme.colorScheme.outlineVariant,
+        );
         if (preferences.textSize == AppTextSize.normal) {
-          return AppLanguageScope(
-              language: preferences.language, child: child!);
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: systemUiStyle,
+            child: AppLanguageScope(
+              language: preferences.language,
+              child: child!,
+            ),
+          );
         }
         final media = MediaQuery.of(context);
         final factor = (media.textScaler.scale(1) * preferences.textSize.factor)
             .clamp(0.85, 1.6);
-        return MediaQuery(
-          data: media.copyWith(textScaler: TextScaler.linear(factor)),
-          child:
-              AppLanguageScope(language: preferences.language, child: child!),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: systemUiStyle,
+          child: MediaQuery(
+            data: media.copyWith(textScaler: TextScaler.linear(factor)),
+            child: AppLanguageScope(
+              language: preferences.language,
+              child: child!,
+            ),
+          ),
         );
       },
       routerConfig: _router,

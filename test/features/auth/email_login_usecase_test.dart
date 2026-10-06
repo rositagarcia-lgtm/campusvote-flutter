@@ -11,6 +11,13 @@ class _Repo implements AuthRepository {
   String? verifyToken;
   String? verifyCode;
   bool resendCalled = false;
+  String? resetEmail;
+
+  @override
+  Future<Result<void>> requestPasswordReset({required String email}) async {
+    resetEmail = email;
+    return const Success(null);
+  }
 
   @override
   Future<Result<LoginResult>> requestEmailLogin({
@@ -56,6 +63,23 @@ class _Repo implements AuthRepository {
 }
 
 void main() {
+  group('RequestPasswordResetUseCase', () {
+    test('valida y normaliza el correo antes de solicitar recuperación',
+        () async {
+      final repo = _Repo();
+      final invalid =
+          await RequestPasswordResetUseCase(repo)(email: 'incorrecto');
+      expect(invalid.failureOrNull, isA<ValidationFailure>());
+      expect(repo.resetEmail, isNull);
+
+      final result = await RequestPasswordResetUseCase(repo)(
+        email: '  Jurado@Institucion.EDU ',
+      );
+      expect(result.isSuccess, isTrue);
+      expect(repo.resetEmail, 'jurado@institucion.edu');
+    });
+  });
+
   group('RequestEmailLoginUseCase', () {
     test('rejects empty email', () async {
       final repo = _Repo();
@@ -67,7 +91,8 @@ void main() {
 
     test('rejects malformed email', () async {
       final repo = _Repo();
-      final result = await RequestEmailLoginUseCase(repo)(email: 'no-es-correo');
+      final result =
+          await RequestEmailLoginUseCase(repo)(email: 'no-es-correo');
       expect(result.failureOrNull, isA<ValidationFailure>());
       expect(repo.requestedEmail, isNull);
     });

@@ -89,7 +89,7 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
       failure: (f) {
         setState(() => _verifying = false);
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
+          SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
         );
       },
     );
@@ -104,7 +104,7 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
         child: _loadingSetup
             ? AppLoader(message: text.t('Generando código QR...'))
             : _error != null
-                ? AppErrorView(message: _error!, onRetry: _init)
+                ? AppErrorView(message: text.error(_error!), onRetry: _init)
                 : ListView(
                     padding: const EdgeInsets.all(AppSpacing.l),
                     children: [

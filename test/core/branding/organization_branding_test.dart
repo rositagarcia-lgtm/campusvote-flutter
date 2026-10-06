@@ -72,6 +72,7 @@ void main() {
           'site_name': 'Sede Norte',
           'name': 'Feria de Ingeniería',
           'description': 'Proyectos 2026',
+          'image_url': 'https://cdn.example.test/fair.webp',
           'status': 'OPEN',
           'starts_at': '2026-03-01T00:00:00.000Z',
           'ends_at': '2026-03-05T00:00:00.000Z',
@@ -84,6 +85,8 @@ void main() {
       expect(m.isOpen, isTrue);
       expect(m.organizationName, 'Universidad Demo');
       expect(m.siteName, 'Sede Norte');
+      expect(m.imageUrl, 'https://cdn.example.test/fair.webp');
+      expect(m.toJson()['fair']['image_url'], m.imageUrl);
       // El modelo normaliza a hora local para comparar con los `DateTime`
       // que produce el cliente al pintar.
       expect(

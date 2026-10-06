@@ -13,6 +13,7 @@ class ApiEndpoints {
   static const String loginEmailRequest = '/api/auth/email/request';
   static const String loginEmailVerify = '/api/auth/email/login-verify';
   static const String loginEmailResend = '/api/auth/email/resend';
+  static const String passwordResetRequest = '/api/auth/password/forgot';
   static const String totpStatus = '/api/auth/2fa/status';
   static const String totpSetup = '/api/auth/totp/setup';
   static const String totpVerify = '/api/auth/totp/verify';

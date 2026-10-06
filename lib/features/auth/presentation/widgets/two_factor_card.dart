@@ -76,7 +76,7 @@ class TwoFactorCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.m),
             NoticeBanner(
               tone: AppTone.danger,
-              message: text.t(errorMessage!),
+              message: text.error(errorMessage!),
               liveRegion: true,
             ),
           ],

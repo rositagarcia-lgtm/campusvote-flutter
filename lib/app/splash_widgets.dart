@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/app_dimensions.dart';
+import '../core/theme/app_colors.dart';
+import '../core/widgets/app_button.dart';
 import '../core/widgets/app_logo.dart';
 import '../core/widgets/app_palette.dart';
 
 class WelcomeHeader extends StatelessWidget {
-  const WelcomeHeader({super.key, required this.name});
-
-  final String name;
+  const WelcomeHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class WelcomeHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                name,
+                'CampusVote',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleLarge?.copyWith(
@@ -97,88 +97,119 @@ class AccessCard extends StatelessWidget {
     required this.icon,
     required this.actionIcon,
     required this.accent,
+    this.accentForeground,
+    this.eyebrow = 'ACCESO',
     required this.title,
     required this.subtitle,
     required this.action,
     required this.onTap,
+    this.actionVariant = AppButtonVariant.primary,
   });
 
   final IconData icon;
   final IconData actionIcon;
   final Color accent;
+  final Color? accentForeground;
+  final String eyebrow;
   final String title;
   final String subtitle;
   final String action;
   final VoidCallback onTap;
+  final AppButtonVariant actionVariant;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final muted = appMuted(isDark);
+    final accentInk = accentForeground ?? accent;
+    final iconSurface = Color.alphaBlend(
+      accent.withValues(alpha: isDark ? 0.2 : 0.09),
+      theme.colorScheme.surface,
+    );
 
-    return Semantics(
-      button: true,
-      label: '$title. $subtitle. $action',
-      excludeSemantics: true,
-      child: Material(
-        color: theme.colorScheme.surface,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.rMedium,
-          side: BorderSide(color: appBorder(isDark)),
-        ),
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      color: theme.colorScheme.surface,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadii.rLarge,
+        side: BorderSide(color: appBorder(isDark)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.m,
+                vertical: AppSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: iconSurface,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                eyebrow.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: accentInk,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.l),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    Icon(icon, color: accent, size: AppDimensions.iconLarge),
-                    const SizedBox(width: AppSpacing.m),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Icon(Icons.arrow_forward_rounded,
-                        color: accent, size: AppDimensions.iconMedium),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.s),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: muted,
-                    height: 1.45,
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: iconSurface,
+                    shape: BoxShape.circle,
                   ),
+                  alignment: Alignment.center,
+                  child:
+                      Icon(icon, color: accentInk, size: AppDimensions.iconLarge),
                 ),
-                const SizedBox(height: AppSpacing.m),
-                Row(
-                  children: [
-                    Icon(actionIcon,
-                        color: accent, size: AppDimensions.iconSmall),
-                    const SizedBox(width: AppSpacing.s),
-                    Expanded(
-                      child: Text(
-                        action,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w700,
-                        ),
+                const SizedBox(width: AppSpacing.m),
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      title,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: AppSpacing.m),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: muted,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.l),
+            AppButton(
+              label: action,
+              icon: actionIcon,
+              variant: actionVariant,
+              backgroundColor: accent,
+              foregroundColor: accent.computeLuminance() > 0.25
+                  ? AppColors.ink
+                  : AppColors.inkInverse,
+              onPressed: onTap,
+            ),
+          ],
         ),
       ),
     );

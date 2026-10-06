@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/branding/campusvote_theme.dart';
 import '../../../../core/routing/role_landing.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/auth_appbar.dart';
 import '../../../../core/widgets/fade_slide.dart';
 import '../../../../core/widgets/otp_code_field.dart';
@@ -15,7 +16,7 @@ import '../widgets/auth_form_widgets.dart';
 import '../widgets/email_otp_widgets.dart';
 import '../../../settings/presentation/settings_copy.dart';
 
-/// Paso 2 del acceso del estudiante: verifica el código enviado al correo.
+/// Paso 2 del acceso por correo para estudiantes y jurados habilitados.
 class EmailOtpVerifyPage extends ConsumerStatefulWidget {
   const EmailOtpVerifyPage({super.key});
 
@@ -34,6 +35,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
   }
 
   Future<void> _submit() async {
+    if (ref.read(authControllerProvider).submitting || _resending) return;
     if (_codeCtrl.text.trim().length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -54,6 +56,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
   }
 
   Future<void> _resend() async {
+    if (_resending || ref.read(authControllerProvider).submitting) return;
     setState(() => _resending = true);
     final ok =
         await ref.read(authControllerProvider.notifier).resendEmailLogin();
@@ -64,8 +67,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
         content: Text(
           ok
               ? SettingsCopy.of(context).t('Te enviamos un nuevo código')
-              : SettingsCopy.of(context)
-                  .t('Espera un minuto y vuelve a intentar'),
+              : SettingsCopy.of(context).t('No se pudo reenviar el código'),
         ),
       ),
     );
@@ -74,17 +76,36 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final error = state.errorMessage;
+    final currentTheme = Theme.of(context);
+    final theme = currentTheme.brightness == Brightness.dark
+        ? AppTheme.dark()
+        : AppTheme.light();
+    final accent = theme.colorScheme.primary;
+    final error = state.errorMessage == null
+        ? null
+        : SettingsCopy.of(context).error(state.errorMessage!);
     final email = state.pendingEmail;
     final qrCode = state.pendingQrCode;
     final text = SettingsCopy.of(context);
 
-    return CampusVoteTheme(
+    return Theme(
+      data: theme,
       child: Scaffold(
-        appBar: buildAuthAppBar(context, onBack: () => context.go('/splash')),
+        appBar: buildAuthAppBar(
+          context,
+          onBack: () => context.go('/splash'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.l),
+              child: Center(
+                child: AuthAppBarBadge(
+                  accent: accent,
+                  label: text.t('Paso 2 de 2'),
+                ),
+              ),
+            ),
+          ],
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
@@ -104,10 +125,11 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                       child: AuthHeader(
                         accent: accent,
                         icon: Icons.verified_user_outlined,
-                        overline: text.t('Verificación'),
+                        overline: text.t('Verificaci\u00f3n segura'),
                         title: text.t('Verifica tu correo'),
                         subtitle: text.t(
-                            'Ingresa el código de 6 dígitos que enviamos a tu correo.'),
+                          'Ingresa el c\u00f3digo de 6 d\u00edgitos enviado al correo asociado a tu acceso.',
+                        ),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
@@ -125,6 +147,8 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                             OtpCodeField(
                               controller: _codeCtrl,
                               label: text.t('Código de verificación'),
+                              segmented: true,
+                              enabled: !state.submitting && !_resending,
                               onSubmitted: _submit,
                             ),
                             if (error != null) ...[
@@ -132,10 +156,12 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                               AuthErrorBanner(message: error),
                             ],
                             const SizedBox(height: AppSpacing.l),
-                            AuthInfoNote(
+                            NoticeBanner(
+                              tone: AppTone.warning,
                               icon: Icons.mark_email_read_outlined,
-                              text: text.t(
-                                  'Si no lo recibes, revisa tu carpeta de spam o solicita uno nuevo.'),
+                              message: text.t(
+                                '\u00bfNo encuentras el correo? Revisa tu carpeta de spam o correo no deseado.',
+                              ),
                             ),
                           ],
                         ),
@@ -172,6 +198,34 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                             EmailOtpQrOption(dataUrl: qrCode, accent: accent),
                       ),
                     ],
+                    const SizedBox(height: AppSpacing.xl),
+                    Semantics(
+                      label: text.t(
+                        'El c\u00f3digo es personal y de un solo uso. No lo compartas.',
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            size: AppDimensions.iconSmall,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: AppSpacing.s),
+                          Flexible(
+                            child: Text(
+                              text.t(
+                                'El c\u00f3digo es personal y de un solo uso. No lo compartas.',
+                              ),
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

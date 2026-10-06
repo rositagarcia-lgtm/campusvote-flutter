@@ -300,6 +300,7 @@ class AuthController extends StateNotifier<AuthState> {
   Future<bool> resendEmailLogin() async {
     final temp = state.tempToken;
     if (temp == null || !state.requiresEmailOtp) return false;
+    state = state.copyWith(clearError: true);
     if (!await _ref.read(authRepositoryProvider).resendEmailLogin(
           tempToken: temp,
         )) {

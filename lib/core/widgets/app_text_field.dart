@@ -13,6 +13,7 @@ class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
     required this.label,
+    this.labelTrailing,
     this.hint,
     this.helperText,
     this.errorText,
@@ -35,6 +36,7 @@ class AppTextField extends StatelessWidget {
   });
 
   final String label;
+  final Widget? labelTrailing;
   final String? hint;
   final String? helperText;
   final String? errorText;
@@ -68,16 +70,26 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Semantics(
-          label: label,
-          child: Text(
-            label.toUpperCase(),
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: appMuted(isDark),
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.4,
+        Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                label: label,
+                child: Text(
+                  label.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: appMuted(isDark),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+              ),
             ),
-          ),
+            if (labelTrailing != null) ...[
+              const SizedBox(width: AppSpacing.s),
+              labelTrailing!,
+            ],
+          ],
         ),
         const SizedBox(height: AppSpacing.s),
         TextFormField(

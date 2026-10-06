@@ -16,6 +16,12 @@ class AppColors {
   static const Color accentLight = Color(0xFFF3E5AB);
   static const Color accentSoft = Color(0xFFFBF6E7);
 
+  // Acentos de los dos accesos de la bienvenida. No sustituyen el branding
+  // institucional de los paneles autenticados.
+  static const Color studentAccess = Color(0xFF0D7377);
+  static const Color juryAccess = Color(0xFFFF9F43);
+  static const Color juryAccessInk = Color(0xFF8A4600);
+
   static const Color surface = Color(0xFFFFFFFF);
   static const Color background = Color(0xFFF6F8F8);
   static const Color border = Color(0xFFE2E8F0);

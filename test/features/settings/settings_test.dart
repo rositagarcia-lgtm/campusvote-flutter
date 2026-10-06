@@ -12,6 +12,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  test('errores del servidor no revelan roles ni detalles técnicos', () {
+    const spanish = SettingsCopy(AppLanguage.spanish);
+    const english = SettingsCopy(AppLanguage.english);
+
+    expect(
+      spanish.error(
+        'No se encontró una cuenta de estudiante o jurado con este correo',
+      ),
+      'No encontramos una cuenta habilitada para este acceso. Verifica que uses el correo registrado en CampusVote.',
+    );
+    expect(
+      english.error(
+          'No se encontró una cuenta de estudiante o jurado con este correo'),
+      'We could not find an account enabled for this sign-in. Check that you are using the email registered with CampusVote.',
+    );
+    expect(
+      spanish.error('Prisma TypeError at /api/auth/email/request'),
+      'Ocurrió un error inesperado',
+    );
+    expect(
+        spanish.error('Escribe un correo válido'), 'Escribe un correo válido');
+  });
+
   test('las preferencias persisten y se recuperan al reiniciar', () async {
     SharedPreferences.setMockInitialValues({});
     final storage = await LocalStorage.create();

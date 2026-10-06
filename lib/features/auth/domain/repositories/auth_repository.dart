@@ -30,6 +30,9 @@ abstract class AuthRepository {
   /// Reenvía el código OTP al correo (requiere el tempToken EMAIL_PENDING).
   Future<bool> resendEmailLogin({required String tempToken});
 
+  /// Solicita un enlace de recuperación sin revelar si el correo existe.
+  Future<Result<void>> requestPasswordReset({required String email});
+
   Future<Result<TokenPair>> refresh({required String refreshToken});
 
   Future<Result<AuthUser>> getProfile();

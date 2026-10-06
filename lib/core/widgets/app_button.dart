@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
-import 'app_palette.dart';
 
-enum AppButtonVariant { primary, outlined, danger, ghost }
+enum AppButtonVariant { primary, secondary, outlined, danger, ghost }
 
 /// Botón de acción de la app.
 ///
@@ -20,6 +19,8 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.expand = true,
     this.dense = false,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   const AppButton.outlined({
@@ -30,7 +31,9 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.expand = true,
     this.dense = false,
-  }) : variant = AppButtonVariant.outlined;
+  })  : variant = AppButtonVariant.outlined,
+        backgroundColor = null,
+        foregroundColor = null;
 
   const AppButton.danger({
     super.key,
@@ -40,7 +43,9 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.expand = true,
     this.dense = false,
-  }) : variant = AppButtonVariant.danger;
+  })  : variant = AppButtonVariant.danger,
+        backgroundColor = null,
+        foregroundColor = null;
 
   const AppButton.ghost({
     super.key,
@@ -50,7 +55,9 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.expand = true,
     this.dense = false,
-  }) : variant = AppButtonVariant.ghost;
+  })  : variant = AppButtonVariant.ghost,
+        backgroundColor = null,
+        foregroundColor = null;
 
   final String label;
   final VoidCallback? onPressed;
@@ -58,6 +65,8 @@ class AppButton extends StatelessWidget {
   final IconData? icon;
   final bool isLoading;
   final bool expand;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   /// Altura compacta para contextos tight (diálogos, barras de acciones).
   final bool dense;
@@ -65,88 +74,111 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final disabled = onPressed == null || isLoading;
-    final rule = appBorder(isDark);
+    final foreground = foregroundColor ?? switch (variant) {
+      AppButtonVariant.primary => theme.colorScheme.onPrimary,
+      AppButtonVariant.secondary => theme.colorScheme.onSecondary,
+      AppButtonVariant.danger => AppColors.inkInverse,
+      AppButtonVariant.outlined ||
+      AppButtonVariant.ghost =>
+        theme.colorScheme.primary,
+    };
 
-    final Color bg;
-    final Color fg;
-    final BorderSide side;
-    switch (variant) {
-      case AppButtonVariant.primary:
-        bg = disabled ? Colors.transparent : theme.colorScheme.primary;
-        fg = disabled ? appFaint(isDark) : theme.colorScheme.onPrimary;
-        side = disabled ? BorderSide(color: rule) : BorderSide.none;
-      case AppButtonVariant.outlined:
-        bg = Colors.transparent;
-        fg = disabled ? appFaint(isDark) : theme.colorScheme.primary;
-        side = BorderSide(color: disabled ? rule : theme.colorScheme.primary);
-      case AppButtonVariant.danger:
-        bg = disabled ? Colors.transparent : AppColors.danger;
-        fg = disabled ? appFaint(isDark) : AppColors.inkInverse;
-        side = disabled ? BorderSide(color: rule) : BorderSide.none;
-      case AppButtonVariant.ghost:
-        bg = Colors.transparent;
-        fg = disabled ? appFaint(isDark) : theme.colorScheme.primary;
-        side = BorderSide.none;
-    }
-
-    final content = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-      children: [
-        if (isLoading)
-          SizedBox(
-            height: AppDimensions.iconSmall,
-            width: AppDimensions.iconSmall,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation(fg),
-            ),
-          )
-        else if (icon != null)
-          Icon(icon, size: AppDimensions.iconMedium, color: fg),
-        if (isLoading || icon != null) const SizedBox(width: AppSpacing.s),
-        Flexible(
-          child: Text(
-            label,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            style:
-                (dense ? theme.textTheme.labelLarge : theme.textTheme.bodyLarge)
-                    ?.copyWith(
-              color: fg,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0,
+    final content = Semantics(
+      liveRegion: isLoading,
+      label: isLoading ? 'Procesando' : null,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          if (isLoading)
+            SizedBox(
+              height: AppDimensions.iconSmall,
+              width: AppDimensions.iconSmall,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation(foreground),
+              ),
+            )
+          else if (icon != null)
+            Icon(icon, size: AppDimensions.iconMedium),
+          if (isLoading || icon != null) const SizedBox(width: AppSpacing.s),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: theme.textTheme.labelLarge?.fontSize,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0,
+                height: 1.2,
+              ),
             ),
           ),
-        ),
-      ],
-    );
-
-    return Material(
-      color: bg,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppRadii.rMedium,
-        side: side,
-      ),
-      child: InkWell(
-        onTap: disabled ? null : onPressed,
-        borderRadius: AppRadii.rMedium,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: dense ? 48 : AppDimensions.buttonHeight,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: AppSpacing.l,
-              vertical: dense ? 0 : AppSpacing.m,
-            ),
-            child: content,
-          ),
-        ),
+        ],
       ),
     );
+
+    const shape = RoundedRectangleBorder(borderRadius: AppRadii.rMedium);
+    final minimumSize = Size(expand ? double.infinity : 0, dense ? 48 : 52);
+    final padding = const EdgeInsets.symmetric(horizontal: AppSpacing.l);
+    final Widget button = switch (variant) {
+      AppButtonVariant.primary => FilledButton(
+          onPressed: disabled ? null : onPressed,
+          style: FilledButton.styleFrom(
+            minimumSize: minimumSize,
+            padding: padding,
+            shape: shape,
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+          ),
+          child: content,
+        ),
+      AppButtonVariant.secondary => FilledButton(
+          onPressed: disabled ? null : onPressed,
+          style: FilledButton.styleFrom(
+            minimumSize: minimumSize,
+            padding: padding,
+            shape: shape,
+            backgroundColor: backgroundColor ?? theme.colorScheme.secondary,
+            foregroundColor: foregroundColor ?? theme.colorScheme.onSecondary,
+          ),
+          child: content,
+        ),
+      AppButtonVariant.outlined => OutlinedButton(
+          onPressed: disabled ? null : onPressed,
+          style: OutlinedButton.styleFrom(
+            minimumSize: minimumSize,
+            padding: padding,
+            shape: shape,
+            side: BorderSide(color: theme.colorScheme.outlineVariant),
+          ),
+          child: content,
+        ),
+      AppButtonVariant.danger => FilledButton(
+          onPressed: disabled ? null : onPressed,
+          style: FilledButton.styleFrom(
+            minimumSize: minimumSize,
+            padding: padding,
+            shape: shape,
+            backgroundColor: AppColors.danger,
+            foregroundColor: AppColors.inkInverse,
+          ),
+          child: content,
+        ),
+      AppButtonVariant.ghost => TextButton(
+          onPressed: disabled ? null : onPressed,
+          style: TextButton.styleFrom(
+            minimumSize: minimumSize,
+            padding: padding,
+            shape: shape,
+          ),
+          child: content,
+        ),
+    };
+
+    return button;
   }
 }

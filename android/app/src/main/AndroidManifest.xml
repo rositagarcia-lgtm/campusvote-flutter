@@ -4,7 +4,7 @@
          muestra "No se pudo contactar al servidor". -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="campusvote_flutter"
+        android:label="CampusVote"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

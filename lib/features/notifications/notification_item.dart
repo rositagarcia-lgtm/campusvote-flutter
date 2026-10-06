@@ -17,6 +17,24 @@ class NotificationItem {
   final DateTime? createdAt;
   final Map<String, dynamic> metadata;
 
+  /// Copia con los campos indicados sustituidos.
+  ///
+  /// Marcar como leída no reescribe el aviso a mano: si el contrato gana un
+  /// campo nuevo, aquí no habría que acordarse de copiarlo.
+  NotificationItem copyWith({
+    bool? isRead,
+    Map<String, dynamic>? metadata,
+  }) =>
+      NotificationItem(
+        id: id,
+        type: type,
+        title: title,
+        message: message,
+        isRead: isRead ?? this.isRead,
+        createdAt: createdAt,
+        metadata: metadata ?? this.metadata,
+      );
+
   factory NotificationItem.fromJson(Map<String, dynamic> json) {
     final metadata = json['metadata'];
     return NotificationItem(

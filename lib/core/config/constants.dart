@@ -3,6 +3,14 @@ class AppConstants {
   const AppConstants._();
 
   static const String appName = 'CampusVote';
+
+  /// Versión visible de la app. Debe coincidir con `version:` de
+  /// `pubspec.yaml`; se muestra en la cabecera de Configuración.
+  static const String appVersion = '1.0.0';
+
+  /// Versión con prefijo, como aparece junto al nombre de la organización.
+  static const String appVersionLabel = 'v$appVersion';
+
   static const Duration networkConnectTimeout = Duration(seconds: 15);
   static const Duration networkReceiveTimeout = Duration(seconds: 30);
   static const Duration networkSendTimeout = Duration(seconds: 30);

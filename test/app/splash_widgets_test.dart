@@ -27,7 +27,7 @@ void main() {
                 ),
                 child: Column(
                   children: [
-                    const WelcomeHeader(name: 'Institución educativa'),
+                    const WelcomeHeader(),
                     const SizedBox(height: AppSpacing.xl),
                     const SectionHeading(
                       overline: 'BIENVENIDO',
@@ -55,7 +55,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'ancho $width');
       expect(find.text('Elige cómo participar'), findsOneWidget);
-      await tester.tap(find.text('Estudiante'));
+      await tester.tap(find.text('Continuar con mi correo'));
       expect(selected, 'student');
     }
   });

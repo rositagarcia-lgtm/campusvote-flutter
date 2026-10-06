@@ -9,11 +9,12 @@ import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_action_tile.dart';
-import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_page_layout.dart';
+import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../domain/entities/auth_role.dart';
 import '../state/auth_controller.dart';
 import '../widgets/account_identity.dart';
@@ -39,9 +40,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     final text = SettingsCopy.of(context);
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(
-        context,
-        title: text.t('Sobre mí'),
+      appBar: OrganizationPanelAppBar(
+        branding: branding,
+        section: user?.role == AuthRole.jury
+            ? text.t('Mi cuenta')
+            : text.t('Sobre mí'),
         actions: [
           IconButton(
             tooltip: text.t('Configuración'),
@@ -83,6 +86,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
+              SectionHeader(label: text.t('Seguridad')),
               ActionTile(
                 accent: accent,
                 icon: Icons.lock_outline_rounded,
@@ -90,6 +94,16 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 subtitle: text.t('Gestiona tu acceso y protege tu cuenta'),
                 onTap: () => context.push('/security'),
               ),
+              if (user?.role == AuthRole.jury) ...[
+                const SizedBox(height: AppSpacing.m),
+                ActionTile(
+                  accent: accent,
+                  icon: Icons.notifications_outlined,
+                  title: text.t('Notificaciones'),
+                  subtitle: text.t('Consulta tus avisos recientes'),
+                  onTap: () => context.push('/jury/notifications'),
+                ),
+              ],
               const SizedBox(height: AppSpacing.m),
               AppButton.danger(
                 label: text.t('Cerrar sesión'),

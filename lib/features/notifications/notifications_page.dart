@@ -2,66 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/branding/branding_controller.dart';
 import '../../core/theme/app_dimensions.dart';
-import '../../core/widgets/app_appbar.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_empty_view.dart';
 import '../../core/widgets/app_loader.dart';
 import '../../core/widgets/app_notice.dart';
 import '../../core/widgets/app_status_chip.dart';
+import '../../core/widgets/organization_panel_app_bar.dart';
 import 'notification_item.dart';
+import 'notification_presentation.dart';
+import 'notification_widgets.dart';
 import 'notifications_controller.dart';
+import 'notifications_state.dart';
 
-class NotificationsPage extends ConsumerWidget {
+class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+  NotificationFilter _filter = NotificationFilter.all;
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(notificationsControllerProvider);
     final controller = ref.read(notificationsControllerProvider.notifier);
+    final branding = ref.watch(brandingControllerProvider);
     return Scaffold(
-      appBar: buildCampusVoteAppBar(
-        context,
-        title: 'Notificaciones',
+      appBar: OrganizationPanelAppBar(
+        branding: branding,
+        section: 'Notificaciones',
+        onBack: () => context.pop(),
         actions: [
-          if (state.unreadCount > 0)
-            TextButton(
-              onPressed:
-                  state.updatingId == 'all' ? null : controller.markAllRead,
-              child: const Text('Marcar todas leídas'),
-            ),
+          IconButton(
+            tooltip: 'Marcar todas como leídas',
+            onPressed: state.unreadCount > 0 && state.updatingId != 'all'
+                ? controller.markAllRead
+                : null,
+            icon: const Icon(Icons.done_all_rounded),
+          ),
         ],
       ),
-      body: _content(context, state, controller),
+      body: _content(state, controller),
     );
   }
 
   Widget _content(
-    BuildContext context,
-    NotificationsState state,
-    NotificationsController controller,
-  ) {
-    if (state.loading && state.items.isEmpty) return const AppLoader();
+      NotificationsState state, NotificationsController controller) {
+    if (state.loading && state.items.isEmpty) {
+      return const AppLoader();
+    }
     if (state.error != null && state.items.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.l),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.cloud_off_outlined,
-                  size: AppDimensions.iconLarge * 2),
-              const SizedBox(height: AppSpacing.m),
-              Text(state.error!, textAlign: TextAlign.center),
-              const SizedBox(height: AppSpacing.m),
-              AppButton.outlined(
-                label: 'Reintentar',
-                icon: Icons.refresh_rounded,
-                onPressed: controller.load,
-              ),
-            ],
-          ),
-        ),
+      return _ErrorRetry(
+        message: state.error!,
+        onRetry: controller.load,
       );
     }
     if (state.items.isEmpty) {
@@ -69,42 +66,77 @@ class NotificationsPage extends ConsumerWidget {
         icon: Icons.notifications_none_rounded,
         overline: 'AVISOS',
         title: 'Estás al día',
-        message: 'Aquí aparecerán los avisos que te envíe CampusVote.',
+        message: 'Aquí aparecerán los avisos de tu organización.',
       );
     }
+
+    final visible = state.items
+        .where((item) => matchesNotificationFilter(item, _filter))
+        .toList(growable: false);
+    final now = DateTime.now();
+    final grouped = <String, List<NotificationItem>>{};
+    for (final item in visible) {
+      grouped
+          .putIfAbsent(notificationDateGroup(item.createdAt, now), () => [])
+          .add(item);
+    }
+    final theme = Theme.of(context);
+
     return RefreshIndicator(
       onRefresh: controller.load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.l),
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.l,
+          AppSpacing.m,
+          AppSpacing.l,
+          AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
-          Text(
-            'TUS AVISOS',
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-          ),
+          Text('TUS AVISOS',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.1,
+              )),
+          const SizedBox(height: AppSpacing.xs),
+          Text('Mostrando ${state.items.length} de ${state.total} avisos',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              )),
           const SizedBox(height: AppSpacing.m),
+          NotificationFilterBar(
+            selected: _filter,
+            items: state.items,
+            onSelected: (filter) => setState(() => _filter = filter),
+          ),
+          const SizedBox(height: AppSpacing.l),
           if (state.error != null) ...[
             NoticeBanner(
-              message: state.error!,
-              tone: AppTone.danger,
-              liveRegion: true,
-            ),
+                message: state.error!, tone: AppTone.danger, liveRegion: true),
             const SizedBox(height: AppSpacing.m),
           ],
-          for (final notification in state.items) ...[
-            _NotificationTile(
-              notification: notification,
-              loading: state.updatingId == notification.id,
-              onTap: () => _open(context, controller, notification),
+          if (visible.isEmpty)
+            const NoticeBanner(
+              message:
+                  'No hay avisos en este filtro. Puedes cargar más avisos.',
+              tone: AppTone.info,
+              icon: Icons.filter_alt_off_outlined,
             ),
-            const Divider(height: 1),
+          for (final group in grouped.entries) ...[
+            NotificationDateHeader(
+                label: group.key, count: group.value.length),
+            const SizedBox(height: AppSpacing.m),
+            for (final item in group.value) ...[
+              NotificationCard(
+                notification: item,
+                loading: state.updatingId == item.id,
+                onTap: () => _open(controller, item),
+              ),
+              const SizedBox(height: AppSpacing.m),
+            ],
           ],
           if (controller.hasMore) ...[
-            const SizedBox(height: AppSpacing.m),
             AppButton.outlined(
               label: 'Cargar más avisos',
               icon: Icons.expand_more_rounded,
@@ -112,24 +144,15 @@ class NotificationsPage extends ConsumerWidget {
               isLoading: state.loading,
             ),
           ],
-          const SizedBox(height: AppSpacing.xl),
-          Text(
-            'Se muestran los avisos más recientes.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
         ],
       ),
     );
   }
 
   Future<void> _open(
-    BuildContext context,
-    NotificationsController controller,
-    NotificationItem item,
-  ) async {
+      NotificationsController controller, NotificationItem item) async {
     if (!item.isRead && !await controller.markRead(item.id)) return;
-    if (!context.mounted) return;
+    if (!mounted) return;
     final fairId = item.metadata['fair_id']?.toString();
     if (fairId != null && fairId.isNotEmpty) {
       context.go('/jury/fair/${Uri.encodeComponent(fairId)}');
@@ -137,105 +160,32 @@ class NotificationsPage extends ConsumerWidget {
   }
 }
 
-class _NotificationTile extends StatelessWidget {
-  const _NotificationTile({
-    required this.notification,
-    required this.loading,
-    required this.onTap,
-  });
+/// Fallo de carga sin avisos en caché: reintento a la vista.
+class _ErrorRetry extends StatelessWidget {
+  const _ErrorRetry({required this.message, required this.onRetry});
 
-  final NotificationItem notification;
-  final bool loading;
-  final VoidCallback onTap;
+  final String message;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final typeLabel = switch (notification.type) {
-      'FAIR_OPENED' => 'Feria',
-      'SYSTEM_ALERT' => 'Aviso institucional',
-      'PROJECT_LIKED' => 'Me gusta',
-      'PROJECT_COMMENTED' => 'Comentario',
-      'PROJECT_LIKE_MILESTONE' => 'Proyecto',
-      'ASSISTED_PROJECT_PREPARED' => 'Proyecto asistido',
-      'ASSISTED_PROJECT_CONFIRMED' => 'Proyecto confirmado',
-      'JURY_CONFLICT_DECLARED' => 'Conflicto de interés',
-      'JURY_RECUSAL_REVOKED' => 'Recusación',
-      'RATING_RECEIVED' => 'Calificación',
-      _ => 'Notificación',
-    };
-    final date = notification.createdAt?.toLocal();
-    final dateLabel = date == null
-        ? null
-        : '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} · ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    return Semantics(
-      button: true,
-      enabled: !loading,
-      onTap: loading ? null : onTap,
-      label:
-          '$typeLabel. ${notification.title}. ${notification.isRead ? 'Leída' : 'No leída'}',
-      excludeSemantics: true,
-      child: Material(
-        color: notification.isRead
-            ? Colors.transparent
-            : theme.colorScheme.primary.withValues(alpha: 0.045),
-        borderRadius: AppRadii.rSmall,
-        child: InkWell(
-          onTap: loading ? null : onTap,
-          borderRadius: AppRadii.rSmall,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.s,
-              vertical: AppSpacing.m,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.l),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_outlined,
+                size: AppDimensions.iconLarge * 2),
+            const SizedBox(height: AppSpacing.m),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.m),
+            AppButton.outlined(
+              label: 'Reintentar',
+              icon: Icons.refresh_rounded,
+              onPressed: onRetry,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  notification.isRead
-                      ? Icons.notifications_none_rounded
-                      : Icons.notifications_active_outlined,
-                  color: notification.isRead
-                      ? theme.colorScheme.onSurfaceVariant
-                      : theme.colorScheme.primary,
-                  size: AppDimensions.iconLarge,
-                ),
-                const SizedBox(width: AppSpacing.m),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(typeLabel, style: theme.textTheme.labelSmall),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        notification.title,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: notification.isRead
-                              ? FontWeight.w500
-                              : FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(notification.message,
-                          style: theme.textTheme.bodySmall),
-                      if (dateLabel != null) ...[
-                        const SizedBox(height: AppSpacing.s),
-                        Text(dateLabel, style: theme.textTheme.labelSmall),
-                      ],
-                    ],
-                  ),
-                ),
-                if (loading)
-                  const SizedBox(
-                    width: AppDimensions.iconMedium,
-                    height: AppDimensions.iconMedium,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                else if (!notification.isRead)
-                  Icon(Icons.circle, size: 9, color: theme.colorScheme.primary),
-              ],
-            ),
-          ),
+          ],
         ),
       ),
     );

@@ -17,6 +17,11 @@ class AppPanelIntro extends StatelessWidget {
     required this.secondaryValue,
     required this.secondaryLabel,
     this.organizationLogoUrl,
+    this.showProductName = true,
+    this.showOrganizationHeader = true,
+    this.contextLabel,
+    this.tertiaryValue,
+    this.tertiaryLabel,
   });
 
   final String organizationName;
@@ -27,6 +32,11 @@ class AppPanelIntro extends StatelessWidget {
   final String primaryLabel;
   final int secondaryValue;
   final String secondaryLabel;
+  final bool showProductName;
+  final bool showOrganizationHeader;
+  final String? contextLabel;
+  final int? tertiaryValue;
+  final String? tertiaryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -35,77 +45,159 @@ class AppPanelIntro extends StatelessWidget {
     final muted = appMuted(isDark);
     final accent = theme.colorScheme.primary;
     final rule = appBorder(isDark);
+    final surface = theme.colorScheme.surface;
+    final introSurface = Color.alphaBlend(
+      accent.withValues(alpha: isDark ? 0.16 : 0.055),
+      surface,
+    );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            PanelHeroOrgBadge(
-              name: organizationName,
-              logoUrl: organizationLogoUrl,
-              accent: accent,
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: introSurface,
+        borderRadius: AppRadii.rXLarge,
+        border:
+            Border.all(color: accent.withValues(alpha: isDark ? 0.28 : 0.16)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showOrganizationHeader) ...[
+            Row(
+              children: [
+                PanelHeroOrgBadge(
+                  name: organizationName,
+                  logoUrl: organizationLogoUrl,
+                  accent: accent,
+                ),
+                const SizedBox(width: AppSpacing.m),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (showProductName) ...[
+                        Text(
+                          'CAMPUSVOTE',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: muted,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                      ],
+                      Text(
+                        organizationName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: AppSpacing.s),
-            Expanded(
-              child: Text(
-                organizationName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: muted,
-                  fontWeight: FontWeight.w700,
+            SizedBox(
+              height: contextLabel == null ? AppSpacing.xl : AppSpacing.l,
+            ),
+          ],
+          if (contextLabel != null) ...[
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.m,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: isDark ? 0.2 : 0.1),
+                  borderRadius: AppRadii.rMedium,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.verified_user_outlined,
+                        size: AppDimensions.iconSmall, color: accent),
+                    const SizedBox(width: AppSpacing.xs),
+                    Flexible(
+                      child: Text(
+                        contextLabel!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: accent,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
+            const SizedBox(height: AppSpacing.xl),
           ],
-        ),
-        const SizedBox(height: AppSpacing.m),
-        Semantics(
-          header: true,
-          child: Text(
-            title,
-            style: theme.textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              height: 1.15,
+          Semantics(
+            header: true,
+            child: Text(
+              title,
+              style: theme.textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                height: 1.15,
+                letterSpacing: -0.35,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.s),
-        Text(
-          subtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
-        ),
-        const SizedBox(height: AppSpacing.l),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: rule),
-              bottom: BorderSide(color: rule),
+          const SizedBox(height: AppSpacing.s),
+          Text(
+            subtitle,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: muted,
+              height: 1.45,
             ),
           ),
-          child: Row(
+          const SizedBox(height: AppSpacing.xl),
+          Container(height: 1, color: rule),
+          const SizedBox(height: AppSpacing.l),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _OverviewNumber(
                   value: primaryValue,
                   label: primaryLabel,
                   color: accent,
+                  compact: tertiaryValue != null,
                 ),
               ),
-              Container(height: 40, width: 1, color: rule),
+              Container(height: 44, width: 1, color: rule),
               Expanded(
                 child: _OverviewNumber(
                   value: secondaryValue,
                   label: secondaryLabel,
                   color: theme.colorScheme.onSurface,
+                  compact: tertiaryValue != null,
                 ),
               ),
+              if (tertiaryValue != null && tertiaryLabel != null) ...[
+                Container(height: 44, width: 1, color: rule),
+                Expanded(
+                  child: _OverviewNumber(
+                    value: tertiaryValue!,
+                    label: tertiaryLabel!,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    compact: true,
+                  ),
+                ),
+              ],
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -115,40 +207,49 @@ class _OverviewNumber extends StatelessWidget {
     required this.value,
     required this.label,
     required this.color,
+    this.compact = false,
   });
 
   final int value;
   final String label;
   final Color color;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final muted = appMuted(theme.brightness == Brightness.dark);
     final displayLabel = value == 1 && label.endsWith('s')
         ? label.substring(0, label.length - 1)
         : label;
     return Semantics(
       label: '$value $displayLabel',
       excludeSemantics: true,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '$value',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w800,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? AppSpacing.xs : AppSpacing.m,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              '$value',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+                height: 1.1,
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.s),
-          Flexible(
-            child: Text(
+            const SizedBox(height: AppSpacing.xs),
+            Text(
               displayLabel,
               maxLines: 2,
-              style: theme.textTheme.bodySmall,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelMedium?.copyWith(color: muted),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

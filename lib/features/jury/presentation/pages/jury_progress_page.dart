@@ -1,23 +1,24 @@
+// jury_progress_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_appbar.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/widgets/app_error_view.dart';
-import '../../../../core/widgets/app_loader.dart';
-import '../../../../core/widgets/app_page_layout.dart';
-import '../../../../core/widgets/app_section_header.dart';
-import '../../../../core/widgets/app_status_chip.dart';
+import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../data/models/jury_models.dart';
+import '../progress/widgets/jury_progress_skeleton.dart';
+import '../progress/widgets/jury_progress_view.dart';
 import '../providers/jury_providers.dart';
-import '../widgets/jury_progress_bar.dart';
+import '../providers/jury_voting_status_provider.dart';
 
-/// `/jury/fair/:fairId/progress` — avance del jurado y su declaración.
+/// `/jury/fair/:fairId/progress` — estado real de la participación del jurado.
 ///
-/// Carga `GET /fairs/my-progress/:fairId`, que ya resume todo: totales,
-/// porcentaje, si firmó la declaración y si votó.
+/// Todo lo que se muestra sale de `GET /fairs/my-progress/:fairId` (y del estado
+/// de votación para la fecha del voto). El contenido vive en
+/// `presentation/progress/`; esta pantalla solo resuelve datos y estados de
+/// carga, error y recarga.
 class JuryProgressPage extends ConsumerWidget {
   const JuryProgressPage({super.key, required this.fairId});
 
@@ -26,166 +27,68 @@ class JuryProgressPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(juryProgressProvider(fairId));
-    final reload = ref.read(juryProgressProvider(fairId).notifier).reload;
+    final branding = ref.watch(brandingControllerProvider);
+    // Se lee el valor con `valueOrNull` para que una recarga no borre lo que
+    // ya está en pantalla; el error se reporta aparte sobre esos mismos datos.
+    final data = progress.valueOrNull;
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(context, title: 'Mi progreso'),
+      appBar: OrganizationPanelAppBar(
+        branding: branding,
+        section: 'Mi progreso',
+        onBack: () => context.pop(),
+      ),
       body: RefreshIndicator(
-        onRefresh: reload,
-        child: _bodyFor(fairId, progress, reload),
-      ),
-    );
-  }
-}
-
-Widget _bodyFor(
-  String fairId,
-  AsyncValue<JuryProgressModel> progress,
-  VoidCallback onRetry,
-) {
-  switch (progress) {
-    case AsyncLoading():
-      return const AppLoader();
-    case AsyncError(:final error):
-      return AppErrorView(
-        message: describeJuryError(error),
-        onRetry: onRetry,
-      );
-    case AsyncData(:final value):
-      return _ProgressBody(fairId: fairId, progress: value);
-    default:
-      return const AppLoader();
-  }
-}
-
-class _ProgressBody extends StatelessWidget {
-  const _ProgressBody({required this.fairId, required this.progress});
-
-  final String fairId;
-  final JuryProgressModel progress;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final signed = progress.declaration != null;
-
-    return PageScrollBody(
-      // Siempre desplazable para que el pull-to-refresh funcione con poco
-      // contenido.
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: ClampingScrollPhysics(),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (progress.fairName != null) ...[
-            Text(
-              'FERIA ASIGNADA',
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 1.2,
-                fontWeight: FontWeight.w700,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              progress.fairName!,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-          ],
-          JuryProgressBar(
-            completed: progress.completedProjects,
-            total: progress.totalProjects,
-            percentage: progress.progressPercentage,
-            label: 'Evaluaciones finalizadas',
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          const SectionHeader(label: 'Mi participación'),
-          _StatusRow(
-            icon: progress.hasVoted
-                ? Icons.how_to_vote_rounded
-                : Icons.pending_actions_rounded,
-            title: 'Votación',
-            value: progress.hasVoted ? 'Voto emitido' : 'Pendiente',
-            done: progress.hasVoted,
-          ),
-          _StatusRow(
-            icon: signed
-                ? Icons.assignment_turned_in_rounded
-                : Icons.assignment_rounded,
-            title: 'Declaración de jurado',
-            value: signed ? 'Firmada' : 'Sin firmar',
-            done: signed,
-          ),
-          if (signed) ...[
-            const SizedBox(height: AppSpacing.l),
-            const SectionHeader(label: 'Declaración registrada'),
-            Text(
-              progress.declaration!.statement,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-            ),
-          ],
-          const SizedBox(height: AppSpacing.l),
-          AppButton.outlined(
-            label:
-                signed ? 'Ver mi declaración' : 'Firmar declaración de jurado',
-            icon: signed ? Icons.description_outlined : Icons.draw_outlined,
-            onPressed: () => context.push('/jury/fair/$fairId/declaration'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusRow extends StatelessWidget {
-  const _StatusRow({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.done,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-  final bool done;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: AppDimensions.iconMedium,
-                color: done ? theme.colorScheme.primary : theme.disabledColor,
-              ),
-              const SizedBox(width: AppSpacing.m),
-              Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+        onRefresh: () => reloadJuryProgress(context, ref, fairId),
+        child: data != null
+            ? JuryProgressView(
+                fairId: fairId,
+                progress: data,
+                staleError: progress.hasError,
+              )
+            : switch (progress) {
+                AsyncError(:final error) => AppErrorView(
+                    message: describeJuryError(error),
+                    onRetry: () => reloadJuryProgress(context, ref, fairId),
                   ),
-                ),
-              ),
-              StatusChip(
-                label: value,
-                tone: done ? AppTone.primary : AppTone.neutral,
-              ),
-            ],
-          ),
-        ),
-        const Divider(height: 1),
-      ],
+                _ => const JuryProgressSkeleton(),
+              },
+      ),
     );
   }
+}
+
+/// Recarga el progreso y avisa si, tras la acción, algún paso se completó.
+Future<void> reloadJuryProgress(
+  BuildContext context,
+  WidgetRef ref,
+  String fairId,
+) async {
+  final before = ref.read(juryProgressProvider(fairId)).valueOrNull;
+  try {
+    ref.invalidate(juryVotingStatusProvider(fairId));
+    await ref.read(juryProgressProvider(fairId).notifier).reload();
+  } catch (_) {
+    // El estado ya quedó en `AsyncError` y la pantalla lo muestra.
+  }
+  if (!context.mounted) return;
+  final message = completedMessage(
+    before,
+    ref.read(juryProgressProvider(fairId)).valueOrNull,
+  );
+  if (message == null) return;
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// Resumen de lo que cambió tras una acción: solo hechos del modelo.
+String? completedMessage(JuryProgressModel? before, JuryProgressModel? after) {
+  if (before == null || after == null) return null;
+  final done = <String>[
+    if (!before.isComplete && after.isComplete) 'Evaluaciones finalizadas',
+    if (!before.hasVoted && after.hasVoted) 'Voto oficial registrado',
+    if (before.declaration == null && after.declaration != null)
+      'Declaración registrada',
+  ];
+  if (done.isEmpty) return null;
+  return '${done.join(' · ')}. Tu progreso está actualizado.';
 }

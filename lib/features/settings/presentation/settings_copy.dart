@@ -20,9 +20,18 @@ class SettingsCopy {
   /// Mensajes de error del dominio/API: no exponer excepciones técnicas ni
   /// mostrar en inglés texto de servidor que no está en el catálogo.
   String error(String message) {
-    final technical =
-        RegExp(r'Exception|^Error \d+|StackTrace', caseSensitive: false)
-            .hasMatch(message);
+    final lower = message.toLowerCase();
+    if (RegExp(
+      r'(estudiantes?\s+o\s+jura[dt]os?|students?\s+or\s+jur(?:y|ies))',
+    ).hasMatch(lower)) {
+      return t(
+        'No encontramos una cuenta habilitada para este acceso. Verifica que uses el correo registrado en CampusVote.',
+      );
+    }
+    final technical = RegExp(
+      r'Exception|^Error \d+|StackTrace|Prisma|SQL|TypeError|undefined|Cannot read properties|/api/|HTTP\s?\d{3}',
+      caseSensitive: false,
+    ).hasMatch(message);
     if (technical ||
         (isEnglish &&
             !appTranslations.containsKey(message) &&
@@ -33,19 +42,43 @@ class SettingsCopy {
   }
 
   String get title => isEnglish ? 'Settings' : 'Configuración';
+  String get back => isEnglish ? 'Back' : 'Volver';
+  String get preferencesTitle =>
+      isEnglish ? 'System preferences' : 'Preferencias del sistema';
   String get appearance => isEnglish ? 'APPEARANCE' : 'APARIENCIA';
   String get darkMode => isEnglish ? 'Dark mode' : 'Modo oscuro';
   String get darkModeHint => isEnglish
       ? 'Use a darker theme throughout the app'
       : 'Usa un tema oscuro en toda la aplicación';
+
+  /// Contrapartida de [darkModeHint]: el interruptor apagado también necesita
+  /// su descripción, o seguiría leyendo "tema oscuro" con el tema en claro.
+  String get lightModeHint => isEnglish
+      ? 'Use a lighter theme throughout the app'
+      : 'Usa un tema claro en toda la aplicación';
+
+  /// Se muestra mientras el usuario no ha elegido tema: sigue al sistema.
+  String get darkModeSystemHint => isEnglish
+      ? 'Following your device theme'
+      : 'Sigue el tema de tu dispositivo';
   String get textSize => isEnglish ? 'Text size' : 'Tamaño de texto';
+  String get textSizeHint => isEnglish
+      ? 'Adjust the font size for easier reading'
+      : 'Ajusta el tamaño de fuente para una mejor lectura';
   String get small => isEnglish ? 'Small' : 'Pequeño';
   String get normal => isEnglish ? 'Normal' : 'Normal';
   String get large => isEnglish ? 'Large' : 'Grande';
   String get languageSection => isEnglish ? 'LANGUAGE' : 'IDIOMA';
   String get languageLabel => isEnglish ? 'Language' : 'Idioma';
+  String get languageHint => isEnglish
+      ? 'Sets the language of menus and notices'
+      : 'Define el idioma de los menús y los avisos';
   String get spanish => isEnglish ? 'Spanish' : 'Español';
   String get english => 'English';
+
+  /// Etiqueta accesible del logo de la organización activa.
+  String logoLabel(String organization) =>
+      isEnglish ? 'Logo of $organization' : 'Logo de $organization';
 
   String openFairs(int count) => isEnglish
       ? '$count open fair${count == 1 ? '' : 's'}'

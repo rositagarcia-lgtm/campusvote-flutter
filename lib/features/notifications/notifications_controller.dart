@@ -3,51 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/config/endpoints.dart';
 import '../../core/di/core_providers.dart';
 import 'notification_item.dart';
+import 'notifications_state.dart';
 
 class _NotificationRequestFailure implements Exception {
   const _NotificationRequestFailure(this.statusCode);
   final int? statusCode;
-}
-
-class NotificationsState {
-  const NotificationsState({
-    this.items = const [],
-    this.unreadCount = 0,
-    this.total = 0,
-    this.page = 1,
-    this.loading = true,
-    this.updatingId,
-    this.error,
-  });
-
-  final List<NotificationItem> items;
-  final int unreadCount;
-  final int total;
-  final int page;
-  final bool loading;
-  final String? updatingId;
-  final String? error;
-
-  NotificationsState copyWith({
-    List<NotificationItem>? items,
-    int? unreadCount,
-    int? total,
-    int? page,
-    bool? loading,
-    String? updatingId,
-    String? error,
-    bool clearError = false,
-    bool clearUpdating = false,
-  }) =>
-      NotificationsState(
-        items: items ?? this.items,
-        unreadCount: unreadCount ?? this.unreadCount,
-        total: total ?? this.total,
-        page: page ?? this.page,
-        loading: loading ?? this.loading,
-        updatingId: clearUpdating ? null : (updatingId ?? this.updatingId),
-        error: clearError ? null : (error ?? this.error),
-      );
 }
 
 final notificationsControllerProvider = StateNotifierProvider.autoDispose<
@@ -177,18 +137,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
       state = state.copyWith(
         items: [
           for (final item in state.items)
-            if (item.id == id)
-              NotificationItem(
-                id: item.id,
-                type: item.type,
-                title: item.title,
-                message: item.message,
-                isRead: true,
-                createdAt: item.createdAt,
-                metadata: item.metadata,
-              )
-            else
-              item,
+            if (item.id == id) item.copyWith(isRead: true) else item,
         ],
         unreadCount: state.items.any((item) => item.id == id && !item.isRead)
             ? (state.unreadCount - 1).clamp(0, state.unreadCount)
@@ -219,18 +168,7 @@ class NotificationsController extends StateNotifier<NotificationsState> {
         throw const FormatException('No se pudieron actualizar');
       }
       state = state.copyWith(
-        items: [
-          for (final item in state.items)
-            NotificationItem(
-              id: item.id,
-              type: item.type,
-              title: item.title,
-              message: item.message,
-              isRead: true,
-              createdAt: item.createdAt,
-              metadata: item.metadata,
-            ),
-        ],
+        items: [for (final item in state.items) item.copyWith(isRead: true)],
         unreadCount: 0,
         clearUpdating: true,
       );

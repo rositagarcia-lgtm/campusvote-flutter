@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_palette.dart';
-import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
+import 'fair_card_header.dart';
 import 'voting_countdown.dart';
 
 /// Asignación de feria. La única acción navegable corresponde a una feria
@@ -34,15 +34,17 @@ class FairCard extends StatelessWidget {
       container: true,
       child: Material(
         color: theme.colorScheme.surface,
+        elevation: open ? 1 : 0,
+        shadowColor: accent.withValues(alpha: 0.14),
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.rMedium,
+          borderRadius: AppRadii.rXLarge,
           side: BorderSide(color: appBorder(isDark)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(height: 3, color: open ? accent : appBorder(isDark)),
+            FairCardHeader(fair: fair, status: status),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.l),
               child: Column(
@@ -54,14 +56,6 @@ class FairCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       height: 1.25,
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.m),
-                  StatusChip(
-                    label: status,
-                    tone: open ? AppTone.success : AppTone.neutral,
-                    icon: open
-                        ? Icons.radio_button_checked_rounded
-                        : Icons.lock_outline_rounded,
                   ),
                   if (fair.siteName case final site?) ...[
                     const SizedBox(height: AppSpacing.s),

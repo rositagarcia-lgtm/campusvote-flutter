@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/branding/branding_controller.dart';
 import '../core/settings/app_preferences.dart';
+import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
+import '../core/widgets/app_button.dart';
 import '../features/settings/presentation/settings_copy.dart';
 import 'splash_intro_video.dart';
 import 'splash_widgets.dart';
@@ -34,15 +35,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       return SplashIntroVideo(onFinished: _showWelcomePage);
     }
 
-    final branding = ref.watch(brandingControllerProvider);
     final text = SettingsCopy.of(context);
     final language = ref.watch(
       appPreferencesProvider.select((preferences) => preferences.language),
     );
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    final studentColor = theme.colorScheme.primary;
-    final juryColor = theme.colorScheme.secondary;
+    final studentColor = AppColors.studentAccess;
+    final juryColor = AppColors.juryAccess;
 
     return Scaffold(
       body: SafeArea(
@@ -83,22 +83,24 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                       ],
                     ),
                   ),
-                  WelcomeHeader(name: branding.name),
+                  const WelcomeHeader(),
                   const SizedBox(height: AppSpacing.xxl),
                   SectionHeading(
-                    overline: text.t('Acceso'),
+                    overline: text.t('Acceso institucional'),
                     title: text.t('Elige cómo participar'),
-                    subtitle: text.t('Selecciona tu perfil para continuar.'),
+                    subtitle: text.t(
+                      'Selecciona tu opción para continuar de forma segura.',
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.l),
                   AccessCard(
                     icon: Icons.school_outlined,
                     actionIcon: Icons.mail_outline_rounded,
                     accent: studentColor,
-                    title: text.t('Estudiante'),
+                    eyebrow: text.t('ESTUDIANTES Y JURADOS INTERNOS'),
+                    title: text.t('Acceso por correo'),
                     subtitle: text.t(
-                      'Evalúa a tus docentes con un código enviado a tu correo. No necesitas contraseña.',
-                    ),
+                        'Estudiantes y docentes asignados como jurados reciben un código en su correo institucional. Selecciona este acceso si esa es tu participación.'),
                     action: text.t('Continuar con mi correo'),
                     onTap: () => context.go('/auth/email-request'),
                   ),
@@ -107,34 +109,49 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                     icon: Icons.gavel_outlined,
                     actionIcon: Icons.lock_outline_rounded,
                     accent: juryColor,
-                    title: text.t('Jurado'),
+                    accentForeground: AppColors.juryAccessInk,
+                    actionVariant: AppButtonVariant.secondary,
+                    eyebrow: text.t('ACCESO DE JURADO'),
+                    title: text.t('Jurado calificador'),
                     subtitle: text.t(
-                      'Califica proyectos e ingresa con las credenciales enviadas por el administrador.',
-                    ),
+                        'Ingresa con las credenciales de jurado que te facilitó la organización. Si no las tienes, consulta al comité organizador.'),
                     action: text.t('Ingresar como jurado'),
                     onTap: () => context.go('/auth/jury/login'),
                   ),
                   const SizedBox(height: AppSpacing.xl),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.verified_user_outlined,
-                        size: AppDimensions.iconSmall,
-                        color: muted,
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.l),
+                    decoration: BoxDecoration(
+                      color: Color.alphaBlend(
+                        studentColor.withValues(alpha: 0.06),
+                        theme.colorScheme.surface,
                       ),
-                      const SizedBox(width: AppSpacing.s),
-                      Flexible(
-                        child: Text(
-                          text.t(
-                              'Acceso exclusivo para la comunidad académica'),
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: muted,
+                      borderRadius: AppRadii.rLarge,
+                      border: Border.all(
+                        color: studentColor.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.verified_user_outlined,
+                          size: AppDimensions.iconMedium,
+                          color: studentColor,
+                        ),
+                        const SizedBox(width: AppSpacing.m),
+                        Expanded(
+                          child: Text(
+                            text.t(
+                                'Usa el correo y las credenciales asignadas a tu participaci\u00f3n.'),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: muted,
+                              height: 1.35,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

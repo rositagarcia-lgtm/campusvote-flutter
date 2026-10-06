@@ -155,6 +155,16 @@ class AppTheme {
           textStyle: textTheme.titleSmall,
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: scheme.surface,
+        indicatorColor: Color.alphaBlend(
+          scheme.primary.withValues(alpha: 0.12),
+          scheme.surface,
+        ),
+        elevation: 0,
+        height: 76,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      ),
       dividerTheme: DividerThemeData(
         color: brightness == Brightness.dark
             ? AppColors.darkBorder

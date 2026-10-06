@@ -9,6 +9,7 @@ import '../../features/auth/presentation/pages/change_password_page.dart';
 import '../../features/auth/presentation/pages/email_otp_verify_page.dart';
 import '../../features/auth/presentation/pages/email_request_page.dart';
 import '../../features/auth/presentation/pages/jury_login_page.dart';
+import '../../features/auth/presentation/pages/password_reset_request_page.dart';
 import '../../features/auth/presentation/pages/security_page.dart';
 import '../../features/auth/presentation/pages/totp_backup_codes_page.dart';
 import '../../features/auth/presentation/pages/totp_page.dart';
@@ -66,6 +67,7 @@ GoRouter buildAppRouter(
         '/auth/jury/login',
         '/auth/email-request',
         '/auth/email-verify',
+        '/auth/password/forgot',
         '/auth/totp',
       };
       if (!auth.authenticated && !publicRoutes.contains(loc)) {
@@ -104,6 +106,10 @@ GoRouter buildAppRouter(
       GoRoute(
         path: '/auth/jury/login',
         builder: (_, __) => const JuryLoginPage(),
+      ),
+      GoRoute(
+        path: '/auth/password/forgot',
+        builder: (_, __) => const PasswordResetRequestPage(),
       ),
 
       // ── ESTUDIANTE: código de un solo uso por correo ───────────────────

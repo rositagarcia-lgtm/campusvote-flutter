@@ -54,7 +54,9 @@ class _TotpPageState extends ConsumerState<TotpPage> {
     final state = ref.watch(authControllerProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
-    final error = state.errorMessage;
+    final error = state.errorMessage == null
+        ? null
+        : SettingsCopy.of(context).error(state.errorMessage!);
     final text = SettingsCopy.of(context);
 
     return Scaffold(

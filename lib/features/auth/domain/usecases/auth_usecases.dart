@@ -69,6 +69,21 @@ class RequestEmailLoginUseCase {
   }
 }
 
+class RequestPasswordResetUseCase {
+  RequestPasswordResetUseCase(this._repo);
+  final AuthRepository _repo;
+
+  Future<Result<void>> call({required String email}) {
+    final clean = email.trim().toLowerCase();
+    if (!_isEmail(clean)) {
+      return Future.value(const FailureResult(
+        ValidationFailure(message: 'Escribe un correo válido'),
+      ));
+    }
+    return _repo.requestPasswordReset(email: clean);
+  }
+}
+
 /// Verifica el código OTP enviado al correo (paso 2 del acceso sin contraseña).
 class VerifyEmailLoginUseCase {
   VerifyEmailLoginUseCase(this._repo);

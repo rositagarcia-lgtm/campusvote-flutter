@@ -4,19 +4,21 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
-import '../../../../core/widgets/app_panel_intro.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../../../core/widgets/app_page_layout.dart';
-import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../../notifications/notifications_controller.dart';
 import '../../data/models/jury_models.dart';
+import '../providers/jury_dashboard_progress.dart';
 import '../providers/jury_providers.dart';
+import '../widgets/jury_dashboard_overview.dart';
 import '../widgets/jury_fair_card.dart';
 
 /// `/jury` — dashboard de ferias asignadas (`GET /fairs/my-assignments`).
@@ -26,12 +28,13 @@ class JuryDashboardPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fairs = ref.watch(juryDashboardProvider);
+    final branding = ref.watch(brandingControllerProvider);
     final unreadCount = ref.watch(notificationsControllerProvider).unreadCount;
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(
-        context,
-        title: 'Jurado',
+      appBar: OrganizationPanelAppBar(
+        branding: branding,
+        section: 'Panel del jurado',
         actions: [
           IconButton(
             tooltip: unreadCount > 0
@@ -44,28 +47,63 @@ class JuryDashboardPage extends ConsumerWidget {
               child: const Icon(Icons.notifications_outlined),
             ),
           ),
-          IconButton(
-            tooltip: 'Actualizar',
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => ref.read(juryDashboardProvider.notifier).reload(),
-          ),
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout_rounded),
-            onPressed: () async {
-              await ref.read(authControllerProvider.notifier).logout();
-              if (context.mounted) context.go('/splash');
+          PopupMenuButton<String>(
+            tooltip: 'Perfil y sesi\u00f3n',
+            icon: const Icon(Icons.account_circle_outlined),
+            onSelected: (value) async {
+              if (value == 'account') {
+                if (context.mounted) context.go('/account');
+              } else if (value == 'refresh') {
+                await _reload(ref);
+              } else if (value == 'signout') {
+                await ref.read(authControllerProvider.notifier).logout();
+                if (context.mounted) context.go('/splash');
+              }
             },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'refresh',
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.refresh_rounded),
+                  title: Text('Actualizar ferias'),
+                ),
+              ),
+              PopupMenuItem(
+                value: 'account',
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.person_outline_rounded),
+                  title: Text('Mi cuenta'),
+                ),
+              ),
+              PopupMenuItem(
+                value: 'signout',
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.logout_rounded),
+                  title: Text('Cerrar sesi\u00f3n'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(juryDashboardProvider.notifier).reload(),
+        onRefresh: () => _reload(ref),
         child: _bodyFor(context, ref, fairs),
       ),
       bottomNavigationBar: const AppBottomNav(selectedIndex: 0),
     );
   }
+}
+
+Future<void> _reload(WidgetRef ref) async {
+  final current = ref.read(juryDashboardProvider).valueOrNull;
+  for (final fair in current ?? const <FairAssignmentModel>[]) {
+    if (fair.isOpen) ref.invalidate(juryProgressProvider(fair.fairId));
+  }
+  await ref.read(juryDashboardProvider.notifier).reload();
 }
 
 /// `AsyncValue` no es una jerarquía sellada, así que el caso por defecto se
@@ -87,7 +125,10 @@ Widget _bodyFor(
       if (value.isEmpty) {
         return const AppEmptyView(
           icon: Icons.event_busy_rounded,
-          message: 'No tienes ferias asignadas por ahora.',
+          overline: 'ASIGNACIONES',
+          title: 'Aún no tienes ferias asignadas',
+          message:
+              'Cuando la organización te asigne una feria, aparecerá aquí. Desliza hacia abajo para actualizar.',
         );
       }
       return _FairsList(fairs: value);
@@ -103,51 +144,43 @@ class _FairsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final branding = ref.watch(brandingControllerProvider);
+    final progress = ref.watch(juryDashboardProgressProvider);
     final open = fairs.where((f) => f.isOpen).toList(growable: false);
     final others = fairs.where((f) => !f.isOpen).toList(growable: false);
-    final theme = Theme.of(context);
-    final muted = appMuted(theme.brightness == Brightness.dark);
-
     return PageScrollBody(
-      // Siempre desplazable para que el pull-to-refresh funcione con poco
-      // contenido.
+      // Siempre desplazable para permitir actualizar con poco contenido.
       physics: const AlwaysScrollableScrollPhysics(
         parent: ClampingScrollPhysics(),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppPanelIntro(
-            organizationName: branding.name,
-            organizationLogoUrl: branding.logoUrl,
-            title: 'Tus ferias',
-            subtitle:
-                'Consulta tus asignaciones y entra a las ferias disponibles.',
-            primaryValue: open.length,
-            primaryLabel: 'disponibles',
-            secondaryValue: fairs.length,
-            secondaryLabel: 'asignadas',
+          JuryDashboardOverview(
+            openCount: open.length,
+            assignedCount: fairs.length,
+            progress: progress,
           ),
           const SizedBox(height: AppSpacing.l),
           if (open.isNotEmpty) ...[
             SectionHeader(
-              label: 'DISPONIBLES',
+              label: 'ACCESO DISPONIBLE',
               title: 'Ferias abiertas',
               count: open.length,
             ),
             ..._cards(open),
           ] else ...[
-            Text(
-              'No hay ferias abiertas en este momento.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+            const NoticeBanner(
+              tone: AppTone.info,
+              icon: Icons.event_busy_outlined,
+              message:
+                  'Por ahora no tienes ferias abiertas. Revisa tus otras asignaciones m\u00e1s abajo.',
             ),
           ],
           if (others.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xl),
             SectionHeader(
-              label: 'OTRAS ASIGNACIONES',
-              title: 'No disponibles',
+              label: 'ASIGNACIONES',
+              title: 'Otras asignaciones',
               count: others.length,
             ),
             ..._cards(others),
