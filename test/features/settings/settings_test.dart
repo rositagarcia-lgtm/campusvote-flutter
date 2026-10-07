@@ -1,6 +1,7 @@
 import 'package:campusvote_flutter/core/di/core_providers.dart';
 import 'package:campusvote_flutter/core/settings/app_preferences.dart';
 import 'package:campusvote_flutter/core/storage/local_storage.dart';
+import 'package:campusvote_flutter/core/theme/app_colors.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_page.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 import 'package:campusvote_flutter/features/auth/presentation/widgets/auth_form_widgets.dart'
@@ -10,6 +11,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'settings_pump.dart';
 
 void main() {
   test('errores del servidor no revelan roles ni detalles técnicos', () {
@@ -189,6 +192,108 @@ void main() {
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull,
               reason: '${language.code}, dark=$dark, size=$size');
+        }
+      }
+    }
+  });
+
+  testWidgets(
+      'controles de Configuración responden en tres tamaños, temas e idiomas',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.create();
+    final container = ProviderContainer(overrides: [
+      localStorageProvider.overrideWithValue(storage),
+    ]);
+    addTearDown(container.dispose);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    for (final dimensions in [
+      const Size(320, 568),
+      const Size(390, 844),
+      const Size(480, 1000),
+    ]) {
+      for (final brightness in [Brightness.light, Brightness.dark]) {
+        for (final textSize in AppTextSize.values) {
+          for (final language in AppLanguage.values) {
+            await container
+                .read(appPreferencesProvider.notifier)
+                .setDarkMode(brightness == Brightness.dark);
+            await container
+                .read(appPreferencesProvider.notifier)
+                .setTextSize(textSize);
+            await container
+                .read(appPreferencesProvider.notifier)
+                .setLanguage(language);
+
+            tester.view.physicalSize = dimensions;
+            tester.view.devicePixelRatio = 1;
+            await tester.pumpWidget(UncontrolledProviderScope(
+              container: container,
+              child: MaterialApp(
+                locale: Locale(language.code),
+                supportedLocales: const [Locale('es'), Locale('en')],
+                localizationsDelegates: const [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                theme: ThemeData(
+                  useMaterial3: true,
+                  brightness: brightness,
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: AppColors.primary,
+                    brightness: brightness,
+                  ),
+                ),
+                builder: (context, child) => AppLanguageScope(
+                  language: language,
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(textSize.factor),
+                    ),
+                    child: child!,
+                  ),
+                ),
+                home: const SettingsPage(),
+              ),
+            ));
+            await tester.pumpAndSettle();
+            await tester.ensureVisible(
+              find.text(
+                  language == AppLanguage.spanish ? 'English' : 'Spanish'),
+            );
+            await tester.pumpAndSettle();
+
+            final switchWidget = tester.widget<Switch>(find.byType(Switch));
+            expect(switchWidget.value, brightness == Brightness.dark);
+            expect(
+                switchWidget.activeTrackColor,
+                Theme.of(tester.element(find.byType(Switch)))
+                    .colorScheme
+                    .primary);
+            final sizeLabel = switch (textSize) {
+              AppTextSize.small =>
+                language == AppLanguage.spanish ? 'Pequeño' : 'Small',
+              AppTextSize.normal =>
+                language == AppLanguage.spanish ? 'Normal' : 'Normal',
+              AppTextSize.large =>
+                language == AppLanguage.spanish ? 'Grande' : 'Large',
+            };
+            expect(semanticsButtonFor(tester, sizeLabel).properties.selected,
+                isTrue);
+            expect(
+              semanticsButtonFor(tester,
+                      language == AppLanguage.spanish ? 'Español' : 'English')
+                  .properties
+                  .selected,
+              isTrue,
+            );
+            expect(tester.takeException(), isNull,
+                reason:
+                    '${dimensions.width}x${dimensions.height}, $brightness, $textSize, $language');
+          }
         }
       }
     }

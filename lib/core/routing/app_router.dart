@@ -78,13 +78,24 @@ GoRouter buildAppRouter(
       if (auth.authenticated &&
           auth.mustChangePassword &&
           loc != '/security/password') {
+        if (loc == '/splash' && !SplashPage.introCompleted) return null;
+        if (loc == '/splash') {
+          debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '
+              'navigation.router destination=/security/password');
+        }
         return '/security/password';
       }
       // Para usuarios autenticados, mandamos a la pantalla principal según
       // su rol. La autoridad es `user.role` del backend, no el panel que el
       // usuario tocó en el splash.
       if (auth.authenticated && publicRoutes.contains(loc)) {
-        return landingPathForRole(auth.user?.role);
+        if (loc == '/splash' && !SplashPage.introCompleted) return null;
+        final destination = landingPathForRole(auth.user?.role);
+        if (loc == '/splash') {
+          debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '
+              'navigation.router destination=$destination');
+        }
+        return destination;
       }
       // No renderizar un panel ajeno. El backend sigue siendo la autoridad
       // (rechaza las peticiones), pero evita mostrar la UI de otro rol.

@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/settings/app_preferences.dart';
+import '../core/routing/role_landing.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/widgets/app_button.dart';
+import '../features/auth/presentation/state/auth_controller.dart';
 import '../features/settings/presentation/settings_copy.dart';
 import 'splash_intro_video.dart';
 import 'splash_widgets.dart';
+import 'welcome_language_selector.dart';
 
 /// Bienvenida y selección del flujo de acceso según el rol.
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
+
+  static bool get introCompleted => _SplashPageState._introCompleted;
 
   @override
   ConsumerState<SplashPage> createState() => _SplashPageState();
@@ -25,6 +29,18 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   void _showWelcomePage() {
     if (mounted && !_showWelcome) {
       _introCompleted = true;
+      final auth = ref.read(authControllerProvider);
+      if (!auth.initializing && auth.authenticated) {
+        final destination = auth.mustChangePassword
+            ? '/security/password'
+            : landingPathForRole(auth.user?.role);
+        debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '
+            'navigation.authenticated destination=$destination');
+        context.go(destination);
+        return;
+      }
+      debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '
+          'navigation.welcome authInitializing=${auth.initializing}');
       setState(() => _showWelcome = true);
     }
   }
@@ -36,9 +52,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     }
 
     final text = SettingsCopy.of(context);
-    final language = ref.watch(
-      appPreferencesProvider.select((preferences) => preferences.language),
-    );
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
     final studentColor = AppColors.studentAccess;
@@ -60,28 +73,9 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Align(
+                  const Align(
                     alignment: Alignment.centerRight,
-                    child: PopupMenuButton<AppLanguage>(
-                      tooltip: text.languageLabel,
-                      icon: Icon(Icons.language_rounded, color: muted),
-                      iconSize: AppDimensions.iconMedium,
-                      onSelected: (selected) => ref
-                          .read(appPreferencesProvider.notifier)
-                          .setLanguage(selected),
-                      itemBuilder: (context) => [
-                        CheckedPopupMenuItem(
-                          value: AppLanguage.spanish,
-                          checked: language == AppLanguage.spanish,
-                          child: Text(text.spanish),
-                        ),
-                        CheckedPopupMenuItem(
-                          value: AppLanguage.english,
-                          checked: language == AppLanguage.english,
-                          child: Text(text.english),
-                        ),
-                      ],
-                    ),
+                    child: WelcomeLanguageSelector(),
                   ),
                   const WelcomeHeader(),
                   const SizedBox(height: AppSpacing.xxl),

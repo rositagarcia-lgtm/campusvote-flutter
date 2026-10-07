@@ -27,11 +27,20 @@ class SettingsGroup extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final rule = appBorder(isDark);
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: AppRadii.rLarge,
         border: Border.all(color: rule),
+        boxShadow: [
+          BoxShadow(
+            color: theme.shadowColor.withValues(alpha: isDark ? 0.10 : 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(

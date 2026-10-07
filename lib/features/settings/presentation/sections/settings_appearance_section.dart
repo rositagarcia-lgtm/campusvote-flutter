@@ -39,8 +39,7 @@ class SettingsAppearanceSection extends ConsumerWidget {
         SettingsGroup(
           children: [
             SettingsRow(
-              icon:
-                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+              icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
               title: text.darkMode,
               subtitle: followsSystem
                   ? text.darkModeSystemHint
@@ -52,6 +51,12 @@ class SettingsAppearanceSection extends ConsumerWidget {
                 onChanged: (value) => ref
                     .read(appPreferencesProvider.notifier)
                     .setDarkMode(value),
+                activeTrackColor: theme.colorScheme.primary,
+                activeThumbColor: theme.colorScheme.onPrimary,
+                inactiveTrackColor: theme.colorScheme.surfaceContainerHighest,
+                inactiveThumbColor: theme.colorScheme.onSurface.withValues(
+                  alpha: isDark ? 0.78 : 0.58,
+                ),
               ),
             ),
           ],

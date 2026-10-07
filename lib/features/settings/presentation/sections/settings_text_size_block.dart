@@ -28,9 +28,8 @@ class SettingsTextSizeBlock extends ConsumerWidget {
         SettingsGroupBody(
           child: _TextSizeOptions(
             selected: preferences.textSize,
-            onSelected: (size) => ref
-                .read(appPreferencesProvider.notifier)
-                .setTextSize(size),
+            onSelected: (size) =>
+                ref.read(appPreferencesProvider.notifier).setTextSize(size),
           ),
         ),
       ],

@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:campusvote_flutter/app/splash_intro_video.dart';
 import 'package:campusvote_flutter/app/splash_page.dart';
+import 'package:campusvote_flutter/app/welcome_language_selector.dart';
 import 'package:campusvote_flutter/core/di/core_providers.dart';
 import 'package:campusvote_flutter/core/settings/app_preferences.dart';
-import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
 import 'package:campusvote_flutter/core/storage/local_storage.dart';
+import 'package:campusvote_flutter/core/theme/app_colors.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,9 +14,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
-  testWidgets('el video conserva proporción, límites y centro en cada tamaño',
+  test('intro no confunde un valor inicial de duración cero con el final', () {
+    const initial = VideoPlayerValue(
+      duration: Duration.zero,
+      isInitialized: true,
+      isCompleted: true,
+    );
+    const playing = VideoPlayerValue(
+      duration: Duration(seconds: 4),
+      isInitialized: true,
+      isPlaying: true,
+    );
+    const completed = VideoPlayerValue(
+      duration: Duration(seconds: 4),
+      isInitialized: true,
+      isCompleted: true,
+      position: Duration(seconds: 4),
+    );
+    expect(hasIntroPlaybackCompleted(initial, started: true), isFalse);
+    expect(hasIntroPlaybackCompleted(playing, started: true), isFalse);
+    expect(hasIntroPlaybackCompleted(completed, started: false), isFalse);
+    expect(hasIntroPlaybackCompleted(completed, started: true), isTrue);
+  });
+
+  testWidgets('el video mantiene cover, centro y fondo oscuro en cada tamaño',
       (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -32,13 +59,11 @@ void main() {
                 size: size,
                 padding: const EdgeInsets.only(top: 24, bottom: 32),
               ),
-              child: SafeArea(
-                child: IntroVideoFrame(
-                  aspectRatio: aspectRatio,
-                  child: const ColoredBox(
-                    key: ValueKey('video-content'),
-                    color: Colors.black,
-                  ),
+              child: IntroVideoFrame(
+                aspectRatio: aspectRatio,
+                child: const ColoredBox(
+                  key: ValueKey('video-content'),
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -47,14 +72,21 @@ void main() {
 
         final rect =
             tester.getRect(find.byKey(const ValueKey('video-content')));
-        expect(rect.width, lessThanOrEqualTo(size.width * 0.88 + 0.01));
-        expect(
-            rect.height, lessThanOrEqualTo((size.height - 56) * 0.75 + 0.01));
-        expect((size.height - 56 - rect.height) / 2,
-            greaterThanOrEqualTo(AppSpacing.xxxl + AppSpacing.l - 0.01));
+        expect(tester.getSize(find.byType(IntroVideoFrame)), size);
         expect(rect.width / rect.height, closeTo(aspectRatio, 0.001));
         expect(rect.center.dx, closeTo(size.width / 2, 0.01));
-        expect(rect.center.dy, closeTo(24 + (size.height - 56) / 2, 0.01));
+        expect(rect.center.dy, closeTo(size.height / 2, 0.01));
+        final coverHeight = math.max(size.height, size.width / aspectRatio);
+        final scale = rect.height / coverHeight;
+        expect(scale, inInclusiveRange(0.92 - 0.001, 1.0 + 0.001));
+        if ((aspectRatio - size.width / size.height).abs() > 0.1) {
+          expect(scale, lessThan(0.99));
+        }
+        expect(
+          find.byWidgetPredicate((widget) =>
+              widget is ColoredBox && widget.color == AppColors.darkBackground),
+          findsOneWidget,
+        );
         expect(tester.takeException(), isNull);
       }
     }
@@ -117,11 +149,16 @@ void main() {
     expect(find.text('Elige cómo participar'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.language_rounded));
     await tester.pumpAndSettle();
-    await tester.tap(find.byWidgetPredicate(
-      (widget) =>
-          widget is CheckedPopupMenuItem<AppLanguage> &&
-          widget.value == AppLanguage.english,
-    ));
+    await tester.tap(find.byKey(const ValueKey('language-option-en')));
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(find.byKey(const ValueKey('language-panel')), findsOneWidget);
+    expect(
+      tester
+          .widget<Semantics>(find.byKey(const ValueKey('language-option-en')))
+          .properties
+          .selected,
+      isTrue,
+    );
     await tester.pumpAndSettle();
     expect(find.text('Choose how to participate'), findsOneWidget);
     expect(storage.getString('settings.language'), 'en');
@@ -144,14 +181,98 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.language_rounded));
     await tester.pumpAndSettle();
-    await tester.tap(find.byWidgetPredicate(
-      (widget) =>
-          widget is CheckedPopupMenuItem<AppLanguage> &&
-          widget.value == AppLanguage.spanish,
-    ));
+    await tester.tap(find.byKey(const ValueKey('language-option-es')));
     await tester.pumpAndSettle();
     expect(find.text('Elige cómo participar'), findsOneWidget);
     expect(storage.getString('settings.language'), 'es');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('panel compacto y accesible en ambos temas e idiomas',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.create();
+    final container = ProviderContainer(overrides: [
+      localStorageProvider.overrideWithValue(storage),
+    ]);
+    addTearDown(container.dispose);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    for (final size in [
+      const Size(320, 568),
+      const Size(390, 844),
+      const Size(480, 1000),
+    ]) {
+      for (final brightness in [Brightness.light, Brightness.dark]) {
+        for (final language in AppLanguage.values) {
+          await container
+              .read(appPreferencesProvider.notifier)
+              .setLanguage(language);
+          tester.view.physicalSize = size;
+          tester.view.devicePixelRatio = 1;
+          await tester.pumpWidget(UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: ThemeData(
+                useMaterial3: true,
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: AppColors.primary,
+                  brightness: brightness,
+                ),
+              ),
+              builder: (context, child) => AppLanguageScope(
+                language: language,
+                child: child!,
+              ),
+              home: const Scaffold(
+                body: SafeArea(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: WelcomeLanguageSelector(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ));
+          await tester.pumpAndSettle();
+
+          final button = find.byKey(const ValueKey('welcome-language-button'));
+          expect(tester.getSize(button), const Size(44, 44));
+          await tester.tap(button);
+          await tester.pumpAndSettle();
+          final panel = find.byKey(const ValueKey('language-panel'));
+          final rect = tester.getRect(panel);
+          expect(rect.left, greaterThanOrEqualTo(0));
+          expect(rect.right, lessThanOrEqualTo(size.width));
+          expect(rect.top, greaterThanOrEqualTo(0));
+          expect(rect.bottom, lessThanOrEqualTo(size.height));
+          expect(
+              find.text(
+                  language == AppLanguage.spanish ? 'Idioma' : 'Language'),
+              findsOneWidget);
+          expect(
+              find.text(
+                  language == AppLanguage.spanish ? 'Español' : 'Spanish'),
+              findsOneWidget);
+          expect(find.text('English'), findsOneWidget);
+          expect(
+            tester
+                .widget<Semantics>(find.byKey(ValueKey(
+                  'language-option-${language.code}',
+                )))
+                .properties
+                .selected,
+            isTrue,
+          );
+          expect(tester.takeException(), isNull);
+          await tester.tap(button);
+          await tester.pumpAndSettle();
+        }
+      }
+    }
   });
 }
