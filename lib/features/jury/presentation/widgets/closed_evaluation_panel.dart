@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -42,7 +43,7 @@ class ClosedEvaluationPanel extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.lock_rounded,
+                  PhosphorIconsFill.lockSimple,
                   color: AppColors.success,
                   size: AppDimensions.iconLarge,
                 ),
@@ -96,7 +97,7 @@ class ClosedEvaluationPanel extends StatelessWidget {
         const SizedBox(height: AppSpacing.l),
         AppButton.outlined(
           label: text.t('Volver a proyectos'),
-          icon: Icons.arrow_back_rounded,
+          icon: PhosphorIconsRegular.arrowLeft,
           onPressed: onBack,
         ),
       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../data/models/jury_models.dart';
 import 'jury_flow_stages.dart';
 
@@ -114,9 +115,9 @@ class JuryFlow {
   JuryStageAction? get primaryAction => nextStage?.action;
 
   IconData? get primaryIcon => switch (primaryAction) {
-        JuryStageAction.projects => Icons.fact_check_outlined,
-        JuryStageAction.voting => Icons.how_to_vote_outlined,
-        JuryStageAction.declaration => Icons.draw_outlined,
+        JuryStageAction.projects => PhosphorIconsRegular.listChecks,
+        JuryStageAction.voting => PhosphorIconsRegular.checkSquareOffset,
+        JuryStageAction.declaration => PhosphorIconsRegular.signature,
         null => null,
       };
 

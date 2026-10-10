@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_card.dart';
@@ -43,7 +44,7 @@ class TwoFactorCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.security_rounded,
+                PhosphorIconsRegular.shieldCheck,
                 color: theme.colorScheme.primary,
                 size: AppDimensions.iconMedium,
               ),
@@ -66,8 +67,8 @@ class TwoFactorCard extends StatelessWidget {
                 StatusChip(
                   label: status.enabled ? text.t('Activo') : text.t('Inactivo'),
                   icon: status.enabled
-                      ? Icons.verified_user_rounded
-                      : Icons.lock_open_rounded,
+                      ? PhosphorIconsFill.shieldCheck
+                      : PhosphorIconsRegular.lockSimpleOpen,
                   tone: status.enabled ? AppTone.success : AppTone.neutral,
                 ),
             ],
@@ -109,7 +110,7 @@ class TwoFactorCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.key_rounded,
+                  Icon(PhosphorIconsRegular.key,
                       size: AppDimensions.iconMedium,
                       color: isDark ? Colors.orange[300] : Colors.orange[800]),
                   const SizedBox(width: AppSpacing.s),
@@ -132,13 +133,13 @@ class TwoFactorCard extends StatelessWidget {
           if (status.enabled)
             AppButton.danger(
               label: text.t('Deshabilitar 2FA'),
-              icon: Icons.lock_open_rounded,
+              icon: PhosphorIconsRegular.lockSimpleOpen,
               onPressed: onDisable,
             )
           else
             AppButton(
               label: text.t('Configurar 2FA'),
-              icon: Icons.qr_code_2_rounded,
+              icon: PhosphorIconsRegular.qrCode,
               onPressed: onSetup,
             ),
         ],

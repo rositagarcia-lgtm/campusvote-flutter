@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_icons.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_status_chip.dart';
@@ -97,10 +98,10 @@ class NoticeBanner extends StatelessWidget {
       };
 
   IconData _iconFor(AppTone tone) => switch (tone) {
-        AppTone.danger => Icons.error_outline_rounded,
-        AppTone.warning => Icons.priority_high_rounded,
-        AppTone.info => Icons.info_outline_rounded,
-        AppTone.success => Icons.check_circle_outline_rounded,
-        _ => Icons.info_outline_rounded,
+        AppTone.danger => PhosphorIconsRegular.warningCircle,
+        AppTone.warning => PhosphorIconsBold.exclamationMark,
+        AppTone.info => PhosphorIconsRegular.info,
+        AppTone.success => PhosphorIconsRegular.checkCircle,
+        _ => PhosphorIconsRegular.info,
       };
 }

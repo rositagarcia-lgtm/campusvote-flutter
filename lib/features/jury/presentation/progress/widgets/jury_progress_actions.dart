@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../jury_flow.dart';
@@ -20,15 +21,15 @@ class JuryProgressActions extends StatelessWidget {
   static const _secondary = <JuryStageAction, ({String label, IconData icon})>{
     JuryStageAction.projects: (
       label: 'Proyectos',
-      icon: Icons.folder_open_outlined,
+      icon: PhosphorIconsRegular.folderOpen,
     ),
     JuryStageAction.voting: (
       label: 'Votación',
-      icon: Icons.how_to_vote_outlined,
+      icon: PhosphorIconsRegular.checkSquareOffset,
     ),
     JuryStageAction.declaration: (
       label: 'Declaración',
-      icon: Icons.draw_outlined,
+      icon: PhosphorIconsRegular.signature,
     ),
   };
 

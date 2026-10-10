@@ -30,6 +30,14 @@ class ApiEndpoints {
       '/api/academic/my-teaching-assignments';
   static const String evaluateTeacher = '/api/academic/teacher-evaluations';
 
+  // Proyectos de feria del alumno (solo los suyos, filtrado en el servidor)
+  static const String myStudentProjects = '/api/projects/mine';
+
+  // Traducción de contenido escrito por usuarios
+  static const String translate = '/api/translate';
+  static String projectEngagement(String fairId, String projectId) =>
+      '/api/fairs/$fairId/projects/$projectId/engagement';
+
   // Fair voting — JURY
   static const String myJuryAssignments = '/api/fairs/my-assignments';
   static String myJuryAssignmentDetail(String fairId) =>

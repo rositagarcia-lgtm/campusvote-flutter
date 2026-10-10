@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -88,7 +89,7 @@ class _PasswordResetRequestPageState
                 children: [
                   AuthHeader(
                     accent: accent,
-                    icon: Icons.lock_reset_rounded,
+                    icon: PhosphorIconsRegular.password,
                     overline: text.t('Acceso institucional'),
                     title: text.t('Recupera tu contraseña'),
                     subtitle: text.t(
@@ -100,7 +101,7 @@ class _PasswordResetRequestPageState
                   if (_requested) ...[
                     NoticeBanner(
                       tone: AppTone.success,
-                      icon: Icons.mark_email_read_outlined,
+                      icon: PhosphorIconsRegular.envelopeSimpleOpen,
                       liveRegion: true,
                       message: text.t(
                         'Solicitud recibida. Si el correo está registrado, revisa tu bandeja y abre el enlace de recuperación.',
@@ -109,7 +110,7 @@ class _PasswordResetRequestPageState
                     const SizedBox(height: AppSpacing.l),
                     AppButton(
                       label: text.t('Volver al acceso'),
-                      icon: Icons.arrow_back_rounded,
+                      icon: PhosphorIconsRegular.arrowLeft,
                       onPressed: () => context.go('/auth/jury/login'),
                     ),
                   ] else ...[
@@ -129,7 +130,7 @@ class _PasswordResetRequestPageState
                               autofillHints: const [AutofillHints.email],
                               textInputAction: TextInputAction.done,
                               onSubmitted: (_) => _submit(),
-                              prefixIcon: Icons.alternate_email_rounded,
+                              prefixIcon: PhosphorIconsRegular.at,
                               validator: _validateEmail,
                             ),
                             if (_error != null) ...[
@@ -146,7 +147,7 @@ class _PasswordResetRequestPageState
                     const SizedBox(height: AppSpacing.l),
                     AppButton(
                       label: text.t('Enviar enlace de recuperación'),
-                      icon: Icons.mail_outline_rounded,
+                      icon: PhosphorIconsRegular.envelopeSimple,
                       backgroundColor: accent,
                       foregroundColor: AppColors.inkInverse,
                       isLoading: _submitting,

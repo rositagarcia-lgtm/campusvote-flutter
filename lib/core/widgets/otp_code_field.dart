@@ -137,7 +137,9 @@ class _SegmentedOtpInput extends StatelessWidget {
                           ),
                         ),
                       Expanded(
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          curve: Curves.easeOut,
                           height: 56,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
@@ -150,11 +152,28 @@ class _SegmentedOtpInput extends StatelessWidget {
                               width: index == activeIndex && enabled ? 2 : 1,
                             ),
                           ),
-                          child: Text(
-                            index < value.text.length ? value.text[index] : '',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: scheme.onSurface,
-                              fontWeight: FontWeight.w700,
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            transitionBuilder: (child, anim) => ScaleTransition(
+                              scale: CurvedAnimation(
+                                parent: anim,
+                                curve: Curves.easeOutBack,
+                              ),
+                              child: child,
+                            ),
+                            child: Text(
+                              index < value.text.length
+                                  ? value.text[index]
+                                  : '',
+                              key: ValueKey(
+                                index < value.text.length
+                                    ? 'd$index${value.text[index]}'
+                                    : 'e$index',
+                              ),
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: scheme.onSurface,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),

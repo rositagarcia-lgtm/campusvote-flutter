@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_icons.dart';
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
 import 'panel_hero_org_badge.dart';
@@ -122,7 +123,7 @@ class AppPanelIntro extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.verified_user_outlined,
+                    Icon(PhosphorIconsRegular.shieldCheck,
                         size: AppDimensions.iconSmall, color: accent),
                     const SizedBox(width: AppSpacing.xs),
                     Flexible(
@@ -202,4 +203,3 @@ class AppPanelIntro extends StatelessWidget {
     );
   }
 }
-

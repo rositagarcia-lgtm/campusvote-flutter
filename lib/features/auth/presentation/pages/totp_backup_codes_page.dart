@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
@@ -87,12 +88,12 @@ class TotpBackupCodesPage extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.l),
                         AppButton.outlined(
                           label: text.t('Copiar todos'),
-                          icon: Icons.copy_rounded,
+                          icon: PhosphorIconsRegular.copy,
                           onPressed: () => _copyAll(context),
                         ),
                         const SizedBox(height: AppSpacing.l),
                         AuthInfoNote(
-                          icon: Icons.lock_outline_rounded,
+                          icon: PhosphorIconsRegular.lockSimple,
                           text: text.t(
                               'Guárdalos fuera de tu teléfono, por ejemplo impresos o en un gestor de contraseñas.'),
                         ),
@@ -102,7 +103,7 @@ class TotpBackupCodesPage extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.l),
                   AppButton(
                     label: text.t('He guardado mis códigos'),
-                    icon: Icons.check_rounded,
+                    icon: PhosphorIconsBold.check,
                     onPressed: () => context.go('/security'),
                   ),
                 ],

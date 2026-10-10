@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_icons.dart';
 import '../branding/organization_branding.dart';
 import '../theme/app_dimensions.dart';
 import 'app_logo.dart';
@@ -53,7 +54,7 @@ class OrganizationPanelAppBar extends StatelessWidget
           : IconButton(
               tooltip: 'Volver',
               onPressed: onBack,
-              icon: const Icon(Icons.arrow_back_rounded),
+              icon: const Icon(PhosphorIconsRegular.arrowLeft),
             ),
       title: Row(
         children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -78,7 +79,7 @@ class EmailRequestView extends StatelessWidget {
                     FadeSlide(
                       child: AuthHeader(
                         accent: accent,
-                        icon: Icons.school_rounded,
+                        icon: PhosphorIconsFill.graduationCap,
                         overline: text.t('Acceso con código'),
                         title: text.t('Identifica tu cuenta'),
                         subtitle: text.t(
@@ -111,7 +112,7 @@ class EmailRequestView extends StatelessWidget {
                               enabled: !submitting,
                               textInputAction: TextInputAction.done,
                               onSubmitted: (_) => onSubmit(),
-                              prefixIcon: Icons.alternate_email_rounded,
+                              prefixIcon: PhosphorIconsRegular.at,
                               validator: validateEmail,
                             ),
                             if (error != null) ...[
@@ -119,13 +120,13 @@ class EmailRequestView extends StatelessWidget {
                               AuthErrorBanner(
                                 message: error,
                                 title: text.t('No pudimos validar este acceso'),
-                                icon: Icons.mark_email_unread_outlined,
+                                icon: PhosphorIconsRegular.envelopeSimple,
                               ),
                             ],
                             const SizedBox(height: AppSpacing.l),
                             NoticeBanner(
                               tone: AppTone.warning,
-                              icon: Icons.mark_email_unread_outlined,
+                              icon: PhosphorIconsRegular.envelopeSimple,
                               message: text.t(
                                 'Si el mensaje tarda, revisa tu carpeta de spam o correo no deseado.',
                               ),
@@ -139,7 +140,7 @@ class EmailRequestView extends StatelessWidget {
                       delay: const Duration(milliseconds: 220),
                       child: AppButton(
                         label: text.t('Recibir código de acceso'),
-                        icon: Icons.mail_outline_rounded,
+                        icon: PhosphorIconsRegular.envelopeSimple,
                         backgroundColor: accent,
                         foregroundColor: AppColors.inkInverse,
                         isLoading: submitting,
@@ -176,7 +177,7 @@ class EmailRequestView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Icon(
-                              Icons.shield_outlined,
+                              PhosphorIconsRegular.shield,
                               size: AppDimensions.iconMedium,
                               color: accent,
                             ),

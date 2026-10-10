@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
 import '../../../settings/presentation/settings_copy.dart';
@@ -70,8 +71,8 @@ class TeacherRatingSelector extends StatelessWidget {
                           child: Center(
                             child: Icon(
                               score <= value
-                                  ? Icons.star_rounded
-                                  : Icons.star_outline_rounded,
+                                  ? PhosphorIconsFill.star
+                                  : PhosphorIconsRegular.star,
                               size: 34,
                               color: score <= value
                                   ? selectedColor

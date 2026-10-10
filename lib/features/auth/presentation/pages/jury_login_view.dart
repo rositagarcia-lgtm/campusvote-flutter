@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -61,7 +62,7 @@ class JuryLoginView extends StatelessWidget {
             child: Center(
               child: AuthAppBarBadge(
                 accent: buttonColor,
-                icon: Icons.verified_user_outlined,
+                icon: PhosphorIconsRegular.shieldCheck,
                 label: text.t('Acceso institucional'),
               ),
             ),
@@ -88,7 +89,7 @@ class JuryLoginView extends StatelessWidget {
                     FadeSlide(
                       child: AuthHeader(
                         accent: accent,
-                        icon: Icons.gavel_rounded,
+                        icon: PhosphorIconsFill.gavel,
                         overline: text.t('JURADO CALIFICADOR'),
                         title: text.t('Portal del jurado'),
                         subtitle: text.t(
@@ -116,7 +117,7 @@ class JuryLoginView extends StatelessWidget {
                               enabled: !submitting,
                               textInputAction: TextInputAction.next,
                               onSubmitted: (_) => passwordFocus.requestFocus(),
-                              prefixIcon: Icons.alternate_email_rounded,
+                              prefixIcon: PhosphorIconsRegular.at,
                               validator: validateEmail,
                             ),
                             const SizedBox(height: AppSpacing.l),
@@ -131,15 +132,15 @@ class JuryLoginView extends StatelessWidget {
                               enabled: !submitting,
                               textInputAction: TextInputAction.done,
                               onSubmitted: (_) => onSubmit(),
-                              prefixIcon: Icons.lock_outline_rounded,
+                              prefixIcon: PhosphorIconsRegular.lockSimple,
                               suffix: IconButton(
                                 tooltip: obscurePassword
                                     ? text.t('Mostrar contraseña')
                                     : text.t('Ocultar contraseña'),
                                 icon: Icon(
                                   obscurePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
+                                      ? PhosphorIconsRegular.eye
+                                      : PhosphorIconsRegular.eyeSlash,
                                   size: AppDimensions.iconMedium,
                                 ),
                                 onPressed: submitting ? null : onTogglePassword,
@@ -163,8 +164,8 @@ class JuryLoginView extends StatelessWidget {
                                     ? 'Cuenta no autorizada'
                                     : 'No se pudo abrir el acceso'),
                                 icon: wrongRole
-                                    ? Icons.gavel_outlined
-                                    : Icons.lock_outline_rounded,
+                                    ? PhosphorIconsRegular.gavel
+                                    : PhosphorIconsRegular.lockSimple,
                               ),
                             ],
                             const SizedBox(height: AppSpacing.l),
@@ -178,7 +179,7 @@ class JuryLoginView extends StatelessWidget {
                       delay: const Duration(milliseconds: 220),
                       child: AppButton(
                         label: text.t('Entrar al panel de evaluación'),
-                        icon: Icons.arrow_forward_rounded,
+                        icon: PhosphorIconsRegular.arrowRight,
                         backgroundColor: buttonColor,
                         foregroundColor: AppColors.inkInverse,
                         isLoading: submitting,

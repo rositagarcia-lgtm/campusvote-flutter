@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_icons.dart';
 import '../theme/app_dimensions.dart';
 import 'app_button.dart';
 import 'app_page_layout.dart';
@@ -14,7 +15,7 @@ class AppEmptyView extends StatelessWidget {
   const AppEmptyView({
     super.key,
     required this.message,
-    this.icon = Icons.inbox_outlined,
+    this.icon = PhosphorIconsRegular.tray,
     this.onAction,
     this.actionLabel,
     this.title,

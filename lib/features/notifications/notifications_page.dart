@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/theme/app_icons.dart';
 import '../../core/branding/branding_controller.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../core/widgets/app_button.dart';
@@ -34,15 +35,16 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     return Scaffold(
       appBar: OrganizationPanelAppBar(
         branding: branding,
-        section: 'Notificaciones',
-        onBack: () => context.pop(),
+        section: 'Avisos',
+        onBack: () =>
+            context.canPop() ? context.pop() : context.go('/jury'),
         actions: [
           IconButton(
             tooltip: 'Marcar todas como leídas',
             onPressed: state.unreadCount > 0 && state.updatingId != 'all'
                 ? controller.markAllRead
                 : null,
-            icon: const Icon(Icons.done_all_rounded),
+            icon: const Icon(PhosphorIconsRegular.checks),
           ),
         ],
       ),
@@ -63,7 +65,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
     if (state.items.isEmpty) {
       return const AppEmptyView(
-        icon: Icons.notifications_none_rounded,
+        icon: PhosphorIconsRegular.bell,
         overline: 'AVISOS',
         title: 'Estás al día',
         message: 'Aquí aparecerán los avisos de tu organización.',
@@ -121,7 +123,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               message:
                   'No hay avisos en este filtro. Puedes cargar más avisos.',
               tone: AppTone.info,
-              icon: Icons.filter_alt_off_outlined,
+              icon: PhosphorIconsRegular.funnelSimpleX,
             ),
           for (final group in grouped.entries) ...[
             NotificationDateHeader(
@@ -139,7 +141,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           if (controller.hasMore) ...[
             AppButton.outlined(
               label: 'Cargar más avisos',
-              icon: Icons.expand_more_rounded,
+              icon: PhosphorIconsRegular.caretDown,
               onPressed: state.loading ? null : controller.loadMore,
               isLoading: state.loading,
             ),
@@ -175,14 +177,14 @@ class _ErrorRetry extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off_outlined,
+            const Icon(PhosphorIconsRegular.cloudSlash,
                 size: AppDimensions.iconLarge * 2),
             const SizedBox(height: AppSpacing.m),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: AppSpacing.m),
             AppButton.outlined(
               label: 'Reintentar',
-              icon: Icons.refresh_rounded,
+              icon: PhosphorIconsRegular.arrowClockwise,
               onPressed: onRetry,
             ),
           ],

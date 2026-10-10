@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
@@ -44,7 +46,7 @@ class RubricEvaluationPage extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Votar en esta feria',
-            icon: const Icon(Icons.how_to_vote_rounded),
+            icon: const Icon(PhosphorIconsFill.checkSquareOffset),
             onPressed: () => context.push('/jury/fair/$fairId/vote'),
           ),
         ],
@@ -120,7 +122,7 @@ class _RubricForm extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.m),
                     ],
-                    RubricScoreCard(state: state),
+                    AppMotion.reveal(0, RubricScoreCard(state: state)),
                     const SizedBox(height: AppSpacing.l),
                     if (state.submitted)
                       const NoticeBanner(
@@ -151,20 +153,18 @@ class _RubricForm extends StatelessWidget {
                       style: theme.textTheme.titleMedium
                           ?.copyWith(fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: AppSpacing.s),
-                    Text(
-                      '${state.checkedCount} de ${criteria.length} criterios marcados',
-                      style: theme.textTheme.bodySmall,
-                    ),
                     const SizedBox(height: AppSpacing.m),
-                    for (final criterion in criteria)
-                      RubricCriterionTile(
-                        position: criterion.position,
-                        title: criterion.name,
-                        description: criterion.description,
-                        value: state.answers[criterion.id] ?? false,
-                        enabled: !state.locked,
-                        onChanged: (_) => controller.toggle(criterion.id),
+                    for (var i = 0; i < criteria.length; i++)
+                      AppMotion.reveal(
+                        i + 1,
+                        RubricCriterionTile(
+                          position: criteria[i].position,
+                          title: criteria[i].name,
+                          description: criteria[i].description,
+                          value: state.answers[criteria[i].id] ?? false,
+                          enabled: !state.locked,
+                          onChanged: (_) => controller.toggle(criteria[i].id),
+                        ),
                       ),
                     const SizedBox(height: AppSpacing.xxl),
                   ],

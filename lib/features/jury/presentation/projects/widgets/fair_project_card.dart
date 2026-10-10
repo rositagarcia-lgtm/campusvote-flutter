@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_palette.dart';
@@ -52,9 +53,7 @@ class FairProjectCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _ProjectLogo(
-                    url: project.logoUrl,
-                    name: project.name,
-                    accent: accent),
+                    url: project.logoUrl, name: project.name, accent: accent),
                 const SizedBox(width: AppSpacing.m),
                 Expanded(
                   child: Column(
@@ -96,13 +95,14 @@ class FairProjectCard extends StatelessWidget {
                         ? AppTone.primary
                         : AppTone.neutral,
                     icon: evaluationSubmitted!
-                        ? Icons.check_circle_outline_rounded
-                        : Icons.schedule_rounded,
+                        ? PhosphorIconsRegular.checkCircle
+                        : PhosphorIconsRegular.clock,
                   ),
                 if (category != null)
-                  _MetaChip(icon: Icons.category_outlined, text: category),
+                  _MetaChip(
+                      icon: PhosphorIconsRegular.squaresFour, text: category),
                 if (stand != null)
-                  _MetaChip(icon: Icons.storefront_outlined, text: stand),
+                  _MetaChip(icon: PhosphorIconsRegular.storefront, text: stand),
               ],
             ),
             const SizedBox(height: AppSpacing.m),
@@ -119,7 +119,7 @@ class FairProjectCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.arrow_forward_rounded,
+                Icon(PhosphorIconsRegular.arrowRight,
                     size: AppDimensions.iconMedium, color: accent),
               ],
             ),

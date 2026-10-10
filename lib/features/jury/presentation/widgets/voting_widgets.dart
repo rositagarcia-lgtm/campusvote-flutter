@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
@@ -61,8 +63,8 @@ class VotingProjectOption extends StatelessWidget {
           children: [
             Icon(
               selected
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_unchecked_rounded,
+                  ? PhosphorIconsFill.radioButton
+                  : PhosphorIconsRegular.circle,
               color: selected ? accent : theme.disabledColor,
             ),
             const SizedBox(width: AppSpacing.m),
@@ -118,11 +120,7 @@ class VoteReceiptView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: AppSpacing.xxl),
-          Icon(
-            Icons.verified_rounded,
-            size: AppDimensions.iconLarge * 2.5,
-            color: theme.colorScheme.primary,
-          ),
+          const Center(child: SuccessMark()),
           const SizedBox(height: AppSpacing.l),
           Semantics(
             header: true,
@@ -170,7 +168,7 @@ class VoteReceiptView extends StatelessWidget {
             child: StatusChip(
               label: SettingsCopy.of(context).t('Voto anónimo'),
               tone: AppTone.success,
-              icon: Icons.lock_outline_rounded,
+              icon: PhosphorIconsRegular.lockSimple,
             ),
           ),
         ],
@@ -198,7 +196,7 @@ class VoteParticipationView extends StatelessWidget {
         children: [
           const SizedBox(height: AppSpacing.xxl),
           Icon(
-            Icons.verified_outlined,
+            PhosphorIconsRegular.sealCheck,
             size: AppDimensions.iconLarge * 2,
             color: theme.colorScheme.primary,
           ),
@@ -232,7 +230,7 @@ class VoteParticipationView extends StatelessWidget {
             message: text.t(
                 'No se recibió un comprobante para esta respuesta. Tu selección permanece anónima y no se puede recuperar desde la app.'),
             tone: AppTone.info,
-            icon: Icons.info_outline_rounded,
+            icon: PhosphorIconsRegular.info,
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/routing/role_landing.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -124,7 +125,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                     FadeSlide(
                       child: AuthHeader(
                         accent: accent,
-                        icon: Icons.verified_user_outlined,
+                        icon: PhosphorIconsRegular.shieldCheck,
                         overline: text.t('Verificaci\u00f3n segura'),
                         title: text.t('Verifica tu correo'),
                         subtitle: text.t(
@@ -158,7 +159,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                             const SizedBox(height: AppSpacing.l),
                             NoticeBanner(
                               tone: AppTone.warning,
-                              icon: Icons.mark_email_read_outlined,
+                              icon: PhosphorIconsRegular.envelopeSimpleOpen,
                               message: text.t(
                                 '\u00bfNo encuentras el correo? Revisa tu carpeta de spam o correo no deseado.',
                               ),
@@ -172,7 +173,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                       delay: const Duration(milliseconds: 220),
                       child: AppButton(
                         label: text.t('Verificar'),
-                        icon: Icons.verified_outlined,
+                        icon: PhosphorIconsRegular.sealCheck,
                         isLoading: state.submitting,
                         onPressed: state.submitting ? null : _submit,
                       ),
@@ -182,7 +183,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                       delay: const Duration(milliseconds: 300),
                       child: AppButton.outlined(
                         label: text.t('Reenviar código'),
-                        icon: Icons.refresh_rounded,
+                        icon: PhosphorIconsRegular.arrowClockwise,
                         isLoading: _resending,
                         onPressed:
                             _resending || state.submitting ? null : _resend,
@@ -207,7 +208,7 @@ class _EmailOtpVerifyPageState extends ConsumerState<EmailOtpVerifyPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.shield_outlined,
+                            PhosphorIconsRegular.shield,
                             size: AppDimensions.iconSmall,
                             color: theme.colorScheme.primary,
                           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
@@ -42,7 +43,7 @@ class FairCardHeader extends StatelessWidget {
             semanticLabel: 'Portada de ${fair.name}',
             errorBuilder: (_, __, ___) => ColoredBox(
               color: scheme.primaryContainer,
-              child: Icon(Icons.image_not_supported_outlined,
+              child: Icon(PhosphorIconsRegular.imageBroken,
                   color: scheme.onPrimaryContainer),
             ),
           ),
@@ -93,7 +94,9 @@ class _StatusRow extends StatelessWidget {
             borderRadius: AppRadii.rLarge,
           ),
           child: Icon(
-              open ? Icons.event_available_outlined : Icons.event_busy_outlined,
+              open
+                  ? PhosphorIconsRegular.calendarCheck
+                  : PhosphorIconsRegular.calendarX,
               color: open ? scheme.primary : scheme.onSurfaceVariant),
         ),
         const SizedBox(width: AppSpacing.s),
@@ -109,8 +112,8 @@ class _StatusRow extends StatelessWidget {
           label: status,
           tone: open ? AppTone.primary : AppTone.neutral,
           icon: open
-              ? Icons.radio_button_checked_rounded
-              : Icons.lock_outline_rounded,
+              ? PhosphorIconsFill.radioButton
+              : PhosphorIconsRegular.lockSimple,
         ),
       ],
     );

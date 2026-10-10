@@ -21,6 +21,9 @@ class SharedPrefsAuthUserPersister implements AuthUserPersister {
           'lastName': user.lastName,
           'role': user.role,
           'organizationId': user.organizationId,
+          // Sin esto la foto de perfil se perdía al reabrir la app aunque el
+          // servidor sí la tuviera guardada.
+          'avatarUrl': user.avatarUrl,
         }));
   }
 
@@ -37,6 +40,7 @@ class SharedPrefsAuthUserPersister implements AuthUserPersister {
         lastName: map['lastName'] as String?,
         role: map['role'] as String?,
         organizationId: map['organizationId'] as String?,
+        avatarUrl: map['avatarUrl'] as String?,
       );
     } catch (_) {
       return null;

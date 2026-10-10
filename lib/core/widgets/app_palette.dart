@@ -17,8 +17,11 @@ Color appFaint(bool isDark) =>
     isDark ? AppColors.darkInkFaint : AppColors.inkFaint;
 
 /// Color del borde fino de 1 px de las tarjetas planas.
+///
+/// Neutro a propósito: un borde teñido de teal se veía fuera de marca en
+/// organizaciones con otro color institucional.
 Color appBorder(bool isDark) =>
-    isDark ? AppColors.darkBorder : AppColors.primarySoft;
+    isDark ? AppColors.darkBorder : AppColors.border;
 
 /// Superficie de tarjeta: blanca en claro, `darkSurface` en oscuro.
 Color appSurface(BuildContext context) => Theme.of(context).colorScheme.surface;

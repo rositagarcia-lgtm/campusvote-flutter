@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../theme/app_icons.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../../features/settings/presentation/settings_copy.dart';
@@ -27,7 +28,7 @@ PreferredSizeWidget buildAuthAppBar(
     scrolledUnderElevation: 0,
     centerTitle: false,
     leading: IconButton(
-      icon: const Icon(Icons.arrow_back_rounded),
+      icon: const Icon(PhosphorIconsRegular.arrowLeft),
       color: ink,
       tooltip: SettingsCopy.of(context).t('Volver'),
       onPressed: onBack,

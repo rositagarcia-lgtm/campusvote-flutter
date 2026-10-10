@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_empty_view.dart';
+import '../../../../core/widgets/app_motion.dart';
 import '../../../settings/presentation/settings_copy.dart';
 import '../state/teaching_list_controller.dart';
 
@@ -35,14 +36,14 @@ class TeacherEvaluationSuccessPage extends ConsumerWidget {
             : text.t('Estado de evaluación'),
         leading: IconButton(
           tooltip: text.t('Volver a mis docentes'),
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teaching'),
         ),
       ),
       body: confirmed
           ? _ConfirmedEvaluation(onReturn: () => context.go('/teaching'))
           : AppEmptyView(
-              icon: Icons.cloud_sync_outlined,
+              icon: PhosphorIconsRegular.cloudArrowUp,
               title: text.t('No hay confirmación del servidor'),
               message: text.t(
                   'No podemos mostrar esta evaluación como completada. Vuelve a tus docentes y actualiza la lista para consultar el estado real.'),
@@ -71,19 +72,7 @@ class _ConfirmedEvaluation extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: context.brandPrimarySoft,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.check_rounded,
-                    size: 44,
-                    color: context.brandPrimary,
-                  ),
-                ),
+                const SuccessMark(),
                 const SizedBox(height: AppSpacing.xl),
                 Semantics(
                   liveRegion: true,
@@ -106,7 +95,7 @@ class _ConfirmedEvaluation extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
                 AppButton(
                   label: SettingsCopy.of(context).t('Volver a mis docentes'),
-                  icon: Icons.school_outlined,
+                  icon: PhosphorIconsRegular.graduationCap,
                   onPressed: onReturn,
                 ),
               ],

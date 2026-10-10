@@ -1,3 +1,4 @@
+import '../../../../core/theme/app_icons.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -91,7 +92,9 @@ class _VotingCountdownState extends State<VotingCountdown> {
       child: Row(
         children: [
           Icon(
-            closed ? Icons.timer_off_rounded : Icons.timer_rounded,
+            closed
+                ? PhosphorIconsRegular.clockCountdown
+                : PhosphorIconsRegular.timer,
             size: AppDimensions.iconMedium,
             color: colors.fg,
           ),

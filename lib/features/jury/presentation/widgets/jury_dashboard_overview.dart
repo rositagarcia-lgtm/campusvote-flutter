@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/app_motion.dart';
 import '../providers/jury_dashboard_progress.dart';
 
 /// Resumen de asignaciones y avance confirmado por el servidor.
@@ -54,36 +56,6 @@ class JuryDashboardOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.m,
-                vertical: AppSpacing.s,
-              ),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: isDark ? 0.2 : 0.1),
-                borderRadius: AppRadii.rXLarge,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.verified_user_outlined, size: 17, color: accent),
-                  const SizedBox(width: AppSpacing.xs),
-                  Flexible(
-                    child: Text(
-                      'Panel del jurado',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.l),
           Semantics(
             header: true,
             child: Text(
@@ -110,19 +82,19 @@ class JuryDashboardOverview extends StatelessWidget {
                   child: _Metric(
                       value: '$openCount',
                       label: 'Abiertas',
-                      icon: Icons.event_available_outlined)),
+                      icon: PhosphorIconsRegular.calendarCheck)),
               const SizedBox(width: AppSpacing.s),
               Expanded(
                   child: _Metric(
                       value: '$assignedCount',
                       label: 'Asignadas',
-                      icon: Icons.assignment_outlined)),
+                      icon: PhosphorIconsRegular.clipboardText)),
               const SizedBox(width: AppSpacing.s),
               Expanded(
                   child: _Metric(
                       value: progressLabel,
                       label: 'Avance',
-                      icon: Icons.fact_check_outlined)),
+                      icon: PhosphorIconsRegular.listChecks)),
             ],
           ),
           const SizedBox(height: AppSpacing.l),
@@ -134,12 +106,25 @@ class JuryDashboardOverview extends StatelessWidget {
                 if (percentage != null || progress.isLoading) ...[
                   ClipRRect(
                     borderRadius: AppRadii.rMedium,
-                    child: LinearProgressIndicator(
-                      value: percentage == null ? null : percentage / 100,
-                      minHeight: 6,
-                      color: accent,
-                      backgroundColor: accent.withValues(alpha: 0.13),
-                    ),
+                    // La barra se llena desde 0 al entrar: el avance se lee
+                    // como movimiento, no como un dato estático.
+                    child: percentage == null
+                        ? LinearProgressIndicator(
+                            minHeight: 6,
+                            color: accent,
+                            backgroundColor: accent.withValues(alpha: 0.13),
+                          )
+                        : TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0, end: percentage / 100),
+                            duration: AppMotion.slow,
+                            curve: AppMotion.emphasized,
+                            builder: (_, v, __) => LinearProgressIndicator(
+                              value: v,
+                              minHeight: 6,
+                              color: accent,
+                              backgroundColor: accent.withValues(alpha: 0.13),
+                            ),
+                          ),
                   ),
                   const SizedBox(height: AppSpacing.s),
                 ],
@@ -184,9 +169,9 @@ class _Metric extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
-            child: Text(
+            child: _countable(
               value,
-              style: theme.textTheme.titleLarge?.copyWith(
+              theme.textTheme.titleLarge?.copyWith(
                 color: colors.primary,
                 fontWeight: FontWeight.w800,
               ),
@@ -204,4 +189,16 @@ class _Metric extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Cifras enteras ("3", "40%") cuentan al aparecer; textos como "Cargando"
+/// se muestran tal cual.
+Widget _countable(String value, TextStyle? style) {
+  final match = RegExp(r'^(\d+)(%?)$').firstMatch(value);
+  if (match == null) return Text(value, style: style);
+  return CountUpText(
+    value: int.parse(match.group(1)!),
+    suffix: match.group(2)!,
+    style: style,
+  );
 }

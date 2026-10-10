@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-
+import '../../../../core/theme/app_icons.dart';
 import '../../data/models/jury_models.dart';
 import 'jury_flow.dart';
 
@@ -29,8 +28,8 @@ abstract final class JuryFlowStages {
     return JuryFlowStage(
       key: 'fair',
       icon: progress.fairStatus == FairStatus.closed
-          ? Icons.event_busy_outlined
-          : Icons.event_available_outlined,
+          ? PhosphorIconsRegular.calendarX
+          : PhosphorIconsRegular.calendarCheck,
       title: 'Feria asignada',
       description: switch (progress.fairStatus) {
         FairStatus.open => 'La feria está abierta para tu categoría.',
@@ -49,7 +48,7 @@ abstract final class JuryFlowStages {
     final hasProjects = total > 0;
     return JuryFlowStage(
       key: 'projects',
-      icon: Icons.folder_copy_outlined,
+      icon: PhosphorIconsRegular.folders,
       title: 'Proyectos asignados',
       description: hasProjects
           ? 'La organización publicó ${projects(total)}'
@@ -84,7 +83,7 @@ abstract final class JuryFlowStages {
 
     return JuryFlowStage(
       key: 'evaluation',
-      icon: Icons.fact_check_outlined,
+      icon: PhosphorIconsRegular.listChecks,
       title: 'Evaluación de proyectos',
       description: description,
       status: status,
@@ -112,7 +111,7 @@ abstract final class JuryFlowStages {
 
     return JuryFlowStage(
       key: 'voting',
-      icon: Icons.how_to_vote_outlined,
+      icon: PhosphorIconsRegular.checkSquareOffset,
       title: 'Votación oficial',
       description: description,
       status: voted
@@ -139,7 +138,9 @@ abstract final class JuryFlowStages {
 
     return JuryFlowStage(
       key: 'declaration',
-      icon: signed ? Icons.assignment_turned_in_outlined : Icons.draw_outlined,
+      icon: signed
+          ? PhosphorIconsRegular.clipboardText
+          : PhosphorIconsRegular.signature,
       title: 'Declaración de jurado',
       description: description,
       status: signed
@@ -154,7 +155,7 @@ abstract final class JuryFlowStages {
     final closed = progress.fairStatus == FairStatus.closed;
     return JuryFlowStage(
       key: 'closing',
-      icon: Icons.lock_rounded,
+      icon: PhosphorIconsFill.lockSimple,
       title: 'Cierre de la feria',
       description: closed
           ? 'La feria pasó a estado cerrado.'

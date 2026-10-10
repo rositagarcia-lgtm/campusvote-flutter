@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_palette.dart';
@@ -60,7 +61,7 @@ class FairCard extends StatelessWidget {
                   if (fair.siteName case final site?) ...[
                     const SizedBox(height: AppSpacing.s),
                     _FairMetadata(
-                      icon: Icons.place_outlined,
+                      icon: PhosphorIconsRegular.mapPin,
                       text: site,
                     ),
                   ],
@@ -86,7 +87,7 @@ class FairCard extends StatelessWidget {
                   if (open)
                     AppButton(
                       label: 'Abrir feria',
-                      icon: Icons.arrow_forward_rounded,
+                      icon: PhosphorIconsRegular.arrowRight,
                       dense: true,
                       onPressed: () =>
                           context.push('/jury/fair/${fair.fairId}'),
@@ -95,7 +96,7 @@ class FairCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.info_outline_rounded,
+                          PhosphorIconsRegular.info,
                           size: AppDimensions.iconMedium,
                           color: muted,
                         ),

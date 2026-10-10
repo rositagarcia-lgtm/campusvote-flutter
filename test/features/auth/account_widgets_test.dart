@@ -1,6 +1,7 @@
 import 'package:campusvote_flutter/core/branding/organization_branding.dart';
 import 'package:campusvote_flutter/core/theme/app_theme.dart';
 import 'package:campusvote_flutter/features/auth/presentation/widgets/account_widgets.dart';
+import 'package:campusvote_flutter/features/auth/presentation/widgets/security/account_identity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,13 +29,15 @@ void main() {
                 overline: 'Institución',
                 child: AccountOrganizationRow(branding: branding),
               ),
-              AccountSection(
-                overline: 'Tu cuenta',
-                child: AccountInfoList(
-                  name: 'Nombre Apellido Extenso',
-                  email: 'nombre.apellido.muy.largo@institucion.edu.pe',
-                  role: 'Jurado',
-                ),
+              // El carnet es ahora el único lugar con nombre y correo.
+              AccountIdentityHeader(
+                accent: Color(0xFF006A63),
+                avatarUrl: null,
+                displayName: 'Nombre Apellido Extenso',
+                email: 'nombre.apellido.muy.largo@institucion.edu.pe',
+                roleLabel: 'Jurado',
+                uploading: false,
+                onPickPhoto: _noop,
               ),
             ]),
           ),
@@ -48,3 +51,5 @@ void main() {
     }
   });
 }
+
+void _noop() {}

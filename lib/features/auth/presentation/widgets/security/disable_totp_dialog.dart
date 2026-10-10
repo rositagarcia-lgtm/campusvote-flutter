@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_notice.dart';
@@ -64,7 +65,7 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
             autofocus: true,
             decoration: InputDecoration(
               labelText: SettingsCopy.of(context).t('Contraseña'),
-              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              prefixIcon: const Icon(PhosphorIconsRegular.lockSimple),
             ),
           ),
           const SizedBox(height: AppSpacing.m),
@@ -77,7 +78,7 @@ class _DisableTotpDialogState extends State<DisableTotpDialog> {
             ],
             decoration: InputDecoration(
               labelText: SettingsCopy.of(context).t('Código TOTP actual'),
-              prefixIcon: const Icon(Icons.pin_outlined),
+              prefixIcon: const Icon(PhosphorIconsRegular.numpad),
             ),
           ),
           const SizedBox(height: AppSpacing.s),

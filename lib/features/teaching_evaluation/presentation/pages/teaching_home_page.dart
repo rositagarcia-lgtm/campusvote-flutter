@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_panel_intro.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../../../core/widgets/app_status_chip.dart';
-import '../../../auth/presentation/state/auth_controller.dart';
+import '../../../settings/presentation/settings_copy.dart';
+import '../../../student_projects/presentation/widgets/student_projects_shortcut.dart';
 import '../state/teaching_list_controller.dart';
 import '../widgets/assignment_card.dart';
 
@@ -25,24 +27,19 @@ class TeachingHomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(teachingListControllerProvider);
     final controller = ref.read(teachingListControllerProvider.notifier);
+    final text = SettingsCopy.of(context);
 
     return Scaffold(
-      appBar: buildCampusVoteAppBar(
-        context,
-        title: 'Evaluación docente',
+      // Misma barra que el panel del jurado: logo y nombre de la
+      // organización arriba; el cierre de sesión vive en "Sobre mí".
+      appBar: OrganizationPanelAppBar(
+        branding: ref.watch(brandingControllerProvider),
+        section: text.t('Evaluación docente'),
         actions: [
           IconButton(
-            tooltip: 'Actualizar asignaciones',
-            icon: const Icon(Icons.refresh_rounded),
+            tooltip: text.t('Actualizar asignaciones'),
+            icon: const Icon(PhosphorIconsRegular.arrowClockwise),
             onPressed: state.loading ? null : controller.refresh,
-          ),
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout_rounded),
-            onPressed: () async {
-              await ref.read(authControllerProvider.notifier).logout();
-              if (context.mounted) context.go('/splash');
-            },
           ),
         ],
       ),
@@ -50,7 +47,7 @@ class TeachingHomePage extends ConsumerWidget {
         state: state,
         onRefresh: controller.refresh,
       ),
-      bottomNavigationBar: const AppBottomNav(selectedIndex: 0),
+      bottomNavigationBar: const AppBottomNav(current: AppNavDestination.panel),
     );
   }
 }
@@ -75,7 +72,7 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
     }
     if (state.isEmpty) {
       return AppEmptyView(
-        icon: Icons.school_outlined,
+        icon: PhosphorIconsRegular.graduationCap,
         title: 'Sin asignaciones docentes',
         message: 'Cuando haya docentes asignados a tu carrera y ciclo, '
             'aparecerán aquí para que puedas evaluarlos.',
@@ -101,17 +98,23 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppPanelIntro(
-                    organizationName: branding.name,
-                    organizationLogoUrl: branding.logoUrl,
-                    title: 'Tus docentes',
-                    subtitle:
-                        'Consulta tus asignaciones y califica a cada docente.',
-                    primaryValue: pending.length,
-                    primaryLabel: 'pendientes',
-                    secondaryValue: completed.length,
-                    secondaryLabel: 'completadas',
+                  AppMotion.reveal(
+                    0,
+                    AppPanelIntro(
+                      // La barra superior ya muestra logo y nombre.
+                      showOrganizationHeader: false,
+                      organizationName: branding.name,
+                      organizationLogoUrl: branding.logoUrl,
+                      title: 'Tus docentes',
+                      subtitle:
+                          'Consulta tus asignaciones y califica a cada docente.',
+                      primaryValue: pending.length,
+                      primaryLabel: 'pendientes',
+                      secondaryValue: completed.length,
+                      secondaryLabel: 'completadas',
+                    ),
                   ),
+                  const StudentProjectsShortcut(),
                   if (state.loading) ...[
                     const SizedBox(height: AppSpacing.m),
                     const LinearProgressIndicator(),
@@ -132,8 +135,11 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       subtitle: 'Elige una asignación pendiente para comenzar.',
                       count: pending.length,
                     ),
-                    for (final assignment in pending)
-                      AssignmentCard(assignment: assignment),
+                    for (var i = 0; i < pending.length; i++)
+                      AppMotion.reveal(
+                        i + 1,
+                        AssignmentCard(assignment: pending[i]),
+                      ),
                   ],
                   if (unavailable.isNotEmpty) ...[
                     if (pending.isNotEmpty)
@@ -168,4 +174,3 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
     );
   }
 }
-

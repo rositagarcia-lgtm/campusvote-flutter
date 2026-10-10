@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../settings/presentation/settings_copy.dart';
@@ -29,7 +30,7 @@ class JurySecurityNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(
-            Icons.shield_outlined,
+            PhosphorIconsRegular.shield,
             size: AppDimensions.iconMedium,
             color: AppColors.warning,
           ),

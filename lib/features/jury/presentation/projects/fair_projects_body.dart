@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
@@ -112,14 +113,13 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
             filter: _filter,
             projects: widget.projects,
             submittedIds: submittedIds,
-            onRetry: () =>
-                ref.invalidate(myEvaluationsProvider(widget.fairId)),
+            onRetry: () => ref.invalidate(myEvaluationsProvider(widget.fairId)),
             onSelected: (filter) => setState(() => _filter = filter),
           ),
           if (visible.isEmpty)
             const NoticeBanner(
               tone: AppTone.info,
-              icon: Icons.filter_alt_off_outlined,
+              icon: PhosphorIconsRegular.funnelSimpleX,
               message: 'No hay proyectos en este filtro.',
             ),
           for (final project in visible)
@@ -170,13 +170,13 @@ class _FiltersSlot extends StatelessWidget {
         children: [
           const NoticeBanner(
             tone: AppTone.info,
-            icon: Icons.info_outline_rounded,
+            icon: PhosphorIconsRegular.info,
             message:
                 'No pudimos cargar el estado de las rúbricas. Puedes abrir los proyectos y reintentar aquí.',
           ),
           TextButton.icon(
             onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(PhosphorIconsRegular.arrowClockwise),
             label: const Text('Reintentar estados'),
           ),
         ],

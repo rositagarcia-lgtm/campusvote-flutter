@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:campusvote_flutter/app/splash_intro_video.dart';
 import 'package:campusvote_flutter/core/routing/app_router.dart';
 import 'package:campusvote_flutter/features/auth/domain/entities/auth_role.dart';
+import 'package:campusvote_flutter/core/errors/result.dart';
 import 'package:campusvote_flutter/features/auth/domain/entities/auth_user.dart';
+import 'package:campusvote_flutter/features/auth/domain/entities/totp.dart';
 import 'package:campusvote_flutter/features/auth/domain/repositories/auth_repository.dart';
 import 'package:campusvote_flutter/features/auth/presentation/pages/account_page.dart';
 import 'package:campusvote_flutter/features/auth/presentation/state/auth_providers.dart';
@@ -80,8 +82,18 @@ class _SessionRepository implements AuthRepository {
   Future<AuthUser?> currentUser() async => const AuthUser(
         id: 'test',
         email: 'test@example.com',
-        role: AuthRole.teacher,
+        role: AuthRole.admin,
       );
+
+  // Al abrir, la app refresca perfil y estado 2FA; aquí el servidor no
+  // responde y la app debe seguir con la sesión guardada.
+  @override
+  Future<Result<AuthUser>> getProfile() async =>
+      const FailureResult(NetworkFailure(message: 'sin red en el test'));
+
+  @override
+  Future<Result<TotpStatus>> getTwoFactorStatus() async =>
+      const FailureResult(NetworkFailure(message: 'sin red en el test'));
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>

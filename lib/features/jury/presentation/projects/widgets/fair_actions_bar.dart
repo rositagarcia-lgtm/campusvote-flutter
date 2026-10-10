@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_button.dart';
 
@@ -19,13 +20,13 @@ class FairActionsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = AppButton.outlined(
       label: 'Mi progreso',
-      icon: Icons.checklist_rounded,
+      icon: PhosphorIconsRegular.listChecks,
       dense: true,
       onPressed: () => context.push('/jury/fair/$fairId/progress'),
     );
     final vote = AppButton(
       label: 'Votación oficial',
-      icon: Icons.how_to_vote_outlined,
+      icon: PhosphorIconsRegular.checkSquareOffset,
       dense: true,
       onPressed: () => context.push('/jury/fair/$fairId/vote'),
     );

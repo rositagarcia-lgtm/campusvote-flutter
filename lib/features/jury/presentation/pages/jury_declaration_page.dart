@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -75,7 +76,7 @@ class _BodyState extends State<_Body> {
             const StatusChip(
               label: 'Declaración firmada',
               tone: AppTone.success,
-              icon: Icons.verified_rounded,
+              icon: PhosphorIconsFill.sealCheck,
             ),
             const SizedBox(height: AppSpacing.l),
             Text(

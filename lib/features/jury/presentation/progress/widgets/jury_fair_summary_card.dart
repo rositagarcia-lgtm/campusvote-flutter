@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_palette.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
@@ -51,8 +52,8 @@ class JuryFairSummaryCard extends StatelessWidget {
                 label: text.t(status.$1),
                 tone: status.$2,
                 icon: open
-                    ? Icons.radio_button_checked_rounded
-                    : Icons.lock_outline_rounded,
+                    ? PhosphorIconsFill.radioButton
+                    : PhosphorIconsRegular.lockSimple,
               ),
             ],
           ),
@@ -67,7 +68,7 @@ class JuryFairSummaryCard extends StatelessWidget {
           if (site != null && site.trim().isNotEmpty) ...[
             const SizedBox(height: AppSpacing.s),
             JuryMetaRow(
-              icon: Icons.place_outlined,
+              icon: PhosphorIconsRegular.mapPin,
               text: site.trim(),
             ),
           ],

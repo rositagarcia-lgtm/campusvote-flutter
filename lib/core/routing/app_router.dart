@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,6 +26,8 @@ import '../../features/notifications/notifications_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
+import '../../features/student_projects/presentation/student_project_detail_page.dart';
+import '../../features/student_projects/presentation/student_projects_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
 import 'legacy_jury_routes.dart';
 import 'role_landing.dart';
@@ -102,7 +104,7 @@ GoRouter buildAppRouter(
       if (auth.authenticated) {
         final opensJuryPanel = isJuryPanelPath(loc);
         final opensStudentPanel = loc.startsWith('/teaching');
-        final isJury = auth.user?.role == AuthRole.jury;
+        final isJury = AuthRole.usesJuryPanel(auth.user?.role);
         final isStudent = auth.user?.role == AuthRole.student;
         if ((opensJuryPanel && !isJury) || (opensStudentPanel && !isStudent)) {
           return landingPathForRole(auth.user?.role);
@@ -139,7 +141,10 @@ GoRouter buildAppRouter(
         path: '/login',
         redirect: (_, __) => '/auth/jury/login',
       ),
-      GoRoute(path: '/account', builder: (_, __) => const AccountPage()),
+      GoRoute(
+        path: '/account',
+        pageBuilder: (_, s) => _tabPage(s, const AccountPage()),
+      ),
       GoRoute(path: '/settings', builder: (_, __) => const SettingsPage()),
       GoRoute(path: '/auth/totp', builder: (_, __) => const TotpPage()),
       GoRoute(
@@ -175,7 +180,7 @@ GoRouter buildAppRouter(
       // resuelven por el redirect global de `legacyJuryRedirect`.
       GoRoute(
         path: '/jury',
-        builder: (_, __) => const JuryDashboardPage(),
+        pageBuilder: (_, s) => _tabPage(s, const JuryDashboardPage()),
         routes: [
           GoRoute(
             path: 'notifications',
@@ -216,8 +221,21 @@ GoRouter buildAppRouter(
       // ── Evaluación docente (STUDENT) ───────────────────────────────
       GoRoute(
         path: '/teaching',
-        builder: (_, __) => const TeachingHomePage(),
+        pageBuilder: (_, s) => _tabPage(s, const TeachingHomePage()),
         routes: [
+          // Proyectos de feria del alumno: módulo propio, separado del jurado.
+          GoRoute(
+            path: 'projects',
+            pageBuilder: (_, s) => _tabPage(s, const StudentProjectsPage()),
+            routes: [
+              GoRoute(
+                path: ':projectId',
+                builder: (_, s) => StudentProjectDetailPage(
+                  projectId: s.pathParameters['projectId']!,
+                ),
+              ),
+            ],
+          ),
           GoRoute(
             path: 'evaluate/:assignmentId',
             builder: (_, s) => TeacherEvaluationPage(
@@ -236,6 +254,24 @@ GoRouter buildAppRouter(
       ),
     ],
     debugLogDiagnostics: false,
+  );
+}
+
+/// Destinos de la barra inferior (panel del rol y cuenta).
+///
+/// Cambiar de pestaña no es avanzar en la navegación: un fundido corto evita
+/// el deslizamiento de "pantalla nueva" que hacía sentir cada toque como un
+/// salto a otra sección.
+Page<void> _tabPage(GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 180),
+    reverseTransitionDuration: const Duration(milliseconds: 120),
+    transitionsBuilder: (_, animation, __, child) => FadeTransition(
+      opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+      child: child,
+    ),
   );
 }
 

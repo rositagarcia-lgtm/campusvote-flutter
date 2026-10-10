@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../core/branding/branding_controller.dart';
 import '../core/routing/app_router.dart';
 import '../core/settings/app_preferences.dart';
+import '../core/settings/locale_sync.dart';
 import '../core/theme/app_theme.dart';
 import '../features/settings/presentation/settings_copy.dart';
 
@@ -29,6 +30,7 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     // navegación —el usuario quedaba de vuelta en el splash tras cada login.
     _refreshNotifier = GoRouterRefreshNotifier(ref);
     _router = buildAppRouter(ref, refreshListenable: _refreshNotifier);
+    bindLocaleSync(ref);
   }
 
   @override

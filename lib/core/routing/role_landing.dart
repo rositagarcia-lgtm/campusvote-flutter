@@ -10,8 +10,7 @@ import '../../features/auth/domain/entities/auth_role.dart';
 /// Nota: el destino se decide SIEMPRE con el rol que devuelve el backend
 /// (`user.role`), nunca con el panel que el usuario tocó en el splash: el
 /// cliente no es la autoridad sobre el rol.
-String landingPathForRole(String? role) => switch (role) {
-      AuthRole.jury => '/jury',
-      AuthRole.student => '/teaching',
-      _ => '/account',
-    };
+String landingPathForRole(String? role) {
+  if (AuthRole.usesJuryPanel(role)) return '/jury';
+  return role == AuthRole.student ? '/teaching' : '/account';
+}

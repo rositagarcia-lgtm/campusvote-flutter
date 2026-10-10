@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_icons.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/brand_colors.dart';
 import 'app_palette.dart';
@@ -17,7 +18,7 @@ class ActionTile extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.accent,
-    this.trailingIcon = Icons.chevron_right_rounded,
+    this.trailingIcon = PhosphorIconsRegular.caretRight,
   });
 
   final IconData icon;

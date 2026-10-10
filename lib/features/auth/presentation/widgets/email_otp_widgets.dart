@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_action_tile.dart';
 import '../../../../core/widgets/app_palette.dart';
@@ -34,7 +35,7 @@ class SentToEmailRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.mail_outline_rounded,
+            Icon(PhosphorIconsRegular.envelopeSimple,
                 size: AppDimensions.iconMedium, color: accent),
             const SizedBox(width: AppSpacing.s),
             Expanded(
@@ -95,13 +96,14 @@ class _EmailOtpQrOptionState extends State<EmailOtpQrOption> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ActionTile(
-          icon: Icons.qr_code_2_rounded,
+          icon: PhosphorIconsRegular.qrCode,
           title: SettingsCopy.of(context).t('Verificar con código QR'),
           subtitle: SettingsCopy.of(context)
               .t('Segunda opción: escanea el código sin abrir el correo'),
           accent: widget.accent,
-          trailingIcon:
-              _open ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+          trailingIcon: _open
+              ? PhosphorIconsRegular.caretUp
+              : PhosphorIconsRegular.caretDown,
           onTap: () => setState(() => _open = !_open),
         ),
         if (_open) ...[

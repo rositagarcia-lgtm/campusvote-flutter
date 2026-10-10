@@ -44,6 +44,10 @@ class _FadeSlideState extends State<FadeSlide> {
 
   @override
   Widget build(BuildContext context) {
+    // Accesibilidad: con "reducir animaciones" el bloque aparece sin moverse.
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      return widget.child;
+    }
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: _animate ? 1 : 0),
       duration: widget.duration,

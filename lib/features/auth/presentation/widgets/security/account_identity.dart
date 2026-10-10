@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/config/app_env.dart';
 import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/theme/brand_colors.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_palette.dart';
 import '../../../../settings/presentation/settings_copy.dart';
@@ -36,103 +38,143 @@ class AccountIdentityHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    // Carnet institucional: franja con el color de la organización y el
+    // avatar montado encima.
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      child: Column(
+      padding: EdgeInsets.zero,
+      child: Stack(
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.bottomRight,
-            children: [
-              AccountAvatar(
-                avatarUrl: avatarUrl,
-                displayName: displayName,
-                accent: accent,
-                size: 96,
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 72,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppRadii.large),
               ),
-              if (uploading)
-                const Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black38,
-                    ),
-                    child: Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-                  ),
-                ),
-              Positioned(
-                right: -AppSpacing.xs,
-                bottom: -AppSpacing.xs,
-                child: Semantics(
-                  button: true,
-                  label: SettingsCopy.of(context).t('Cambiar foto de perfil'),
-                  excludeSemantics: true,
-                  child: Material(
-                    color: accent,
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        color: theme.colorScheme.surface,
-                        width: 2,
+              child: DecoratedBox(
+                decoration: BoxDecoration(gradient: context.brandGradient),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+            ),
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: theme.colorScheme.surface,
+                          width: 4,
+                        ),
+                      ),
+                      child: AccountAvatar(
+                        avatarUrl: avatarUrl,
+                        displayName: displayName,
+                        accent: accent,
+                        size: 96,
                       ),
                     ),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: uploading ? null : onPickPhoto,
-                      child: const SizedBox(
-                        width: AppDimensions.touchTarget,
-                        height: AppDimensions.touchTarget,
-                        child: Icon(
-                          Icons.photo_camera_rounded,
-                          size: AppDimensions.iconMedium,
-                          color: Colors.white,
+                    if (uploading)
+                      const Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.black38,
+                          ),
+                          child: Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      right: -AppSpacing.xs,
+                      bottom: -AppSpacing.xs,
+                      child: Semantics(
+                        button: true,
+                        label: SettingsCopy.of(context)
+                            .t('Cambiar foto de perfil'),
+                        excludeSemantics: true,
+                        child: Material(
+                          color: accent,
+                          shape: CircleBorder(
+                            side: BorderSide(
+                              color: theme.colorScheme.surface,
+                              width: 2,
+                            ),
+                          ),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: uploading ? null : onPickPhoto,
+                            child: const SizedBox(
+                              width: AppDimensions.touchTarget,
+                              height: AppDimensions.touchTarget,
+                              child: Icon(
+                                PhosphorIconsRegular.camera,
+                                size: AppDimensions.iconMedium,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.l),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    displayName,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.l),
-          Semantics(
-            header: true,
-            child: Text(
-              displayName,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            email,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(color: appMuted(isDark)),
-          ),
-          const SizedBox(height: AppSpacing.m),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.m,
-              vertical: AppSpacing.xs,
-            ),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: isDark ? 0.16 : 0.08),
-              borderRadius: AppRadii.rSmall,
-            ),
-            child: Semantics(
-              label: '${SettingsCopy.of(context).t('Rol')}: $roleLabel',
-              excludeSemantics: true,
-              child: Text(
-                roleLabel.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: accent,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.4,
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  email,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: appMuted(isDark)),
                 ),
-              ),
+                const SizedBox(height: AppSpacing.m),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.m,
+                    vertical: AppSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: isDark ? 0.16 : 0.08),
+                    borderRadius: AppRadii.rSmall,
+                  ),
+                  child: Semantics(
+                    label: '${SettingsCopy.of(context).t('Rol')}: $roleLabel',
+                    excludeSemantics: true,
+                    child: Text(
+                      roleLabel.toUpperCase(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -180,7 +222,6 @@ class AccountAvatar extends StatelessWidget {
     );
 
     final url = AppEnv.mediaUrl(avatarUrl);
-    debugPrint('>>> AccountAvatar url: avatarUrl="$avatarUrl" resolved="$url"');
     if (url == null) return fallback;
     return ClipOval(
       child: Image.network(

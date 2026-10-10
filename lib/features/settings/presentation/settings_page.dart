@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/widgets/app_appbar.dart';
 import '../../../core/widgets/app_page_layout.dart';
@@ -32,7 +33,7 @@ class SettingsPage extends StatelessWidget {
             ? IconButton(
                 tooltip: text.back,
                 onPressed: navigator.maybePop,
-                icon: const Icon(Icons.arrow_back_rounded),
+                icon: const Icon(PhosphorIconsRegular.arrowLeft),
               )
             : null,
       ),

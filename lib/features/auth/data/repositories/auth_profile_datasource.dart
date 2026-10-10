@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../../../core/config/app_env.dart';
 import '../../../../core/config/endpoints.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/result.dart';
@@ -44,7 +44,6 @@ class AuthProfileDataSource {
   Future<Result<AuthUser>> updateProfile(Map<String, dynamic> fields) async {
     try {
       final res = await _client.put(ApiEndpoints.updateMe, body: fields);
-      debugPrint('>>> updateProfile response: ${res.data}');
       final r = ApiResponse<Map<String, dynamic>>.fromJson(
         _asMap(res.data),
         _asMap,
@@ -90,13 +89,15 @@ class AuthProfileDataSource {
       );
       if (!r.success) return FailureResult(_failureFromApi(r));
       final raw = r.data?['url']?.toString() ?? '';
-      debugPrint('>>> avatar raw url: "$raw"');
       if (raw.isEmpty) {
         return const FailureResult(UnknownFailure(
           message: 'El servidor no devolvió la URL de la imagen',
         ));
       }
-      url = raw;
+      // Sin APP_URL en el servidor la subida devuelve una ruta relativa
+      // (`/uploads/...`) que luego `PUT /users/me` rechaza por no ser una URL
+      // completa. Se resuelve contra la API antes de enlazarla al perfil.
+      url = AppEnv.mediaUrl(raw) ?? raw;
     } on DioException catch (e) {
       return FailureResult(mapExceptionToFailure(e));
     } catch (e) {
@@ -111,6 +112,9 @@ class AuthProfileDataSource {
     if (p.endsWith('.png')) return 'image/png';
     if (p.endsWith('.jpg') || p.endsWith('.jpeg')) return 'image/jpeg';
     if (p.endsWith('.webp')) return 'image/webp';
+    // `image_picker` reescala con maxWidth y reescribe la imagen como JPEG
+    // aunque la ruta llegue sin extensión.
+    if (!p.split('/').last.contains('.')) return 'image/jpeg';
     return null;
   }
 }

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/widgets/app_notice.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
 import '../jury_flow.dart';
@@ -18,7 +19,7 @@ class JuryProgressNotice extends StatelessWidget {
     if (flow.participationComplete) {
       return const NoticeBanner(
         tone: AppTone.success,
-        icon: Icons.verified_rounded,
+        icon: PhosphorIconsFill.sealCheck,
         message: 'Completaste la evaluación, el voto oficial y tu declaración.',
       );
     }
@@ -26,7 +27,7 @@ class JuryProgressNotice extends StatelessWidget {
     if (hint == null) {
       return const NoticeBanner(
         tone: AppTone.neutral,
-        icon: Icons.lock_outline_rounded,
+        icon: PhosphorIconsRegular.lockSimple,
         message:
             'La feria está cerrada: no admite nuevas participaciones por tu '
             'cuenta.',
@@ -34,7 +35,7 @@ class JuryProgressNotice extends StatelessWidget {
     }
     return NoticeBanner(
       tone: AppTone.info,
-      icon: Icons.pending_actions_rounded,
+      icon: PhosphorIconsRegular.hourglassMedium,
       message: hint,
     );
   }

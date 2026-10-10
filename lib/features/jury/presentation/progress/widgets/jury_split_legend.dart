@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_palette.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
@@ -41,13 +42,13 @@ class JurySplitLegend extends StatelessWidget {
         runSpacing: AppSpacing.s,
         children: [
           _LegendItem(
-            icon: Icons.check_circle_rounded,
+            icon: PhosphorIconsFill.checkCircle,
             tone: AppTone.success,
             label: text.t('Evaluados'),
             value: evaluated,
           ),
           _LegendItem(
-            icon: Icons.radio_button_unchecked_rounded,
+            icon: PhosphorIconsRegular.circle,
             tone: pending > 0 ? AppTone.warning : AppTone.neutral,
             label: text.t('Pendientes'),
             value: pending,

@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
 
 void main() {
   test('intro no confunde un valor inicial de duración cero con el final', () {
@@ -147,7 +148,7 @@ void main() {
     }
 
     expect(find.text('Elige cómo participar'), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.language_rounded));
+    await tester.tap(find.byIcon(PhosphorIconsRegular.globe));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('language-option-en')));
     await tester.pump(const Duration(milliseconds: 80));
@@ -179,7 +180,7 @@ void main() {
 
     router.go('/splash');
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.language_rounded));
+    await tester.tap(find.byIcon(PhosphorIconsRegular.globe));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('language-option-es')));
     await tester.pumpAndSettle();

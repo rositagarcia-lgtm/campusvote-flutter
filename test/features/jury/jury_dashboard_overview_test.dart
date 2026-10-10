@@ -16,6 +16,8 @@ void main() {
       await tester.pumpWidget(_app(const AsyncValue.data(
         JuryDashboardProgress(completed: 3, total: 8),
       )));
+      // Las cifras cuentan desde 0: se valida el valor final.
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'ancho $width');
       expect(find.text('38%'), findsOneWidget);
       expect(find.text('3 de 8 proyectos evaluados en ferias abiertas'),

@@ -59,6 +59,19 @@ class OrganizationBranding {
     );
   }
 
+  /// Serializa con las mismas claves que acepta [fromOrganizationJson]; se
+  /// usa para recordar la marca entre aperturas de la app.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'logo': logoUrl,
+        'primary_color': _toHex(primaryColor),
+        'secondary_color': _toHex(secondaryColor),
+      };
+
+  static String _toHex(Color color) =>
+      '#${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+
   static Color? _tryParseHex(dynamic raw) {
     if (raw is! String) return null;
     final value = raw.replaceAll('#', '').trim();

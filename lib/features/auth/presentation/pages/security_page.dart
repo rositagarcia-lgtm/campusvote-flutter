@@ -4,13 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
-import '../../../../core/widgets/app_dialog.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../state/auth_controller.dart';
 import '../state/auth_providers.dart';
 import '../state/two_factor_controller.dart';
+import '../../../../core/widgets/app_motion.dart';
 import '../widgets/security/account_summary_card.dart';
+import '../widgets/security/security_status.dart';
 import '../widgets/security/disable_totp_dialog.dart';
 import '../widgets/security/two_factor_card.dart';
 import '../../../settings/presentation/settings_copy.dart';
@@ -49,30 +49,14 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
       },
       failure: (f) {
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
+          SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
         );
       },
     );
   }
 
-  Future<void> _onLogout() async {
-    final confirm = await AppDialog.confirm(
-      context,
-      title: SettingsCopy.of(context).t('Cerrar sesión'),
-      message: SettingsCopy.of(context)
-          .t('¿Estás seguro que deseas salir de CampusVote?'),
-      confirmLabel: SettingsCopy.of(context).t('Salir'),
-      destructive: true,
-    );
-    if (!confirm || !mounted) return;
-    await ref.read(authControllerProvider.notifier).logout();
-    // Al selector de acceso: cualquier rol vuelve a elegir su panel.
-    if (mounted) context.go('/splash');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authControllerProvider);
     final tf = ref.watch(twoFactorControllerProvider);
     final text = SettingsCopy.of(context);
 
@@ -84,12 +68,14 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SectionHeader(label: text.t('Cuenta')),
-              AccountHeaderCard(
-                displayName: auth.user?.displayName ?? text.t('Usuario'),
-                email: auth.user?.email ?? '',
-                avatarUrl: auth.user?.avatarUrl,
-                role: auth.user?.role,
+              AppMotion.reveal(
+                0,
+                SecurityStatusBanner(
+                  level: SecurityLevel.of(
+                    loading: tf.loading,
+                    twoFactor: tf.status.enabled,
+                  ),
+                ),
               ),
               const SizedBox(height: AppSpacing.xl),
               SectionHeader(label: text.t('Contraseña')),
@@ -105,9 +91,6 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
                 onSetup: () => context.push('/security/totp/setup'),
                 onDisable: _onDisableTotp,
               ),
-              const SizedBox(height: AppSpacing.xl),
-              SectionHeader(label: text.t('Sesión')),
-              SessionCard(onLogout: _onLogout),
             ],
           ),
         ),

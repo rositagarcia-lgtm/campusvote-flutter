@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_icons.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_button.dart';
@@ -18,7 +19,7 @@ class AppErrorView extends StatelessWidget {
     super.key,
     required this.message,
     this.onRetry,
-    this.icon = Icons.cloud_off_rounded,
+    this.icon = PhosphorIconsRegular.cloudSlash,
     this.title = 'No pudimos cargar la información',
     this.overline = 'ESTADO DE ERROR',
     this.retryLabel = 'Reintentar',
@@ -104,7 +105,7 @@ class AppErrorView extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xl),
                 AppButton.outlined(
                   label: text.t(retryLabel),
-                  icon: Icons.refresh_rounded,
+                  icon: PhosphorIconsRegular.arrowClockwise,
                   onPressed: onRetry,
                 ),
               ],

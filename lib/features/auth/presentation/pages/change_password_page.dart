@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/routing/role_landing.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -65,8 +66,8 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
     } else {
       final msg = ref.read(authControllerProvider).errorMessage;
       if (msg != null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(SettingsCopy.of(context).error(msg))));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(SettingsCopy.of(context).error(msg))));
       }
     }
   }
@@ -100,7 +101,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
         tooltip: SettingsCopy.of(context)
             .t(_obscure ? 'Mostrar contraseñas' : 'Ocultar contraseñas'),
         icon: Icon(
-          _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+          _obscure ? PhosphorIconsRegular.eye : PhosphorIconsRegular.eyeSlash,
           size: AppDimensions.iconMedium,
         ),
         onPressed: () => setState(() => _obscure = !_obscure),
@@ -109,9 +110,8 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final accent = isDark ? AppColors.primaryLighter : AppColors.primary;
+    // Ya hay sesión: el cambio de clave se pinta con la marca institucional.
+    final accent = context.brandPrimary;
     final text = SettingsCopy.of(context);
 
     return PopScope(
@@ -166,7 +166,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                                 controller: _currentCtrl,
                                 enabled: !state.submitting,
                                 textInputAction: TextInputAction.next,
-                                prefixIcon: Icons.lock_outline_rounded,
+                                prefixIcon: PhosphorIconsRegular.lockSimple,
                                 suffix: _visibilityToggle(),
                                 validator: (v) => (v ?? '').isEmpty
                                     ? text.t('Escribe tu contraseña actual')
@@ -179,7 +179,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                                 controller: _newCtrl,
                                 enabled: !state.submitting,
                                 textInputAction: TextInputAction.next,
-                                prefixIcon: Icons.lock_rounded,
+                                prefixIcon: PhosphorIconsFill.lockSimple,
                                 validator: _passwordValidator,
                               ),
                               const SizedBox(height: AppSpacing.m),
@@ -198,14 +198,14 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                                 enabled: !state.submitting,
                                 textInputAction: TextInputAction.done,
                                 onSubmitted: (_) => _submit(),
-                                prefixIcon: Icons.lock_rounded,
+                                prefixIcon: PhosphorIconsFill.lockSimple,
                                 validator: (v) => v != _newCtrl.text
                                     ? text.t('Las contraseñas no coinciden')
                                     : null,
                               ),
                               const SizedBox(height: AppSpacing.l),
                               AuthInfoNote(
-                                icon: Icons.shield_outlined,
+                                icon: PhosphorIconsRegular.shield,
                                 text: text.t(
                                     'Usa una contraseña única que no compartas con otros servicios.'),
                               ),
@@ -220,7 +220,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
                           label: widget.required
                               ? text.t('Cambiar y continuar')
                               : text.t('Actualizar contraseña'),
-                          icon: Icons.check_rounded,
+                          icon: PhosphorIconsBold.check,
                           isLoading: state.submitting,
                           onPressed: state.submitting ? null : _submit,
                         ),

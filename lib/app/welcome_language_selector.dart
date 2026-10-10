@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_icons.dart';
 import '../core/settings/app_preferences.dart';
 import '../core/theme/app_dimensions.dart';
 import '../core/widgets/app_palette.dart';
@@ -114,7 +115,7 @@ class _WelcomeLanguageSelectorState
               child: SizedBox.square(
                 dimension: AppDimensions.touchTarget,
                 child: Icon(
-                  Icons.language_rounded,
+                  PhosphorIconsRegular.globe,
                   size: AppDimensions.iconMedium,
                   color: primary,
                 ),
@@ -199,7 +200,7 @@ class _LanguageOption extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            Icons.check_rounded,
+                            PhosphorIconsBold.check,
                             size: 16,
                             color: theme.colorScheme.onPrimary,
                           ),

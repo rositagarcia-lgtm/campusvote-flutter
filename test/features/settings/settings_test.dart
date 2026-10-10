@@ -11,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
 
 import 'settings_pump.dart';
 
@@ -178,7 +179,7 @@ void main() {
                     final text = SettingsCopy.of(context);
                     return auth_widgets.AuthHeader(
                       accent: Theme.of(context).colorScheme.primary,
-                      icon: Icons.security_rounded,
+                      icon: PhosphorIconsRegular.shieldCheck,
                       overline: text.t('Verificación en dos pasos'),
                       title: text.t('Ingresa tu código'),
                       subtitle: text.t(

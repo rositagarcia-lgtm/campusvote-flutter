@@ -1,0 +1,40 @@
+/// Textos del módulo "Mis proyectos" del alumno.
+const studentProjectsTranslations = <String, String>{
+  'Mis proyectos': 'My projects',
+  'Tu proyecto está en feria ahora': 'Your project is at the fair now',
+  'Revisa el estado y la valoración del jurado': 'Check its status and jury feedback',
+  'Tus proyectos de feria': 'Your fair projects',
+  'Solo ves los proyectos en los que participas.':
+      'You only see the projects you take part in.',
+  'Aprobados': 'Approved',
+  'En feria': 'At the fair',
+  'Feria finalizada': 'Fair finished',
+  'Con observaciones': 'Needs changes',
+  'Por confirmar': 'To confirm',
+  'Borrador': 'Draft',
+  'Expositor': 'Presenter',
+  'Colaborador': 'Collaborator',
+  'Responsable': 'Owner',
+  'Integrante': 'Member',
+  'Tú': 'You',
+  'Stand': 'Booth',
+  'Inscrito': 'Registered',
+  'Revisión': 'Review',
+  'Cierre': 'Closing',
+  'Recorrido': 'Journey',
+  'Sobre el proyecto': 'About the project',
+  'Equipo': 'Team',
+  'Valoración del jurado': 'Jury feedback',
+  'Me gusta del jurado': 'jury likes',
+  'Aún no hay comentarios del jurado.': 'No jury comments yet.',
+  'Los Me gusta y comentarios del jurado aparecerán cuando tu proyecto esté en una feria abierta.':
+      'Jury likes and comments will appear once your project is in an open fair.',
+  'No pudimos cargar la valoración. Desliza para reintentar.':
+      'We could not load the feedback. Pull to retry.',
+  'No pudimos cargar tus proyectos.': 'We could not load your projects.',
+  'FERIAS': 'FAIRS',
+  'Aún no participas en una feria': 'You are not in a fair yet',
+  'Cuando tu docente te inscriba en un proyecto, lo verás aquí.':
+      'When your teacher registers you in a project, you will see it here.',
+  'Proyecto no disponible': 'Project not available',
+};

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../data/models/jury_models.dart';
 
@@ -78,7 +79,7 @@ Future<bool> confirmVoteDialog(
         ),
         FilledButton.icon(
           onPressed: () => Navigator.of(dialogContext).pop(true),
-          icon: const Icon(Icons.lock_outline_rounded),
+          icon: const Icon(PhosphorIconsRegular.lockSimple),
           label: const Text('Confirmar voto'),
         ),
       ],

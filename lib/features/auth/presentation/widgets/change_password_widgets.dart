@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../settings/presentation/settings_copy.dart';
@@ -59,8 +60,8 @@ class PasswordRequirements extends StatelessWidget {
                   children: [
                     Icon(
                       met
-                          ? Icons.check_circle_rounded
-                          : Icons.radio_button_unchecked_rounded,
+                          ? PhosphorIconsFill.checkCircle
+                          : PhosphorIconsRegular.circle,
                       size: AppDimensions.iconSmall,
                       color: met ? accent : muted,
                     ),

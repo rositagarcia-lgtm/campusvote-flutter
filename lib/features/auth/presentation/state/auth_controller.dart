@@ -11,10 +11,10 @@ import '../../domain/entities/auth_user.dart';
 import 'auth_events.dart';
 import 'auth_providers.dart';
 
-
 part 'auth_state.dart';
 part 'auth_controller_email.dart';
 part 'auth_controller_profile.dart';
+
 class AuthController extends StateNotifier<AuthState> {
   AuthController(this._ref) : super(const AuthState()) {
     _bootstrap();
@@ -50,9 +50,15 @@ class AuthController extends StateNotifier<AuthState> {
           authenticated: true,
           user: user,
         );
-        // La sesión persistida solo guarda el `organizationId`; sin esto el
-        // panel abriría con la marca CampusVote en vez de la organización.
+        // La sesión persistida solo guarda el `organizationId`: primero se
+        // pinta la marca recordada y luego se refresca desde el servidor.
+        _ref
+            .read(brandingControllerProvider.notifier)
+            .restoreCached(user.organizationId);
         unawaited(_loadBranding(user.organizationId));
+        // La copia local puede estar desactualizada (foto, nombre): se
+        // refresca desde `/me` sin bloquear la apertura.
+        unawaited(_hydrateProfile());
       } else {
         state = state.copyWith(initializing: false, authenticated: false);
       }
@@ -182,6 +188,7 @@ class AuthController extends StateNotifier<AuthState> {
       failure: (_) {},
     );
   }
+
   Future<void> logout() async {
     await _ref.read(logoutUseCaseProvider)();
     _resetBranding();

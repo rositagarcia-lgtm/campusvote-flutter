@@ -85,7 +85,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
           ),
           FilledButton.icon(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            icon: const Icon(Icons.send_outlined),
+            icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
             label: const Text('Enviar evaluación'),
           ),
         ],
@@ -106,7 +106,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
         title: 'Evaluar docente',
         leading: IconButton(
           tooltip: 'Volver a mis docentes',
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teaching'),
         ),
       ),
@@ -231,8 +231,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                             ? AppTone.warning
                             : AppTone.danger,
                         icon: state.needsStatusCheck
-                            ? Icons.cloud_sync_outlined
-                            : Icons.error_outline_rounded,
+                            ? PhosphorIconsRegular.cloudArrowUp
+                            : PhosphorIconsRegular.warningCircle,
                         liveRegion: true,
                       ),
                     ],
@@ -242,7 +242,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                         label: state.checkingStatus
                             ? 'Consultando el estado'
                             : 'Consultar estado de la evaluación',
-                        icon: Icons.refresh_rounded,
+                        icon: PhosphorIconsRegular.arrowClockwise,
                         isLoading: state.checkingStatus,
                         onPressed: state.checkingStatus
                             ? null
@@ -258,7 +258,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                       label: state.submitting
                           ? 'Enviando evaluación'
                           : 'Revisar y confirmar',
-                      icon: Icons.send_outlined,
+                      icon: PhosphorIconsRegular.paperPlaneTilt,
                       isLoading: state.submitting,
                       onPressed: locked ? null : _reviewAndSubmit,
                     ),

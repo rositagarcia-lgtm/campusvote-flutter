@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_palette.dart';
@@ -42,8 +43,8 @@ class TotpSecretCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
-              icon:
-                  const Icon(Icons.copy_rounded, size: AppDimensions.iconSmall),
+              icon: const Icon(PhosphorIconsRegular.copy,
+                  size: AppDimensions.iconSmall),
               label: Text(SettingsCopy.of(context).t('Copiar')),
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: secret));

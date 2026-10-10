@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
 import '../../features/settings/presentation/settings_copy.dart';
@@ -94,7 +93,3 @@ class _Initials extends StatelessWidget {
     );
   }
 }
-
-/// Tinta de marca legible sobre superficies claras.
-Color heroInk(bool isDark) =>
-    isDark ? AppColors.darkInk : AppColors.primaryDark;

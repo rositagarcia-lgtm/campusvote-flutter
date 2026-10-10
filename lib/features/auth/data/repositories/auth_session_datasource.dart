@@ -96,9 +96,19 @@ class AuthSessionDataSource {
         _asMap,
       );
       if (!r.success) return FailureResult(_failureFromApi(r));
-      final user = AuthUserModel.fromJson(r.data ?? const {});
+      final data = r.data ?? const <String, dynamic>{};
+      var user = AuthUserModel.fromJson(data).toEntity();
+      // Versiones del backend anteriores no incluyen la foto en /me: si el
+      // campo ni siquiera viene, se conserva la que ya estaba guardada en vez
+      // de borrarla. Si viene vacío, manda el servidor.
+      if (!data.containsKey('avatar_url') && !data.containsKey('avatarUrl')) {
+        final previous = await _persister.readUser();
+        if (previous?.id == user.id && previous?.avatarUrl != null) {
+          user = user.copyWith(avatarUrl: previous!.avatarUrl);
+        }
+      }
       await _persister.persistUser(user);
-      return Success(user.toEntity());
+      return Success(user);
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
     }

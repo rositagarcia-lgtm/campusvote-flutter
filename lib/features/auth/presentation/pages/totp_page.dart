@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/routing/role_landing.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -79,7 +80,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                   FadeSlide(
                     child: AuthHeader(
                       accent: accent,
-                      icon: Icons.security_rounded,
+                      icon: PhosphorIconsRegular.shieldCheck,
                       overline: text.t('Verificación en dos pasos'),
                       title: text.t('Ingresa tu código'),
                       subtitle: text.t(
@@ -105,7 +106,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                           ],
                           const SizedBox(height: AppSpacing.l),
                           AuthInfoNote(
-                            icon: Icons.timer_outlined,
+                            icon: PhosphorIconsRegular.timer,
                             text: text.t(
                                 'Usa el código vigente: tu aplicación lo renueva cada pocos segundos.'),
                           ),
@@ -118,7 +119,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
                     delay: const Duration(milliseconds: 220),
                     child: AppButton(
                       label: text.t('Verificar'),
-                      icon: Icons.verified_outlined,
+                      icon: PhosphorIconsRegular.sealCheck,
                       isLoading: state.submitting,
                       onPressed: state.submitting ? null : _submit,
                     ),

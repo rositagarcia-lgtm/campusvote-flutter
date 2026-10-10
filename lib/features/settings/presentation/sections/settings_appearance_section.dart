@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/settings/app_preferences.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../settings_copy.dart';
@@ -39,7 +40,7 @@ class SettingsAppearanceSection extends ConsumerWidget {
         SettingsGroup(
           children: [
             SettingsRow(
-              icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+              icon: isDark ? PhosphorIconsRegular.moon : PhosphorIconsRegular.sun,
               title: text.darkMode,
               subtitle: followsSystem
                   ? text.darkModeSystemHint

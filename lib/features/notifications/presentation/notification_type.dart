@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_status_chip.dart';
 
 /// Familia de aviso a la que pertenece un tipo.
@@ -43,7 +44,7 @@ class NotificationTypeDescriptor {
 /// bandeja «Todas» ni inventarse una categoría.
 const NotificationTypeDescriptor _unknown = NotificationTypeDescriptor(
   label: 'Notificación',
-  icon: Icons.notifications_active_outlined,
+  icon: PhosphorIconsRegular.bellRinging,
   tone: AppTone.neutral,
 );
 
@@ -52,73 +53,73 @@ const Map<String, NotificationTypeDescriptor> _registry = {
   // Feria y proyectos
   'FAIR_OPENED': NotificationTypeDescriptor(
     label: 'Feria abierta',
-    icon: Icons.event_available_rounded,
+    icon: PhosphorIconsFill.calendarCheck,
     tone: AppTone.primary,
     category: NotificationCategory.fair,
   ),
   'FAIR_CLOSED': NotificationTypeDescriptor(
     label: 'Feria cerrada',
-    icon: Icons.event_busy_rounded,
+    icon: PhosphorIconsRegular.calendarX,
     tone: AppTone.neutral,
     category: NotificationCategory.fair,
   ),
   'EVALUATION_OPENED': NotificationTypeDescriptor(
     label: 'Evaluación abierta',
-    icon: Icons.assignment_turned_in_rounded,
+    icon: PhosphorIconsFill.clipboardText,
     tone: AppTone.primary,
     category: NotificationCategory.fair,
   ),
   'RUBRIC_ASSIGNED': NotificationTypeDescriptor(
     label: 'Rúbrica asignada',
-    icon: Icons.fact_check_outlined,
+    icon: PhosphorIconsRegular.listChecks,
     tone: AppTone.info,
     category: NotificationCategory.fair,
   ),
   'RATING_RECEIVED': NotificationTypeDescriptor(
     label: 'Calificación recibida',
-    icon: Icons.workspace_premium_outlined,
+    icon: PhosphorIconsRegular.medal,
     tone: AppTone.success,
     category: NotificationCategory.fair,
   ),
   'PROJECT_LIKED': NotificationTypeDescriptor(
     label: 'Me gusta',
-    icon: Icons.favorite_rounded,
+    icon: PhosphorIconsFill.heart,
     tone: AppTone.primary,
     category: NotificationCategory.fair,
   ),
   'PROJECT_COMMENTED': NotificationTypeDescriptor(
     label: 'Comentario',
-    icon: Icons.chat_bubble_outline_rounded,
+    icon: PhosphorIconsRegular.chatCircle,
     tone: AppTone.info,
     category: NotificationCategory.fair,
   ),
   'PROJECT_LIKE_MILESTONE': NotificationTypeDescriptor(
     label: 'Proyecto destacado',
-    icon: Icons.trending_up_rounded,
+    icon: PhosphorIconsRegular.trendUp,
     tone: AppTone.success,
     category: NotificationCategory.fair,
   ),
   'ASSISTED_PROJECT_PREPARED': NotificationTypeDescriptor(
     label: 'Proyecto asistido',
-    icon: Icons.volunteer_activism_outlined,
+    icon: PhosphorIconsRegular.handHeart,
     tone: AppTone.info,
     category: NotificationCategory.fair,
   ),
   'ASSISTED_PROJECT_CONFIRMED': NotificationTypeDescriptor(
     label: 'Proyecto confirmado',
-    icon: Icons.verified_rounded,
+    icon: PhosphorIconsFill.sealCheck,
     tone: AppTone.success,
     category: NotificationCategory.fair,
   ),
   'JURY_CONFLICT_DECLARED': NotificationTypeDescriptor(
     label: 'Conflicto de interés',
-    icon: Icons.warning_amber_rounded,
+    icon: PhosphorIconsRegular.warning,
     tone: AppTone.danger,
     category: NotificationCategory.fair,
   ),
   'JURY_RECUSAL_REVOKED': NotificationTypeDescriptor(
     label: 'Recusación revocada',
-    icon: Icons.undo_rounded,
+    icon: PhosphorIconsRegular.arrowCounterClockwise,
     tone: AppTone.warning,
     category: NotificationCategory.fair,
   ),
@@ -126,55 +127,55 @@ const Map<String, NotificationTypeDescriptor> _registry = {
   // Avisos oficiales
   'SYSTEM_ALERT': NotificationTypeDescriptor(
     label: 'Aviso institucional',
-    icon: Icons.campaign_rounded,
+    icon: PhosphorIconsRegular.megaphone,
     tone: AppTone.warning,
     category: NotificationCategory.official,
   ),
   'DEADLINE_REMINDER': NotificationTypeDescriptor(
     label: 'Recordatorio de fecha',
-    icon: Icons.schedule_rounded,
+    icon: PhosphorIconsRegular.clock,
     tone: AppTone.warning,
     category: NotificationCategory.official,
   ),
   'ACTA_DELIVERY': NotificationTypeDescriptor(
     label: 'Acta entregada',
-    icon: Icons.description_outlined,
+    icon: PhosphorIconsRegular.fileText,
     tone: AppTone.info,
     category: NotificationCategory.official,
   ),
   'WELCOME': NotificationTypeDescriptor(
     label: 'Bienvenida',
-    icon: Icons.waving_hand_rounded,
+    icon: PhosphorIconsRegular.handWaving,
     tone: AppTone.success,
     category: NotificationCategory.official,
   ),
   'ACCOUNT_VERIFIED': NotificationTypeDescriptor(
     label: 'Cuenta verificada',
-    icon: Icons.verified_user_rounded,
+    icon: PhosphorIconsFill.shieldCheck,
     tone: AppTone.success,
     category: NotificationCategory.official,
   ),
   'EMAIL_ALERT': NotificationTypeDescriptor(
     label: 'Al correo',
-    icon: Icons.mail_rounded,
+    icon: PhosphorIconsFill.envelopeSimple,
     tone: AppTone.info,
     category: NotificationCategory.official,
   ),
   'JURY_ASSIGNED': NotificationTypeDescriptor(
     label: 'Jurado asignado',
-    icon: Icons.gavel_rounded,
+    icon: PhosphorIconsFill.gavel,
     tone: AppTone.primary,
     category: NotificationCategory.official,
   ),
   'PROJECT_ASSIGNED': NotificationTypeDescriptor(
     label: 'Proyecto asignado',
-    icon: Icons.folder_shared_rounded,
+    icon: PhosphorIconsRegular.folderUser,
     tone: AppTone.info,
     category: NotificationCategory.official,
   ),
   'CALIFICATION_ACTIVE': NotificationTypeDescriptor(
     label: 'Calificación activa',
-    icon: Icons.how_to_vote_rounded,
+    icon: PhosphorIconsFill.checkSquareOffset,
     tone: AppTone.primary,
     category: NotificationCategory.official,
   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_status_chip.dart';
@@ -72,7 +73,7 @@ class TeacherEvaluationHeader extends StatelessWidget {
         const StatusChip(
           label: 'Pendiente',
           tone: AppTone.primary,
-          icon: Icons.rate_review_outlined,
+          icon: PhosphorIconsRegular.notePencil,
         ),
       ],
     );
@@ -87,7 +88,7 @@ class UnavailableEvaluationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AppEmptyView(
-        icon: Icons.assignment_outlined,
+        icon: PhosphorIconsRegular.clipboardText,
         title: title,
         message: message,
         actionLabel: 'Volver a mis docentes',

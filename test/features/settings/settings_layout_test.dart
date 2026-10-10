@@ -6,6 +6,7 @@ import 'package:campusvote_flutter/core/widgets/app_logo.dart';
 import 'package:campusvote_flutter/features/settings/presentation/widgets/settings_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
 
 import 'settings_pump.dart';
 
@@ -113,11 +114,11 @@ void main() {
 
     testWidgets('el icono cambia con el tema', (tester) async {
       await pumpSettings(tester);
-      expect(find.byIcon(Icons.light_mode_rounded), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.sun), findsOneWidget);
 
       await pumpSettings(tester, dark: true);
-      expect(find.byIcon(Icons.dark_mode_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.light_mode_rounded), findsNothing);
+      expect(find.byIcon(PhosphorIconsRegular.moon), findsOneWidget);
+      expect(find.byIcon(PhosphorIconsRegular.sun), findsNothing);
     });
   });
 
@@ -239,7 +240,7 @@ void main() {
 
       // Y justo en el borde izquierdo del texto de la fila.
       final rowLeft =
-          tester.getTopLeft(find.byIcon(Icons.light_mode_rounded)).dx;
+          tester.getTopLeft(find.byIcon(PhosphorIconsRegular.sun)).dx;
       expect(rowLeft, greaterThan(groupLeft));
       final titleLeft = tester.getTopLeft(find.text('Modo oscuro')).dx;
       expect(dividerLeft, closeTo(titleLeft, 0.01));

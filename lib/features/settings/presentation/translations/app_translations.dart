@@ -1,7 +1,9 @@
 // translations/app_translations.dart
 
+import 'account_translations.dart';
 import 'auth_translations.dart';
 import 'panel_translations.dart';
+import 'student_projects_translations.dart';
 
 /// Traducciones de textos estáticos. Claves en español para conservar la UI
 /// existente; datos de usuarios y del servidor nunca se consultan aquí.
@@ -56,6 +58,8 @@ const appTranslations = <String, String>{
   'VOTACIÓN Y EVALUACIÓN ACADÉMICA': 'ACADEMIC VOTING AND EVALUATION',
   'Acceso': 'Access',
   'Acceso institucional': 'Institutional access',
+  'Plataforma académica': 'Academic platform',
+  'Avisos': 'Alerts',
   'Verificaci\u00f3n de acceso': 'Access verification',
   'ESTUDIANTES Y JURADOS INTERNOS': 'STUDENTS AND INTERNAL JURORS',
   'ACCESO DE JURADO': 'JURY ACCESS',
@@ -98,4 +102,6 @@ const appTranslations = <String, String>{
   ...authTranslations,
   ...juryTranslations,
   ...teachingTranslations,
+  ...studentProjectsTranslations,
+  ...accountTranslations,
 };

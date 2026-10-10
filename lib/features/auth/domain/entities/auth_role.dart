@@ -11,6 +11,11 @@ class AuthRole {
   static const String admin = 'ADMIN';
   static const String superAdmin = 'SUPERADMIN';
 
+  /// Roles que trabajan en el panel de jurado: el jurado externo (contraseña)
+  /// y el docente asignado como jurado interno (código por correo). El
+  /// backend ya autoriza a ambos en votación y rúbricas.
+  static bool usesJuryPanel(String? role) => role == jury || role == teacher;
+
   /// Etiqueta legible para la pantalla de perfil.
   static String label(String? role) => switch (role) {
         jury => 'Jurado',

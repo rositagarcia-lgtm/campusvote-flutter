@@ -3,6 +3,7 @@ import 'package:campusvote_flutter/core/theme/app_theme.dart';
 import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
 
 void main() {
   testWidgets('selección de acceso mantiene acciones y texto ampliado',
@@ -36,8 +37,8 @@ void main() {
                     ),
                     const SizedBox(height: AppSpacing.l),
                     AccessCard(
-                      icon: Icons.school_outlined,
-                      actionIcon: Icons.mail_outline_rounded,
+                      icon: PhosphorIconsRegular.graduationCap,
+                      actionIcon: PhosphorIconsRegular.envelopeSimple,
                       accent: Colors.teal,
                       title: 'Estudiante',
                       subtitle:
@@ -55,6 +56,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: 'ancho $width');
       expect(find.text('Elige cómo participar'), findsOneWidget);
+      await tester.ensureVisible(find.text('Continuar con mi correo'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Continuar con mi correo'));
       expect(selected, 'student');
     }

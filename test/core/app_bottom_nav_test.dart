@@ -31,7 +31,10 @@ void main() {
       for (final brightness in [Brightness.light, Brightness.dark]) {
         for (final size in AppTextSize.values) {
           for (final language in AppLanguage.values) {
-            for (final selectedIndex in [0, 1]) {
+            for (final (selectedIndex, current) in [
+              (0, AppNavDestination.panel),
+              (1, AppNavDestination.account),
+            ]) {
               tester.view.physicalSize = dimensions;
               tester.view.devicePixelRatio = 1;
               await tester.pumpWidget(ProviderScope(
@@ -67,7 +70,7 @@ void main() {
                       ],
                     ),
                     bottomNavigationBar:
-                        AppBottomNav(selectedIndex: selectedIndex),
+                        AppBottomNav(current: current),
                   ),
                 ),
               ));
@@ -75,17 +78,23 @@ void main() {
 
               final body =
                   tester.getRect(find.byKey(const ValueKey('long-scroll')));
-              final surface = tester.getRect(find.byType(NavigationBar));
-              final destinations = find.byType(NavigationDestination);
+              final nav = find.byType(AppBottomNav);
+              final surface = tester.getRect(nav);
+              final destinations = find.descendant(
+                of: nav,
+                matching: find.byType(InkWell),
+              );
               expect(body.bottom, lessThanOrEqualTo(surface.top + 0.01));
               expect(surface.left, greaterThanOrEqualTo(0));
               expect(surface.right, lessThanOrEqualTo(dimensions.width));
               expect(destinations, findsNWidgets(2));
-              expect(
-                  tester
-                      .widget<NavigationBar>(find.byType(NavigationBar))
-                      .selectedIndex,
-                  selectedIndex);
+              final selectedItem = tester.widget<Semantics>(find
+                  .ancestor(
+                    of: destinations.at(selectedIndex),
+                    matching: find.byType(Semantics),
+                  )
+                  .first);
+              expect(selectedItem.properties.selected, isTrue);
               expect(tester.getRect(destinations.first).bottom,
                   lessThanOrEqualTo(dimensions.height - 24));
               expect(tester.takeException(), isNull);

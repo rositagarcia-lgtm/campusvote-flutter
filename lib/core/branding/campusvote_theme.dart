@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/brand_colors.dart';
 
 /// Fuerza la identidad de CampusVote dentro de una subpantalla.
 ///
@@ -25,18 +26,14 @@ class CampusVoteTheme extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // El dorado es claro: necesita tinta oscura encima, el verde no.
-    final onAccent =
-        accent.computeLuminance() > 0.52 ? AppColors.ink : AppColors.inkInverse;
+    final onAccent = BrandContrast.onColor(accent);
     final scheme = Theme.of(context).colorScheme;
 
     return Theme(
       data: Theme.of(context).copyWith(
         colorScheme: scheme.copyWith(
           primary: AppColors.primary,
-          onPrimary: AppColors.primary.computeLuminance() > 0.52
-              ? AppColors.ink
-              : AppColors.inkInverse,
+          onPrimary: BrandContrast.onColor(AppColors.primary),
           secondary: AppColors.accent,
           onSecondary: AppColors.ink,
         ),

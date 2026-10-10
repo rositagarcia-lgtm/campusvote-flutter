@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_icons.dart';
+import '../../../../core/theme/brand_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_badge.dart';
@@ -109,7 +110,7 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
                     padding: const EdgeInsets.all(AppSpacing.l),
                     children: [
                       NoticeBanner(
-                        icon: Icons.info_outline_rounded,
+                        icon: PhosphorIconsRegular.info,
                         tone: AppTone.info,
                         message: text.t(
                             'Escanea este QR con Google Authenticator, Microsoft Authenticator o similar.'),
@@ -132,7 +133,7 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
                       const SizedBox(height: AppSpacing.l),
                       AppButton(
                         label: text.t('Activar 2FA'),
-                        icon: Icons.verified_user_rounded,
+                        icon: PhosphorIconsFill.shieldCheck,
                         isLoading: _verifying,
                         onPressed: _verifying ? null : _verify,
                       ),
@@ -140,9 +141,9 @@ class _TotpSetupPageState extends ConsumerState<TotpSetupPage> {
                       AppBadge(
                         label: text.t(
                             'Después de activar, en cada login el sistema te pedirá el OTP además de tu contraseña.'),
-                        background: AppColors.primarySoft,
-                        foreground: AppColors.primary,
-                        icon: Icons.lock_outline,
+                        background: context.brandPrimarySoft,
+                        foreground: context.brandPrimary,
+                        icon: PhosphorIconsRegular.lockSimple,
                       ),
                     ],
                   ),

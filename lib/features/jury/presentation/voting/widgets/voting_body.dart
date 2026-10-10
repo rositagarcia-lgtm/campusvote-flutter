@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_button.dart';
+import '../../../../../core/widgets/app_motion.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_notice.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
@@ -74,7 +76,7 @@ class VotingBody extends StatelessWidget {
                   message:
                       'La votación está cerrada: la feria no está abierta.',
                   tone: AppTone.warning,
-                  icon: Icons.lock_rounded,
+                  icon: PhosphorIconsFill.lockSimple,
                 ),
               if (state.errorMessage != null) ...[
                 const SizedBox(height: AppSpacing.m),
@@ -91,13 +93,13 @@ class VotingBody extends StatelessWidget {
                       'No se pudo confirmar la respuesta del servidor. Consulta '
                       'el estado antes de volver a votar.',
                   tone: AppTone.warning,
-                  icon: Icons.cloud_sync_outlined,
+                  icon: PhosphorIconsRegular.cloudArrowUp,
                   liveRegion: true,
                 ),
                 const SizedBox(height: AppSpacing.s),
                 AppButton.outlined(
                   label: 'Consultar estado de votación',
-                  icon: Icons.refresh_rounded,
+                  icon: PhosphorIconsRegular.arrowClockwise,
                   onPressed: state.loading ? null : controller.refreshStatus,
                   isLoading: state.loading,
                 ),
@@ -118,7 +120,8 @@ class VotingBody extends StatelessWidget {
       return AppCard(
         child: Column(
           children: [
-            Icon(Icons.inventory_2_outlined, color: theme.colorScheme.primary),
+            Icon(PhosphorIconsRegular.archive,
+                color: theme.colorScheme.primary),
             const SizedBox(height: AppSpacing.s),
             Text(
               'No hay proyectos disponibles',
@@ -147,12 +150,15 @@ class VotingBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s),
-        for (final project in state.projects) ...[
-          VotingProjectOption(
-            project: project,
-            selected: state.selectedProjectId == project.id,
-            enabled: state.canVote,
-            onTap: () => controller.select(project.id),
+        for (var i = 0; i < state.projects.length; i++) ...[
+          AppMotion.reveal(
+            i,
+            VotingProjectOption(
+              project: state.projects[i],
+              selected: state.selectedProjectId == state.projects[i].id,
+              enabled: state.canVote,
+              onTap: () => controller.select(state.projects[i].id),
+            ),
           ),
           const SizedBox(height: AppSpacing.s),
         ],
@@ -171,7 +177,7 @@ class VotingBody extends StatelessWidget {
           label: state.selectedProjectId == null
               ? 'Selecciona un proyecto para continuar'
               : 'Revisar y confirmar voto',
-          icon: Icons.how_to_vote_rounded,
+          icon: PhosphorIconsFill.checkSquareOffset,
           onPressed: state.canVote && state.selectedProjectId != null
               ? () => _confirmVote(context)
               : null,
