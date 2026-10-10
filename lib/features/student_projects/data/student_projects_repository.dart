@@ -6,6 +6,8 @@ import '../../../core/di/core_providers.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/errors/result.dart';
 import '../../../core/network/api_client.dart';
+import '../../auth/domain/entities/auth_role.dart';
+import '../../auth/presentation/state/auth_controller.dart';
 import '../domain/student_project.dart';
 
 class StudentProjectsRepository {
@@ -73,6 +75,11 @@ final studentProjectsRepositoryProvider = Provider<StudentProjectsRepository>(
 /// Proyectos de feria del alumno; se vuelve a pedir con `ref.invalidate`.
 final studentProjectsProvider =
     FutureProvider.autoDispose<List<StudentProject>>((ref) async {
+  // Solo un alumno con sesión tiene proyectos propios: sin esto la barra
+  // inferior pedía /projects/mine tras cerrar sesión y recibía 401.
+  final isStudent = ref.watch(authControllerProvider
+      .select((s) => s.authenticated && s.user?.role == AuthRole.student));
+  if (!isStudent) return const [];
   final result =
       await ref.watch(studentProjectsRepositoryProvider).myProjects();
   return result.when(success: (d) => d, failure: (f) => throw f);

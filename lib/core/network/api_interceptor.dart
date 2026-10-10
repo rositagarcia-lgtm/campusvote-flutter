@@ -56,10 +56,18 @@ class AuthInterceptor extends Interceptor {
   ) async {
     final options = response.requestOptions;
     final alreadyRetried = options.extra['retry'] == true;
-    final isRefreshCall = options.path.contains('/auth/refresh') ||
-        options.path.contains('/auth/login');
+    // Sin sesión no hay nada que refrescar ni cerrar. Y el propio logout no
+    // puede disparar otro logout: un 401 suyo (token ya borrado) provocaba un
+    // bucle de POST /auth/logout varias veces por segundo.
+    final isAuthCall = options.path.contains('/auth/refresh') ||
+        options.path.contains('/auth/login') ||
+        options.path.contains('/auth/logout');
+    final hadSession = options.headers.containsKey('Authorization');
 
-    if (response.statusCode == 401 && !alreadyRetried && !isRefreshCall) {
+    if (response.statusCode == 401 &&
+        !alreadyRetried &&
+        !isAuthCall &&
+        hadSession) {
       final ok = await _refreshTokenSafely();
       if (ok) {
         final retryOptions = options..extra['retry'] = true;
