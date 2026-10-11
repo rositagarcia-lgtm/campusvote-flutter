@@ -4,11 +4,17 @@ class EvaluationCriterion {
   final String name;
   final String? description;
 
+  /// `null` = criterio general de la sede (aplica a todas sus carreras).
+  final String? careerId;
+
   const EvaluationCriterion({
     required this.id,
     required this.name,
     this.description,
+    this.careerId,
   });
+
+  bool get isGeneral => careerId == null;
 }
 
 /// Evaluación del alumno para una asignación. Se guarda como borrador mientras

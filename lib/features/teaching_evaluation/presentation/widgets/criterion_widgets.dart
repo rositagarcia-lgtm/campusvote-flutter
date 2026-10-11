@@ -149,3 +149,29 @@ class CriterionRatingCard extends StatelessWidget {
     );
   }
 }
+
+/// Encabezado de grupo de criterios (generales de la sede / de la carrera).
+class CriteriaGroupTitle extends StatelessWidget {
+  const CriteriaGroupTitle({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.s, bottom: AppSpacing.s),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title.toUpperCase(),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.2,
+          ),
+        ),
+      ),
+    );
+  }
+}

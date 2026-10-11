@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:campusvote_flutter/features/teaching_evaluation/domain/entities/teacher_evaluation_form.dart';
+
 import 'fake_teaching_repository.dart';
 
 class _FixedTeachingListController extends TeachingListController {
@@ -87,6 +89,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(repository.submitCalls, 0);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('agrupa los criterios generales de la sede y los de la carrera',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 900));
+    addTearDown(() async => tester.binding.setSurfaceSize(null));
+    final repository = FakeTeachingRepository()
+      ..criteria = const [
+        EvaluationCriterion(
+            id: 'c-3', name: 'Uso del laboratorio', careerId: 'career-1'),
+        EvaluationCriterion(id: 'c-1', name: 'Puntualidad'),
+      ];
+    await tester.pumpWidget(_page(390, repository));
+    await tester.pumpAndSettle();
+
+    expect(find.text('GENERALES DE LA SEDE'), findsOneWidget);
+    expect(find.text('DE TU CARRERA'), findsOneWidget);
+    // Los generales van primero.
+    expect(find.text('1. Puntualidad'), findsOneWidget);
+    expect(find.text('2. Uso del laboratorio'), findsOneWidget);
   });
 }
 

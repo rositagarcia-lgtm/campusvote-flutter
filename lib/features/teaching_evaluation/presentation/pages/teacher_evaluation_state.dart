@@ -38,6 +38,17 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
     }
   }
 
+  /// Título del grupo al empezar los generales o los de la carrera; solo si
+  /// la rúbrica tiene de ambos tipos.
+  String? _groupTitle(List<EvaluationCriterion> criteria, int index) {
+    final mixed =
+        criteria.any((c) => c.isGeneral) && criteria.any((c) => !c.isGeneral);
+    if (!mixed) return null;
+    final current = criteria[index].isGeneral;
+    if (index > 0 && criteria[index - 1].isGeneral == current) return null;
+    return current ? 'Generales de la sede' : 'De tu carrera';
+  }
+
   Future<void> _checkStatus() async {
     final ok = await _controller.checkStatus();
     if (ok && mounted) {
@@ -238,6 +249,8 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                     ),
                     const SizedBox(height: AppSpacing.l),
                     for (var i = 0; i < state.criteria.length; i++) ...[
+                      if (_groupTitle(state.criteria, i) case final title?)
+                        CriteriaGroupTitle(title: title),
                       AppMotion.reveal(
                         i + 1,
                         CriterionRatingCard(

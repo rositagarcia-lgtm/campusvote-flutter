@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../domain/entities/teacher_evaluation_form.dart';
 import '../../domain/entities/teaching_assignment.dart';
 import '../state/evaluate_controller.dart';
 import '../state/teaching_list_controller.dart';

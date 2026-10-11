@@ -127,7 +127,11 @@ class EvaluateTeacherController extends StateNotifier<EvaluateState> {
       state = state.copyWith(
         loading: false,
         loaded: true,
-        criteria: criteria.dataOrNull,
+        // Primero los generales de la sede, luego los de la carrera.
+        criteria: [
+          ...?criteria.dataOrNull?.where((c) => c.isGeneral),
+          ...?criteria.dataOrNull?.where((c) => !c.isGeneral),
+        ],
         scores: saved?.scores ?? const {},
         draftId: saved?.id,
         initialComment: saved?.comment ?? '',

@@ -9,7 +9,8 @@ import 'package:go_router/go_router.dart';
 import '../../domain/entities/teaching_assignment.dart';
 
 class TeacherEvaluationReviewLine extends StatelessWidget {
-  const TeacherEvaluationReviewLine({super.key, required this.label, required this.value});
+  const TeacherEvaluationReviewLine(
+      {super.key, required this.label, required this.value});
 
   final String label;
   final String value;
@@ -81,7 +82,8 @@ class TeacherEvaluationHeader extends StatelessWidget {
 }
 
 class UnavailableEvaluationView extends StatelessWidget {
-  const UnavailableEvaluationView({super.key, required this.title, required this.message});
+  const UnavailableEvaluationView(
+      {super.key, required this.title, required this.message});
 
   final String title;
   final String message;

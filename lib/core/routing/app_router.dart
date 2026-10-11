@@ -28,6 +28,7 @@ import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
 import '../../features/student_projects/presentation/student_project_detail_page.dart';
 import '../../features/student_projects/presentation/student_projects_page.dart';
+import '../../features/teacher_results/presentation/teacher_results_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
 import 'legacy_jury_routes.dart';
 import 'role_landing.dart';
@@ -109,6 +110,11 @@ GoRouter buildAppRouter(
         if ((opensJuryPanel && !isJury) || (opensStudentPanel && !isStudent)) {
           return landingPathForRole(auth.user?.role);
         }
+        // El jurado externo no es docente: no tiene evaluación propia.
+        if (loc.startsWith('/jury/my-evaluation') &&
+            auth.user?.role != AuthRole.teacher) {
+          return '/jury';
+        }
       }
       return null;
     },
@@ -182,6 +188,11 @@ GoRouter buildAppRouter(
         path: '/jury',
         pageBuilder: (_, s) => _tabPage(s, const JuryDashboardPage()),
         routes: [
+          // Resultados de la evaluación docente: solo el rol TEACHER.
+          GoRoute(
+            path: 'my-evaluation',
+            pageBuilder: (_, s) => _tabPage(s, const TeacherResultsPage()),
+          ),
           GoRoute(
             path: 'notifications',
             builder: (_, __) => const NotificationsPage(),

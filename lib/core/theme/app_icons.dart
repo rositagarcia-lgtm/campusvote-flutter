@@ -68,6 +68,10 @@ abstract final class PhosphorIconsRegular {
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const chartBar = IconData(0xe150,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const chatCircle = IconData(0xe168,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
@@ -284,6 +288,10 @@ abstract final class PhosphorIconsRegular {
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const target = IconData(0xe47c,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const timer = IconData(0xe492,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
@@ -297,6 +305,10 @@ abstract final class PhosphorIconsRegular {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const userCircle = IconData(0xe4c4,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const usersThree = IconData(0xe68e,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
@@ -325,6 +337,10 @@ abstract final class PhosphorIconsFill {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const calendarDots = IconData(0xe7b4,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const chartBar = IconData(0xe150,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
@@ -361,6 +377,10 @@ abstract final class PhosphorIconsFill {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const medal = IconData(0xe320,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const quotes = IconData(0xe660,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);

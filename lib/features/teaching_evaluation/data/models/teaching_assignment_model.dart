@@ -56,10 +56,12 @@ class TeachingAssignmentModel {
 /// Criterio de `GET /evaluation-criteria`.
 EvaluationCriterion criterionFromJson(Map<String, dynamic> json) {
   final description = _text(json['description']).trim();
+  final careerId = _text(json['careerId']).trim();
   return EvaluationCriterion(
     id: _text(json['id']),
     name: _text(json['name']),
     description: description.isEmpty ? null : description,
+    careerId: careerId.isEmpty ? null : careerId,
   );
 }
 

@@ -13,7 +13,7 @@ import '../theme/app_dimensions.dart';
 /// Destinos de la barra inferior. Cada panel declara el suyo; la barra
 /// decide qué pestañas existen según el rol (y, para el alumno, si tiene
 /// proyectos de feria).
-enum AppNavDestination { panel, projects, account }
+enum AppNavDestination { panel, projects, results, account }
 
 class AppNavTab {
   const AppNavTab({
@@ -49,6 +49,9 @@ class AppBottomNav extends ConsumerWidget {
       authControllerProvider
           .select((s) => AuthRole.usesJuryPanel(s.user?.role)),
     );
+    final isTeacher = ref.watch(
+      authControllerProvider.select((s) => s.user?.role == AuthRole.teacher),
+    );
     final hasProjects = !isJury && ref.watch(hasStudentProjectsProvider);
     final text = SettingsCopy.of(context);
 
@@ -71,6 +74,15 @@ class AppBottomNav extends ConsumerWidget {
           label: text.t('Mis proyectos'),
           icon: PhosphorIconsRegular.storefront,
           selectedIcon: PhosphorIconsFill.storefront,
+        ),
+      // El docente interno ve cómo le fue en la evaluación de sus alumnos.
+      if (isTeacher)
+        AppNavTab(
+          destination: AppNavDestination.results,
+          path: '/jury/my-evaluation',
+          label: text.t('Mi evaluación'),
+          icon: PhosphorIconsRegular.chartBar,
+          selectedIcon: PhosphorIconsFill.chartBar,
         ),
       AppNavTab(
         destination: AppNavDestination.account,
