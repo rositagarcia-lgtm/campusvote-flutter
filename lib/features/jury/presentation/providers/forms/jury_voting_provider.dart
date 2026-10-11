@@ -33,11 +33,22 @@ class VotingFormController extends StateNotifier<VotingFormState> {
         repo.getVotingStatus(fairId),
         repo.getFairProjects(fairId),
       ]);
+      // El repositorio entrega los proyectos paginados: tratarlos como
+      // `List` lanzaba un TypeError y la pantalla mostraba "No se pudo
+      // completar la operación" sin llegar a cargar la votación.
+      final first = results[1] as PaginatedResult<FairProjectModel>;
+      final all = [...first.items];
+      for (var page = 2; page <= first.totalPages; page++) {
+        all.addAll((await repo.getFairProjects(fairId, page: page)).items);
+      }
       state = state.copyWith(
         loading: false,
         requiresStatusRefresh: false,
         status: results[0] as VotingStatusModel,
-        projects: results[1] as List<FairProjectModel>,
+        // El servidor solo acepta votos por proyectos aprobados.
+        projects: all
+            .where((p) => p.status == 'APPROVED')
+            .toList(growable: false),
       );
     } catch (e) {
       state =
