@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
-import '../../../../../core/branding/organization_branding.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_motion.dart';
 import '../../../../../core/widgets/app_card.dart';
@@ -25,14 +24,12 @@ class VotingBody extends StatelessWidget {
   const VotingBody({
     super.key,
     required this.fairName,
-    required this.branding,
     required this.state,
     required this.controller,
     required this.onSubmitted,
   });
 
   final String? fairName;
-  final OrganizationBranding branding;
   final VotingFormState state;
   final VotingFormController controller;
   final VoidCallback onSubmitted;
@@ -58,7 +55,6 @@ class VotingBody extends StatelessWidget {
               AppMotion.reveal(
                 0,
                 VotingHero(
-                  branding: branding,
                   fairName: fairName,
                   status: status,
                 ),

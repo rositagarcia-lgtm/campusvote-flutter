@@ -1,100 +1,57 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/branding/organization_branding.dart';
 import '../../../../../core/config/app_env.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/brand_colors.dart';
-import '../../../../../core/widgets/app_logo.dart';
 import '../../../../../core/widgets/app_motion.dart';
 import '../../../data/models/jury_models.dart';
 import '../../widgets/voting_countdown.dart';
 
-/// Cabecera de la votación con la identidad de la organización: se siente
-/// como el momento oficial de la feria, no como un formulario más.
+/// Encabezado de la votación.
+///
+/// La barra superior ya muestra logo, organización y "Votación oficial"; aquí
+/// solo va lo que falta: qué feria se vota, la regla del voto y el tiempo.
 class VotingHero extends StatelessWidget {
-  const VotingHero({
-    super.key,
-    required this.branding,
-    required this.fairName,
-    required this.status,
-  });
+  const VotingHero({super.key, required this.fairName, required this.status});
 
-  final OrganizationBranding branding;
   final String? fairName;
   final VotingStatusModel status;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final onBrand = BrandContrast.onColor(theme.colorScheme.primary);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
-        borderRadius: AppRadii.rXLarge,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: AppRadii.rMedium,
-                ),
-                child: AppLogo.organization(
-                  logoUrl: branding.logoUrl,
-                  organizationCode: branding.name,
-                  size: 36,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.m),
-              Expanded(
-                child: Text(
-                  'VOTACIÓN OFICIAL · ${branding.name.toUpperCase()}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: onBrand.withValues(alpha: 0.85),
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ],
+    final scheme = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          fairName ?? 'Votación de la feria',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            height: 1.2,
           ),
-          const SizedBox(height: AppSpacing.m),
-          Text(
-            fairName ?? 'Votación de la feria',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: onBrand,
-              fontWeight: FontWeight.w800,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Un voto por jurado. Es anónimo y no se puede cambiar.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: onBrand.withValues(alpha: 0.85),
-            ),
-          ),
-          if (status.endsAt != null || status.startsAt != null) ...[
-            const SizedBox(height: AppSpacing.m),
-            DefaultTextStyle.merge(
-              style: TextStyle(color: onBrand),
-              child: VotingCountdown(
-                endsAt: status.endsAt,
-                startsAt: status.startsAt,
+        ),
+        const SizedBox(height: AppSpacing.s),
+        Row(
+          children: [
+            Icon(PhosphorIconsRegular.lockSimple,
+                size: 16, color: scheme.onSurfaceVariant),
+            const SizedBox(width: AppSpacing.xs + 2),
+            Expanded(
+              child: Text(
+                'Un voto por jurado · anónimo · no se puede cambiar',
+                style: theme.textTheme.bodySmall,
               ),
             ),
           ],
+        ),
+        if (status.endsAt != null || status.startsAt != null) ...[
+          const SizedBox(height: AppSpacing.m),
+          VotingCountdown(endsAt: status.endsAt, startsAt: status.startsAt),
         ],
-      ),
+      ],
     );
   }
 }

@@ -44,7 +44,6 @@ class VotingPage extends ConsumerWidget {
                 )
               : VotingBody(
                   fairName: _fairName(ref),
-                  branding: ref.watch(brandingControllerProvider),
                   state: state,
                   controller: controller,
                   // El estado de voting es la fuente de la fecha del voto en
