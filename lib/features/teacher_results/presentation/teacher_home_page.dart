@@ -11,6 +11,7 @@ import '../../../core/widgets/organization_panel_app_bar.dart';
 import '../../auth/presentation/state/auth_controller.dart';
 import '../../jury/presentation/providers/jury_providers.dart';
 import '../../notifications/presentation/widgets/notifications_bell.dart';
+import '../data/adviser_projects_repository.dart';
 import '../data/teacher_results_repository.dart';
 import '../domain/teacher_results.dart';
 
@@ -28,10 +29,12 @@ class TeacherHomePage extends ConsumerWidget {
             '';
     final results = ref.watch(teacherResultsProvider);
     final fairs = ref.watch(juryDashboardProvider);
+    final advised = ref.watch(adviserProjectsProvider);
     final theme = Theme.of(context);
 
     Future<void> reload() async {
       ref.invalidate(teacherResultsProvider);
+      ref.invalidate(adviserProjectsProvider);
       await ref.read(juryDashboardProvider.notifier).reload();
     }
 
@@ -58,6 +61,17 @@ class TeacherHomePage extends ConsumerWidget {
                 ? 'No tienes ferias asignadas. Si la organización te elige como jurado, aparecerán aquí.'
                 : '${assigned.length} feria${assigned.length == 1 ? '' : 's'} asignada${assigned.length == 1 ? '' : 's'}'
                     '${open > 0 ? ' · $open abierta${open == 1 ? '' : 's'}' : ''}';
+
+    final advisedList = advised.valueOrNull ?? const [];
+    final pendingAdvice = advisedList.where((p) => p.statusLabel.$2).length;
+    final adviserSubtitle = advised.isLoading
+        ? 'Consultando tus proyectos…'
+        : advised.hasError
+            ? 'No pudimos consultar tus proyectos.'
+            : advisedList.isEmpty
+                ? 'Aún no asesoras proyectos en ferias.'
+                : '${advisedList.length} proyecto${advisedList.length == 1 ? '' : 's'}'
+                    '${pendingAdvice > 0 ? ' · $pendingAdvice por atender' : ''}';
 
     return Scaffold(
       appBar: OrganizationPanelAppBar(
@@ -87,8 +101,8 @@ class TeacherHomePage extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Revisa cómo te evaluaron tus alumnos y, si te asignaron, '
-                      'tus ferias como jurado.',
+                      'Revisa cómo te evaluaron tus alumnos, los proyectos que '
+                      'asesoras y, si te asignaron, tus ferias como jurado.',
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.xl),
@@ -104,6 +118,16 @@ class TeacherHomePage extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.s),
                     AppMotion.reveal(
                       2,
+                      _HomeCard(
+                        icon: PhosphorIconsRegular.folderUser,
+                        title: 'Proyectos que asesoro',
+                        subtitle: adviserSubtitle,
+                        onTap: () => context.go('/teacher/projects'),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s),
+                    AppMotion.reveal(
+                      3,
                       _HomeCard(
                         icon: PhosphorIconsRegular.gavel,
                         title: 'Jurado de ferias',

@@ -30,6 +30,7 @@ import '../../features/student_projects/presentation/student_project_detail_page
 import '../../features/student_projects/presentation/student_projects_page.dart';
 import '../../features/fair_audience/presentation/audience_projects_page.dart';
 import '../../features/fair_audience/presentation/explore_fairs_page.dart';
+import '../../features/teacher_results/presentation/adviser_projects_page.dart';
 import '../../features/teacher_results/presentation/teacher_home_page.dart';
 import '../../features/teacher_results/presentation/teacher_results_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
@@ -200,6 +201,10 @@ GoRouter buildAppRouter(
           GoRoute(
             path: 'evaluation',
             pageBuilder: (_, s) => _tabPage(s, const TeacherResultsPage()),
+          ),
+          GoRoute(
+            path: 'projects',
+            builder: (_, __) => const AdviserProjectsPage(),
           ),
         ],
       ),
