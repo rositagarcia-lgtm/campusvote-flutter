@@ -28,6 +28,8 @@ import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation
 import '../../features/teaching_evaluation/presentation/pages/teacher_evaluation_success_page.dart';
 import '../../features/student_projects/presentation/student_project_detail_page.dart';
 import '../../features/student_projects/presentation/student_projects_page.dart';
+import '../../features/fair_audience/presentation/audience_projects_page.dart';
+import '../../features/fair_audience/presentation/explore_fairs_page.dart';
 import '../../features/teacher_results/presentation/teacher_results_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
 import 'legacy_jury_routes.dart';
@@ -234,6 +236,18 @@ GoRouter buildAppRouter(
         path: '/teaching',
         pageBuilder: (_, s) => _tabPage(s, const TeachingHomePage()),
         routes: [
+          // Público de la feria: el alumno califica y comenta proyectos.
+          GoRoute(
+            path: 'explore',
+            pageBuilder: (_, s) => _tabPage(s, const ExploreFairsPage()),
+            routes: [
+              GoRoute(
+                path: ':fairId',
+                builder: (_, s) =>
+                    AudienceProjectsPage(fairId: s.pathParameters['fairId']!),
+              ),
+            ],
+          ),
           // Proyectos de feria del alumno: módulo propio, separado del jurado.
           GoRoute(
             path: 'projects',

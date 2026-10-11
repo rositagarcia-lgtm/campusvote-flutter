@@ -12,6 +12,8 @@ import '../../../core/widgets/app_notice.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/translatable_text.dart';
 import '../../settings/presentation/settings_copy.dart';
+import '../../fair_audience/data/fair_audience_repository.dart';
+import '../../fair_audience/presentation/peer_feedback_section.dart';
 import '../data/student_projects_repository.dart';
 import '../domain/student_project.dart';
 import 'widgets/project_visuals.dart';
@@ -109,6 +111,14 @@ class StudentProjectDetailPage extends ConsumerWidget {
           ],
         ),
       ),
+      if (project.fair != null)
+        _Section(
+          title: text.t('Opinión de tus compañeros'),
+          child: PeerFeedbackSection(
+            fairId: project.fair!.id,
+            projectId: project.id,
+          ),
+        ),
       _Section(
         title: text.t('Valoración del jurado'),
         child: project.hasFeedback
@@ -125,6 +135,11 @@ class StudentProjectDetailPage extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(projectFeedbackProvider(project));
+          final fairId = project.fair?.id;
+          if (fairId != null) {
+            ref.invalidate(
+                peerFeedbackProvider((fairId: fairId, projectId: project.id)));
+          }
           await ref
               .refresh(studentProjectsProvider.future)
               .catchError((_) => const <StudentProject>[]);

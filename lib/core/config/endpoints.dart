@@ -42,6 +42,15 @@ class ApiEndpoints {
   static String evaluationResponseSubmit(String id) =>
       '/api/academic/evaluation-responses/$id/submit';
 
+  // Opinión del público: el alumno califica proyectos (no es jurado)
+  static const String audienceFairs = '/api/fairs/audience/fairs';
+  static String audienceProjects(String fairId) =>
+      '/api/fairs/$fairId/audience/projects';
+  static String audienceRating(String fairId, String projectId) =>
+      '/api/fairs/$fairId/projects/$projectId/audience-rating';
+  static String audienceFeedback(String fairId, String projectId) =>
+      '/api/fairs/$fairId/projects/$projectId/audience-feedback';
+
   // Proyectos de feria del alumno (solo los suyos, filtrado en el servidor)
   static const String myStudentProjects = '/api/projects/mine';
 

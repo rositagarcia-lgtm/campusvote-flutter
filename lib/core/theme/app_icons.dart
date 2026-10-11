@@ -112,6 +112,10 @@ abstract final class PhosphorIconsRegular {
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const compass = IconData(0xe1c8,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const copy = IconData(0xe1ca,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
@@ -353,6 +357,10 @@ abstract final class PhosphorIconsFill {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const clipboardText = IconData(0xe198,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const compass = IconData(0xe1c8,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
