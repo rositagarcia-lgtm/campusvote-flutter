@@ -7,6 +7,9 @@ class VotingStatusModel {
     required this.fairStatus,
     required this.hasVoted,
     this.votedAt,
+    this.window,
+    this.startsAt,
+    this.endsAt,
   });
 
   final String fairId;
@@ -14,17 +17,32 @@ class VotingStatusModel {
   final bool hasVoted;
   final DateTime? votedAt;
 
-  /// El voto solo se emite con la feria OPEN y sin haber votado.
+  /// `voting_window` del backend: FAIR_NOT_OPEN · NOT_STARTED · OPEN · ENDED.
+  /// Es el mismo criterio con el que el servidor acepta o rechaza el voto;
+  /// backends anteriores no lo envían y entonces solo se mira el estado.
+  final String? window;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+
   bool get isOpen => fairStatus == FairStatus.open;
-  bool get canVote => isOpen && !hasVoted;
+  bool get notStarted => window == 'NOT_STARTED';
+  bool get ended => window == 'ENDED';
+
+  /// Sin la ventana horaria, el botón se habilitaba antes del inicio y el
+  /// voto volvía con 409 "La votación empieza cuando inicia la feria".
+  bool get canVote =>
+      isOpen && !hasVoted && (window == null || window == 'OPEN');
 
   factory VotingStatusModel.fromJson(Map<String, dynamic> json) =>
       VotingStatusModel(
         fairId: parseText(json['fair_id'] ?? json['fairId']) ?? '',
-        fairStatus:
-            parseFairStatus(parseText(json['fair_status'] ?? json['fairStatus'])),
+        fairStatus: parseFairStatus(
+            parseText(json['fair_status'] ?? json['fairStatus'])),
         hasVoted: (json['has_voted'] ?? json['hasVoted'] ?? false) == true,
         votedAt: parseDate(json['voted_at'] ?? json['votedAt']),
+        window: parseText(json['voting_window']),
+        startsAt: parseDate(json['starts_at']),
+        endsAt: parseDate(json['ends_at']),
       );
 }
 
@@ -38,7 +56,8 @@ class VoteReceiptModel {
   factory VoteReceiptModel.fromJson(Map<String, dynamic> json) =>
       VoteReceiptModel(
         status: parseText(json['status']) ?? 'CAST',
-        receiptCode: parseText(json['receipt_code'] ?? json['receiptCode']) ?? '',
+        receiptCode:
+            parseText(json['receipt_code'] ?? json['receiptCode']) ?? '',
       );
 }
 

@@ -1,6 +1,7 @@
 // voting/widgets/voting_body.dart
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
@@ -75,6 +76,21 @@ class VotingBody extends StatelessWidget {
                 const NoticeBanner(
                   message:
                       'La votación está cerrada: la feria no está abierta.',
+                  tone: AppTone.warning,
+                  icon: PhosphorIconsFill.lockSimple,
+                )
+              else if (status.notStarted)
+                NoticeBanner(
+                  message: status.startsAt == null
+                      ? 'La votación empieza cuando inicia la feria.'
+                      : 'La votación abre el ${_when(context, status.startsAt!)}. '
+                          'Puedes revisar los proyectos mientras tanto.',
+                  tone: AppTone.info,
+                  icon: PhosphorIconsRegular.clock,
+                )
+              else if (status.ended)
+                const NoticeBanner(
+                  message: 'El período de votación de esta feria terminó.',
                   tone: AppTone.warning,
                   icon: PhosphorIconsFill.lockSimple,
                 ),
@@ -200,4 +216,11 @@ class VotingBody extends StatelessWidget {
     await controller.submit();
     onSubmitted();
   }
+}
+
+/// Fecha y hora local legible ("10/10/2026 22:00").
+String _when(BuildContext context, DateTime date) {
+  final local = date.toLocal();
+  final locale = Localizations.localeOf(context).toLanguageTag();
+  return DateFormat.yMd(locale).add_Hm().format(local);
 }
