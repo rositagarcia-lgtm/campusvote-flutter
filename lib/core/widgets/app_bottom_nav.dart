@@ -57,10 +57,14 @@ class AppBottomNav extends ConsumerWidget {
       authControllerProvider.select((s) => s.user?.role == AuthRole.student),
     );
     final hasProjects = !isJury && ref.watch(hasStudentProjectsProvider);
-    // Pocos docentes son jurados: la pestaña de ferias solo aparece si la
-    // organización lo asignó a alguna.
+    // Pocos docentes son jurados: la pestaña solo aparece mientras tiene
+    // una feria abierta. Antes y después se llega desde su panel.
     final teacherIsJury = isTeacher &&
-        (ref.watch(juryDashboardProvider).valueOrNull?.isNotEmpty ?? false);
+        (ref
+                .watch(juryDashboardProvider)
+                .valueOrNull
+                ?.any((fair) => fair.isOpen) ??
+            false);
     final text = SettingsCopy.of(context);
 
     final tabs = <AppNavTab>[

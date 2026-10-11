@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/branding/branding_controller.dart';
@@ -15,6 +16,8 @@ import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../auth/domain/entities/auth_role.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_dashboard_progress.dart';
 import '../providers/jury_providers.dart';
@@ -29,14 +32,25 @@ class JuryDashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fairs = ref.watch(juryDashboardProvider);
     final branding = ref.watch(brandingControllerProvider);
+    // El docente es jurado solo en algunas ferias: aquí está en "modo jurado"
+    // y siempre puede volver a su panel docente.
+    final isTeacher = ref.watch(
+      authControllerProvider.select((s) => s.user?.role == AuthRole.teacher),
+    );
 
     return Scaffold(
       appBar: OrganizationPanelAppBar(
         branding: branding,
-        section: 'Panel del jurado',
+        section: isTeacher ? 'Modo jurado' : 'Panel del jurado',
         // Avisos y cuenta ya son pestañas de la barra inferior; aquí solo
         // queda la acción propia de esta vista.
         actions: [
+          if (isTeacher)
+            IconButton(
+              tooltip: 'Volver a mi panel docente',
+              icon: const Icon(PhosphorIconsRegular.house),
+              onPressed: () => context.go('/teacher'),
+            ),
           const NotificationsBell(),
           IconButton(
             tooltip: 'Actualizar ferias',

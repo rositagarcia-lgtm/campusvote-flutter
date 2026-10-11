@@ -13,6 +13,7 @@ import '../../jury/presentation/providers/jury_providers.dart';
 import '../../notifications/presentation/widgets/notifications_bell.dart';
 import '../data/adviser_projects_repository.dart';
 import '../data/teacher_results_repository.dart';
+import 'jury_mode_card.dart';
 import '../domain/teacher_results.dart';
 
 /// `/teacher` — inicio del docente. Todos ven su evaluación; el bloque de
@@ -52,15 +53,9 @@ class TeacherHomePage extends ConsumerWidget {
       },
     );
     final assigned = fairs.valueOrNull ?? const [];
-    final open = assigned.where((f) => f.isOpen).length;
-    final jurySubtitle = fairs.isLoading
-        ? 'Consultando tus asignaciones…'
-        : fairs.hasError
-            ? 'No pudimos consultar tus asignaciones.'
-            : assigned.isEmpty
-                ? 'No tienes ferias asignadas. Si la organización te elige como jurado, aparecerán aquí.'
-                : '${assigned.length} feria${assigned.length == 1 ? '' : 's'} asignada${assigned.length == 1 ? '' : 's'}'
-                    '${open > 0 ? ' · $open abierta${open == 1 ? '' : 's'}' : ''}';
+    // Con una feria abierta, ser jurado es lo urgente del día: va primero.
+    final juryActive = assigned.any((f) => f.isOpen);
+    final juryCard = JuryModeCard(fairs: assigned, loading: fairs.isLoading);
 
     final advisedList = advised.valueOrNull ?? const [];
     final pendingAdvice = advisedList.where((p) => p.statusLabel.$2).length;
@@ -106,6 +101,10 @@ class TeacherHomePage extends ConsumerWidget {
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.xl),
+                    if (juryActive) ...[
+                      AppMotion.reveal(1, juryCard),
+                      const SizedBox(height: AppSpacing.m),
+                    ],
                     AppMotion.reveal(
                       1,
                       _HomeCard(
@@ -125,17 +124,10 @@ class TeacherHomePage extends ConsumerWidget {
                         onTap: () => context.go('/teacher/projects'),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.s),
-                    AppMotion.reveal(
-                      3,
-                      _HomeCard(
-                        icon: PhosphorIconsRegular.gavel,
-                        title: 'Jurado de ferias',
-                        subtitle: jurySubtitle,
-                        onTap:
-                            assigned.isEmpty ? null : () => context.go('/jury'),
-                      ),
-                    ),
+                    if (!juryActive) ...[
+                      const SizedBox(height: AppSpacing.s),
+                      AppMotion.reveal(3, juryCard),
+                    ],
                   ],
                 ),
               ),

@@ -65,11 +65,54 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('docente jurado: ve cuántas ferias tiene asignadas',
+  testWidgets('feria abierta: la tarjeta de jurado va primero con su botón',
       (tester) async {
+    await tester.binding.setSurfaceSize(const Size(360, 900));
+    addTearDown(() async => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(_page(const [_fair]));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('1 feria asignada · 1 abierta'), findsOneWidget);
+    expect(find.text('HOY ERES JURADO'), findsOneWidget);
+    expect(find.text('Feria de innovación'), findsOneWidget);
+    expect(find.text('Entrar como jurado'), findsOneWidget);
+    final juryY = tester.getTopLeft(find.text('HOY ERES JURADO')).dy;
+    final evaluationY =
+        tester.getTopLeft(find.text('Mi evaluación docente')).dy;
+    expect(juryY, lessThan(evaluationY));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('feria por abrir: solo avisa la fecha', (tester) async {
+    await tester.pumpWidget(_page([
+      FairAssignmentModel(
+        fairId: 'f2',
+        organizationId: 'org',
+        name: 'Feria de ciencias',
+        description: '',
+        status: FairStatus.draft,
+        startsAt: DateTime(2026, 11, 20, 9),
+      ),
+    ]));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Serás jurado'), findsOneWidget);
+    expect(find.textContaining('el 20 de noviembre'), findsOneWidget);
+    expect(find.text('Entrar como jurado'), findsNothing);
+  });
+
+  testWidgets('feria cerrada: queda como historial', (tester) async {
+    await tester.pumpWidget(_page(const [
+      FairAssignmentModel(
+        fairId: 'f3',
+        organizationId: 'org',
+        name: 'Feria 2025',
+        description: '',
+        status: FairStatus.closed,
+      ),
+    ]));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Historial de jurado'), findsOneWidget);
+    expect(find.text('Entrar como jurado'), findsNothing);
   });
 }
