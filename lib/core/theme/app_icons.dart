@@ -360,6 +360,10 @@ abstract final class PhosphorIconsFill {
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const medal = IconData(0xe320,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const radioButton = IconData(0xeb08,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',

@@ -44,15 +44,38 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       state = state.copyWith(
         loading: false,
         requiresStatusRefresh: false,
+        scores: await _myScores(),
         status: results[0] as VotingStatusModel,
         // El servidor solo acepta votos por proyectos aprobados.
-        projects: all
-            .where((p) => p.status == 'APPROVED')
-            .toList(growable: false),
+        projects:
+            all.where((p) => p.status == 'APPROVED').toList(growable: false),
       );
     } catch (e) {
       state =
           state.copyWith(loading: false, errorMessage: describeJuryError(e));
+    }
+  }
+
+  /// Puntajes de las rúbricas finalizadas por este jurado en la feria.
+  /// Es opcional: si la consulta falla, la votación se muestra sin ranking.
+  Future<Map<String, double>> _myScores() async {
+    try {
+      final repo = _ref.read(juryRepositoryProvider);
+      final first =
+          await repo.getMyEvaluations(fairId: fairId, page: 1, limit: 100);
+      final items = [...first.items];
+      for (var page = 2; page <= first.totalPages; page++) {
+        items.addAll(
+          (await repo.getMyEvaluations(fairId: fairId, page: page, limit: 100))
+              .items,
+        );
+      }
+      return {
+        for (final e in items)
+          if (e.submitted && e.score != null) e.projectId: e.score!,
+      };
+    } catch (_) {
+      return const {};
     }
   }
 

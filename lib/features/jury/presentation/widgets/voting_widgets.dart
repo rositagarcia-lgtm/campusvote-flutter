@@ -10,100 +10,6 @@ import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import '../../../settings/presentation/settings_copy.dart';
 
-/// Opción de proyecto en la votación: fila seleccionable con indicador de
-/// selección, nombre y categoría.
-///
-/// El indicador es un ícono y no un `Radio` porque la pantalla solo necesita
-/// saber qué opción está elegida; la fila completa es el área táctil.
-class VotingProjectOption extends StatelessWidget {
-  const VotingProjectOption({
-    super.key,
-    required this.project,
-    required this.selected,
-    required this.enabled,
-    required this.onTap,
-  });
-
-  final FairProjectModel project;
-  final bool selected;
-  final bool enabled;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final accent = theme.colorScheme.primary;
-    final accessibleLabel = [
-      project.name,
-      if (project.categoryName != null) project.categoryName!,
-      SettingsCopy.of(context).t(selected ? 'Seleccionado' : 'No seleccionado'),
-    ].join('. ');
-
-    return Semantics(
-      button: true,
-      inMutuallyExclusiveGroup: true,
-      selected: selected,
-      enabled: enabled,
-      onTap: enabled ? onTap : null,
-      label: accessibleLabel,
-      excludeSemantics: true,
-      child: AppCard(
-        color: selected
-            ? accent.withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.16 : 0.08,
-              )
-            : null,
-        borderColor: selected ? accent : null,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.l,
-          vertical: AppSpacing.m,
-        ),
-        onTap: enabled ? onTap : null,
-        child: Row(
-          children: [
-            Icon(
-              selected
-                  ? PhosphorIconsFill.radioButton
-                  : PhosphorIconsRegular.circle,
-              color: selected ? accent : theme.disabledColor,
-            ),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    project.name,
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  if (project.categoryName != null) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      project.categoryName!,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ],
-                  if (selected) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      SettingsCopy.of(context).t('Seleccionado'),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: accent,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// Comprobante del voto: confirma que quedó registrado y muestra el código
 /// para copiarlo.
 class VoteReceiptView extends StatelessWidget {
@@ -128,7 +34,6 @@ class VoteReceiptView extends StatelessWidget {
               SettingsCopy.of(context).t('Voto registrado'),
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(
-                fontFamily: 'serif',
                 fontWeight: FontWeight.w700,
               ),
             ),

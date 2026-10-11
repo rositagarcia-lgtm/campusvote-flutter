@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/branding/organization_branding.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_motion.dart';
 import '../../../../../core/widgets/app_card.dart';
@@ -13,6 +14,7 @@ import '../../../../../core/widgets/app_status_chip.dart';
 import '../../providers/forms/jury_voting_provider.dart';
 import '../../providers/jury_state.dart';
 import '../../widgets/voting_widgets.dart';
+import 'voting_ranking.dart';
 import 'vote_confirm_dialog.dart';
 
 /// Cuerpo de la votación con el estado ya cargado.
@@ -23,12 +25,14 @@ class VotingBody extends StatelessWidget {
   const VotingBody({
     super.key,
     required this.fairName,
+    required this.branding,
     required this.state,
     required this.controller,
     required this.onSubmitted,
   });
 
   final String? fairName;
+  final OrganizationBranding branding;
   final VotingFormState state;
   final VotingFormController controller;
   final VoidCallback onSubmitted;
@@ -51,25 +55,13 @@ class VotingBody extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(AppSpacing.l),
             children: [
-              Text(
-                'VOTACIÓN OFICIAL',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
+              AppMotion.reveal(
+                0,
+                VotingHero(
+                  branding: branding,
+                  fairName: fairName,
+                  status: status,
                 ),
-              ),
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                fairName ?? 'Votación oficial de la feria',
-                style: theme.textTheme.headlineMedium
-                    ?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                'Elige un proyecto. Podrás revisar tu selección antes de emitir '
-                'tu único voto.',
-                style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: AppSpacing.xl),
               if (!status.isOpen)
@@ -157,23 +149,21 @@ class VotingBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          state.selectedProjectId == null
-              ? 'Elige un proyecto'
-              : 'Proyecto seleccionado',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+        VotingRankingHeader(
+          scored: state.scores.length,
+          total: state.projects.length,
         ),
-        const SizedBox(height: AppSpacing.s),
-        for (var i = 0; i < state.projects.length; i++) ...[
+        const SizedBox(height: AppSpacing.m),
+        for (final (i, project) in state.rankedProjects.indexed) ...[
           AppMotion.reveal(
-            i,
-            VotingProjectOption(
-              project: state.projects[i],
-              selected: state.selectedProjectId == state.projects[i].id,
+            i + 1,
+            RankedProjectOption(
+              project: project,
+              rank: state.rankOf(project.id),
+              score: state.scores[project.id],
+              selected: state.selectedProjectId == project.id,
               enabled: state.canVote,
-              onTap: () => controller.select(state.projects[i].id),
+              onTap: () => controller.select(project.id),
             ),
           ),
           const SizedBox(height: AppSpacing.s),

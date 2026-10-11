@@ -94,10 +94,43 @@ class VotingFormState {
     this.selectedProjectId,
     this.receipt,
     this.errorMessage,
+    this.scores = const {},
   });
 
   final VotingStatusModel? status;
   final List<FairProjectModel> projects;
+
+  /// Puntaje (sobre 20) de las rúbricas que ESTE jurado finalizó, por
+  /// proyecto. Solo el propio criterio: nunca el de otros jurados.
+  final Map<String, double> scores;
+
+  /// Proyectos de mayor a menor puntaje propio; los no evaluados van al final
+  /// en orden alfabético. Es una ayuda para decidir, no un resultado oficial.
+  List<FairProjectModel> get rankedProjects {
+    final list = [...projects];
+    list.sort((a, b) {
+      final sa = scores[a.id];
+      final sb = scores[b.id];
+      if (sa != null && sb != null && sa != sb) return sb.compareTo(sa);
+      if (sa != null && sb == null) return -1;
+      if (sa == null && sb != null) return 1;
+      return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
+    return list;
+  }
+
+  /// Posición (1, 2, 3…) solo para proyectos con rúbrica finalizada.
+  int? rankOf(String projectId) {
+    if (!scores.containsKey(projectId)) return null;
+    final scored = rankedProjects.where((p) => scores.containsKey(p.id));
+    var position = 0;
+    for (final p in scored) {
+      position++;
+      if (p.id == projectId) return position;
+    }
+    return null;
+  }
+
   final bool loading;
 
   /// Se pone en true ANTES del POST: el backend rechaza el segundo voto con
@@ -128,10 +161,12 @@ class VotingFormState {
     String? selectedProjectId,
     VoteReceiptModel? receipt,
     String? errorMessage,
+    Map<String, double>? scores,
     bool clearSelection = false,
     bool clearError = false,
   }) =>
       VotingFormState(
+        scores: scores ?? this.scores,
         status: status ?? this.status,
         projects: projects ?? this.projects,
         loading: loading ?? this.loading,

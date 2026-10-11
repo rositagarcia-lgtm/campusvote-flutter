@@ -1,6 +1,6 @@
 import 'package:campusvote_flutter/core/theme/app_theme.dart';
 import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart';
-import 'package:campusvote_flutter/features/jury/presentation/widgets/voting_widgets.dart';
+import 'package:campusvote_flutter/features/jury/presentation/voting/widgets/voting_ranking.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,8 +34,10 @@ void main() {
               ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                child: VotingProjectOption(
+                child: RankedProjectOption(
                   project: project,
+                  rank: 1,
+                  score: 17.5,
                   selected: true,
                   enabled: true,
                   onTap: () {},
@@ -49,6 +51,7 @@ void main() {
       expect(tester.takeException(), isNull, reason: 'ancho $width');
       expect(find.text(project.name), findsOneWidget);
       expect(find.text(project.categoryName!), findsOneWidget);
+      expect(find.text('17.5/20'), findsOneWidget);
     }
   });
 }
