@@ -28,7 +28,19 @@ class ApiEndpoints {
   // Teaching evaluation — STUDENT (evaluación docente)
   static const String myTeachingAssignments =
       '/api/academic/my-teaching-assignments';
-  static const String evaluateTeacher = '/api/academic/teacher-evaluations';
+  static const String evaluationCriteria = '/api/academic/evaluation-criteria';
+  static const String evaluationResponses =
+      '/api/academic/evaluation-responses';
+  static const String myEvaluationResponses =
+      '/api/academic/evaluation-responses/mine';
+  static String evaluationResponse(String id) =>
+      '/api/academic/evaluation-responses/$id';
+  static String evaluationResponseDetail(String id, String criterionId) =>
+      '/api/academic/evaluation-responses/$id/details/$criterionId';
+  static String evaluationResponseComment(String id) =>
+      '/api/academic/evaluation-responses/$id/comment';
+  static String evaluationResponseSubmit(String id) =>
+      '/api/academic/evaluation-responses/$id/submit';
 
   // Proyectos de feria del alumno (solo los suyos, filtrado en el servidor)
   static const String myStudentProjects = '/api/projects/mine';

@@ -1,66 +1,86 @@
+import '../../domain/entities/teacher_evaluation_form.dart';
 import '../../domain/entities/teaching_assignment.dart';
 
-/// Parse de una asignación docente tal como la devuelve el backend
-/// (Prisma camelCase + `course` y `teacher` anidados + flag `evaluated`).
-class TeachingAssignmentModel {
-  final String id;
-  final String courseId;
-  final String teacherId;
-  final String courseCode;
-  final String courseName;
-  final int cycle;
-  final String teacherFirstName;
-  final String teacherLastName;
-  final bool evaluated;
-  final bool isActive;
+Map<String, dynamic> _map(Object? value) =>
+    value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
 
-  const TeachingAssignmentModel({
-    required this.id,
-    required this.courseId,
-    required this.teacherId,
-    required this.courseCode,
-    required this.courseName,
-    required this.cycle,
-    required this.teacherFirstName,
-    required this.teacherLastName,
-    required this.evaluated,
-    required this.isActive,
-  });
+String _text(Object? value) => (value ?? '').toString();
+
+/// Fecha de calendario (sin hora): `2026-10-15T00:00:00.000Z` es el día 15
+/// en cualquier zona horaria, no el 14 a las 19:00 en Lima.
+DateTime? _calendarDate(Object? value) {
+  final raw = value?.toString() ?? '';
+  if (raw.length < 10) return null;
+  final parsed = DateTime.tryParse(raw.substring(0, 10));
+  return parsed == null
+      ? null
+      : DateTime(parsed.year, parsed.month, parsed.day);
+}
+
+/// Asignación docente tal como la devuelve `GET /my-teaching-assignments`
+/// (Prisma camelCase con `course`, `teacher` y `academicPeriod` anidados; las
+/// fechas del periodo son las de la jornada de evaluación).
+class TeachingAssignmentModel {
+  const TeachingAssignmentModel._(this.entity);
+
+  final TeachingAssignment entity;
 
   factory TeachingAssignmentModel.fromJson(Map<String, dynamic> json) {
-    final course = json['course'] is Map
-        ? Map<String, dynamic>.from(json['course'] as Map)
-        : <String, dynamic>{};
-    final teacher = json['teacher'] is Map
-        ? Map<String, dynamic>.from(json['teacher'] as Map)
-        : <String, dynamic>{};
-
+    final course = _map(json['course']);
+    final teacher = _map(json['teacher']);
+    final period = _map(json['academicPeriod']);
     final cycleValue = json['cycle'] ?? course['cycle'];
-    return TeachingAssignmentModel(
-      id: (json['id'] ?? '').toString(),
-      courseId: (json['courseId'] ?? course['id'] ?? '').toString(),
-      teacherId: (json['teacherId'] ?? teacher['id'] ?? '').toString(),
-      courseCode: (course['code'] ?? '').toString(),
-      courseName: (course['name'] ?? '').toString(),
+    return TeachingAssignmentModel._(TeachingAssignment(
+      id: _text(json['id']),
+      courseId: _text(json['courseId'] ?? course['id']),
+      teacherId: _text(json['teacherId'] ?? teacher['id']),
+      courseCode: _text(course['code']),
+      courseName: _text(course['name']),
       cycle: cycleValue is num ? cycleValue.toInt() : 0,
-      teacherFirstName: (teacher['firstName'] ?? '').toString(),
-      teacherLastName: (teacher['lastName'] ?? '').toString(),
+      teacherFirstName: _text(teacher['firstName']),
+      teacherLastName: _text(teacher['lastName']),
       evaluated: json['evaluated'] == true,
-      // Una asignación solo se considera activa si el backend lo confirma.
+      // Activa y abierta solo si el backend lo confirma.
       isActive: json['isActive'] == true,
-    );
+      siteId: _text(course['siteId']),
+      careerId: _text(json['careerId'] ?? course['careerId']),
+      evaluationOpen: json['evaluationOpen'] == true,
+      opensAt: _calendarDate(period['startDate']),
+      closesAt: _calendarDate(period['endDate']),
+    ));
   }
 
-  TeachingAssignment toEntity() => TeachingAssignment(
-        id: id,
-        courseId: courseId,
-        teacherId: teacherId,
-        courseCode: courseCode,
-        courseName: courseName,
-        cycle: cycle,
-        teacherFirstName: teacherFirstName,
-        teacherLastName: teacherLastName,
-        evaluated: evaluated,
-        isActive: isActive,
-      );
+  TeachingAssignment toEntity() => entity;
+}
+
+/// Criterio de `GET /evaluation-criteria`.
+EvaluationCriterion criterionFromJson(Map<String, dynamic> json) {
+  final description = _text(json['description']).trim();
+  return EvaluationCriterion(
+    id: _text(json['id']),
+    name: _text(json['name']),
+    description: description.isEmpty ? null : description,
+  );
+}
+
+/// Evaluación de `GET /evaluation-responses/:id` (detalles con `criterionId`).
+EvaluationDraft draftFromJson(Map<String, dynamic> json) {
+  final scores = <String, int>{};
+  final details = json['details'];
+  if (details is List) {
+    for (final item in details.whereType<Map>()) {
+      final criterionId = _text(item['criterionId']);
+      final score = item['score'];
+      if (criterionId.isNotEmpty && score is num) {
+        scores[criterionId] = score.toInt();
+      }
+    }
+  }
+  final comment = json['comment']?.toString();
+  return EvaluationDraft(
+    id: _text(json['id']),
+    submitted: _text(json['status']).toUpperCase() == 'SUBMITTED',
+    scores: scores,
+    comment: comment,
+  );
 }

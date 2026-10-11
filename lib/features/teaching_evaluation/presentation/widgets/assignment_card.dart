@@ -6,6 +6,7 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_motion.dart';
 import '../../domain/entities/teaching_assignment.dart';
+import 'criterion_widgets.dart';
 
 /// Fila de una asignación docente.
 ///
@@ -21,10 +22,10 @@ class AssignmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final enabled = assignment.isActive && !assignment.evaluated;
+    final enabled = assignment.canEvaluate;
     final tone = assignment.evaluated
         ? AppColors.success
-        : assignment.isActive
+        : enabled
             ? scheme.primary
             : scheme.onSurfaceVariant;
 
@@ -38,11 +39,16 @@ class AssignmentCard extends StatelessWidget {
       if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
       if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
     ].join(' · ');
+    final opensAt = assignment.opensAt;
     final status = assignment.evaluated
         ? 'Evaluado'
-        : assignment.isActive
-            ? 'Pendiente'
-            : 'No disponible';
+        : !assignment.isActive
+            ? 'No disponible'
+            : assignment.opensLater && opensAt != null
+                ? 'Abre el ${evaluationDayLabel(opensAt)}'
+                : !assignment.evaluationOpen
+                    ? 'Jornada cerrada'
+                    : 'Pendiente';
 
     void open() => context.go('/teaching/evaluate/${assignment.id}');
 

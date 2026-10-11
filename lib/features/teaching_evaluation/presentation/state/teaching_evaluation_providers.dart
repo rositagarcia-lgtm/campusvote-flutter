@@ -15,7 +15,7 @@ final getMyTeachingAssignmentsUseCaseProvider = Provider(
       ref.watch(teachingEvaluationRepositoryProvider)),
 );
 
-final evaluateTeacherUseCaseProvider = Provider(
-  (ref) =>
-      EvaluateTeacherUseCase(ref.watch(teachingEvaluationRepositoryProvider)),
+final submitTeacherEvaluationUseCaseProvider = Provider(
+  (ref) => SubmitTeacherEvaluationUseCase(
+      ref.watch(teachingEvaluationRepositoryProvider)),
 );

@@ -1,116 +1,110 @@
 import 'package:campusvote_flutter/core/theme/app_theme.dart';
-import 'package:campusvote_flutter/features/teaching_evaluation/domain/entities/teaching_assignment.dart';
 import 'package:campusvote_flutter/features/teaching_evaluation/presentation/pages/teacher_evaluation_page.dart';
+import 'package:campusvote_flutter/features/teaching_evaluation/presentation/state/teaching_evaluation_providers.dart';
 import 'package:campusvote_flutter/features/teaching_evaluation/presentation/state/teaching_list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'fake_teaching_repository.dart';
+
 class _FixedTeachingListController extends TeachingListController {
   _FixedTeachingListController(super.ref) {
-    state = const TeachingListState(items: [_assignment]);
+    state = const TeachingListState(items: [pendingAssignment]);
   }
 
   @override
   Future<void> load() async {}
 }
 
-const _assignment = TeachingAssignment(
-  id: 'assignment-1',
-  courseId: 'course-1',
-  teacherId: 'teacher-1',
-  courseCode: 'MAT101',
-  courseName: 'Matemática',
-  cycle: 2,
-  teacherFirstName: 'Ana',
-  teacherLastName: 'Ríos',
-  evaluated: false,
-  isActive: true,
-);
+Future<void> _tapStar(WidgetTester tester, String label, int index) async {
+  final star = find.bySemanticsLabel(label).at(index);
+  await tester.ensureVisible(star);
+  await tester.pumpAndSettle();
+  await tester.tap(star);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _tapText(WidgetTester tester, String text) async {
+  final target = find.text(text);
+  await tester.ensureVisible(target);
+  await tester.pumpAndSettle();
+  await tester.tap(target);
+  await tester.pumpAndSettle();
+}
 
 void main() {
   for (final width in [320.0, 390.0, 430.0, 768.0]) {
-    testWidgets('formulario docente adaptable a ${width.toInt()} px',
-        (tester) async {
+    testWidgets('rúbrica adaptable a ${width.toInt()} px', (tester) async {
       await tester.binding.setSurfaceSize(Size(width, 720));
       addTearDown(() async => tester.binding.setSurfaceSize(null));
-      await tester.pumpWidget(_page(width));
+      await tester.pumpWidget(_page(width, FakeTeachingRepository()));
       await tester.pumpAndSettle();
 
+      expect(find.text('1. Dominio del tema'), findsOneWidget);
+      expect(find.text('2. Puntualidad'), findsOneWidget);
+      expect(find.text('Llega a tiempo y respeta el horario.'), findsOneWidget);
+      expect(find.text('0 de 2 criterios'), findsOneWidget);
       expect(find.text('Calificación general'), findsOneWidget);
-      expect(find.text('COMENTARIO DE MEJORA (OPCIONAL)'), findsOneWidget);
-      expect(find.text('Revisar y confirmar'), findsOneWidget);
+      expect(find.text('Revisar y enviar'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
 
-  testWidgets('exige calificación antes de permitir la revisión',
-      (tester) async {
-    const width = 390.0;
-    await tester.binding.setSurfaceSize(const Size(width, 720));
+  testWidgets('exige todos los criterios antes de revisar', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 720));
     addTearDown(() async => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(_page(width));
+    final repository = FakeTeachingRepository();
+    await tester.pumpWidget(_page(390, repository));
     await tester.pumpAndSettle();
 
-    final submitButton = find.text('Revisar y confirmar');
-    await tester.dragUntilVisible(
-      submitButton,
-      find.byType(Scrollable).first,
-      const Offset(0, -360),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(submitButton);
-    await tester.pumpAndSettle();
+    await _tapStar(tester, '4 de 5 estrellas', 0);
+    expect(find.text('1 de 2 criterios'), findsOneWidget);
+    expect(repository.savedScores, {'c-1': 4});
 
-    expect(find.byKey(const ValueKey('teacher-score-error')), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    await _tapText(tester, 'Revisar y enviar');
+    expect(find.text('Califica todos los criterios antes de enviar.'),
+        findsOneWidget);
+    expect(find.text('Revisa tu evaluación'), findsNothing);
   });
 
-  testWidgets('revisa la selección antes de enviar y conserva el borrador',
-      (tester) async {
-    const width = 390.0;
-    await tester.binding.setSurfaceSize(const Size(width, 720));
+  testWidgets('revisa la evaluación completa antes de enviar', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 720));
     addTearDown(() async => tester.binding.setSurfaceSize(null));
-    await tester.pumpWidget(_page(width));
+    final repository = FakeTeachingRepository();
+    await tester.pumpWidget(_page(390, repository));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.bySemanticsLabel('4 de 5 estrellas'));
-    await tester.pumpAndSettle();
-    final submitButton = find.text('Revisar y confirmar');
-    await tester.dragUntilVisible(
-      submitButton,
-      find.byType(Scrollable).first,
-      const Offset(0, -360),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(submitButton);
-    await tester.pumpAndSettle();
+    await _tapStar(tester, '4 de 5 estrellas', 0);
+    await _tapStar(tester, '5 de 5 estrellas', 1);
+    await _tapStar(tester, '3 de 5 estrellas', 2);
+    await _tapText(tester, 'Revisar y enviar');
 
     expect(find.text('Revisa tu evaluación'), findsOneWidget);
-    expect(find.text('4 de 5'), findsOneWidget);
+    expect(find.text('2 de 2 calificados'), findsOneWidget);
+    expect(find.text('3 de 5'), findsOneWidget);
     await tester.tap(find.text('Seguir editando'));
     await tester.pumpAndSettle();
-    expect(find.text('Seleccionaste 4 de 5.'), findsOneWidget);
+    expect(repository.submitCalls, 0);
     expect(tester.takeException(), isNull);
   });
 }
 
-Widget _page(double width) => MediaQuery(
+Widget _page(double width, FakeTeachingRepository repository) => MediaQuery(
       data: MediaQueryData(
         size: Size(width, 720),
         textScaler: const TextScaler.linear(1.35),
       ),
       child: ProviderScope(
         overrides: [
+          teachingEvaluationRepositoryProvider.overrideWithValue(repository),
           teachingListControllerProvider.overrideWith(
             _FixedTeachingListController.new,
           ),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
-          home: const TeacherEvaluationPage(
-            assignmentId: 'assignment-1',
-          ),
+          home: const TeacherEvaluationPage(assignmentId: 'assignment-1'),
         ),
       ),
     );

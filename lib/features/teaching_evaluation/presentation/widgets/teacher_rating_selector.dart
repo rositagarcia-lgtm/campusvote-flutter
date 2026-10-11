@@ -7,18 +7,23 @@ import '../../../settings/presentation/settings_copy.dart';
 
 const _ratingTapTarget = 48.0;
 
-/// Calificación general de 1 a 5, expuesta como cinco controles accesibles.
+/// Calificación de 1 a 5, expuesta como cinco controles accesibles. Sirve para
+/// la calificación general y para cada criterio de la rúbrica (`title`).
 class TeacherRatingSelector extends StatelessWidget {
   const TeacherRatingSelector({
     super.key,
     required this.value,
     required this.onChanged,
     this.enabled = true,
+    this.title,
+    this.description,
   });
 
   final int value;
   final ValueChanged<int> onChanged;
   final bool enabled;
+  final String? title;
+  final String? description;
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +38,16 @@ class TeacherRatingSelector extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            text.t('Calificación general'),
+            title ?? text.t('Calificación general'),
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
+        if (description != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(description!, style: theme.textTheme.bodyMedium),
+        ],
         const SizedBox(height: AppSpacing.xs),
         Text(
           value == 0

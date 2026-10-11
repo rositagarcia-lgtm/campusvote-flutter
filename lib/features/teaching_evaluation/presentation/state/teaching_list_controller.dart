@@ -86,21 +86,7 @@ class TeachingListController extends StateNotifier<TeachingListState> {
     state = state.copyWith(
       items: [
         for (final a in state.items)
-          if (a.id == assignmentId)
-            TeachingAssignment(
-              id: a.id,
-              courseId: a.courseId,
-              teacherId: a.teacherId,
-              courseCode: a.courseCode,
-              courseName: a.courseName,
-              cycle: a.cycle,
-              teacherFirstName: a.teacherFirstName,
-              teacherLastName: a.teacherLastName,
-              evaluated: true,
-              isActive: a.isActive,
-            )
-          else
-            a,
+          if (a.id == assignmentId) a.copyWith(evaluated: true) else a,
       ],
     );
   }

@@ -74,15 +74,16 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
       return AppEmptyView(
         icon: PhosphorIconsRegular.graduationCap,
         title: 'Sin asignaciones docentes',
-        message: 'Cuando haya docentes asignados a tu carrera y ciclo, '
-            'aparecerán aquí para que puedas evaluarlos.',
+        message: 'Cuando se publique la jornada de evaluación de tus cursos '
+            'del periodo, tus docentes aparecerán aquí.',
         actionLabel: 'Actualizar lista',
         onAction: () => onRefresh(),
       );
     }
 
-    final pending = state.pending.where((item) => item.isActive).toList();
-    final unavailable = state.pending.where((item) => !item.isActive).toList();
+    final pending = state.pending.where((item) => item.canEvaluate).toList();
+    final unavailable =
+        state.pending.where((item) => !item.canEvaluate).toList();
     final completed = state.done;
     final branding = ref.watch(brandingControllerProvider);
 
@@ -146,8 +147,8 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       const SizedBox(height: AppSpacing.l),
                     SectionHeader(
                       label: 'ASIGNACIONES',
-                      title: 'No disponibles',
-                      subtitle: 'Estas asignaciones no están activas.',
+                      title: 'Fuera de jornada',
+                      subtitle: 'Se evalúan solo el día publicado por tu sede.',
                       count: unavailable.length,
                     ),
                     for (final assignment in unavailable)

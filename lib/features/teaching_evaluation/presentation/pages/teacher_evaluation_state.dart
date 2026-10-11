@@ -1,10 +1,12 @@
 part of 'teacher_evaluation_page.dart';
 
 class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
-  int _score = 0;
-  bool _scoreError = false;
   final _commentController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _commentRestored = false;
+
+  EvaluateTeacherController get _controller =>
+      ref.read(evaluateTeacherControllerProvider(widget.assignmentId).notifier);
 
   @override
   void dispose() {
@@ -12,44 +14,43 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
     super.dispose();
   }
 
-  TeachingAssignment? get _assignment {
-    for (final assignment in ref.read(teachingListControllerProvider).items) {
+  TeachingAssignment? _findAssignment(List<TeachingAssignment> items) {
+    for (final assignment in items) {
       if (assignment.id == widget.assignmentId) return assignment;
     }
     return null;
   }
 
-  Future<void> _reviewAndSubmit() async {
-    final assignment = _assignment;
-    if (assignment == null || !assignment.isActive || assignment.evaluated) {
-      return;
-    }
-    if (_score < 1 || _score > 5) {
-      setState(() => _scoreError = true);
-      return;
-    }
+  Future<void> _reviewAndSubmit(
+      TeachingAssignment assignment, EvaluateState state) async {
+    if (!assignment.canEvaluate) return;
     if (!_formKey.currentState!.validate()) return;
-
-    final confirmed = await _confirmSelection(assignment);
+    if (!state.complete || state.overall < 1) {
+      // El controlador muestra qué falta.
+      await _controller.submit(comment: _commentController.text);
+      return;
+    }
+    final confirmed = await _confirmSelection(assignment, state);
     if (!mounted || confirmed != true) return;
-
-    final saved = await ref
-        .read(evaluateTeacherControllerProvider(widget.assignmentId).notifier)
-        .submit(score: _score, comment: _commentController.text);
+    final saved = await _controller.submit(comment: _commentController.text);
     if (mounted && saved) {
       context.go('/teaching/evaluate/${widget.assignmentId}/success');
     }
   }
 
-  Future<bool?> _confirmSelection(TeachingAssignment assignment) {
-    final course = assignment.courseName.trim().isEmpty
-        ? 'Curso no disponible'
-        : assignment.courseName;
+  Future<void> _checkStatus() async {
+    final ok = await _controller.checkStatus();
+    if (ok && mounted) {
+      context.go('/teaching/evaluate/${widget.assignmentId}/success');
+    }
+  }
+
+  Future<bool?> _confirmSelection(
+      TeachingAssignment assignment, EvaluateState state) {
     final teacher = assignment.teacherFullName.trim().isEmpty
         ? 'Docente no disponible'
         : assignment.teacherFullName;
     final comment = _commentController.text.trim();
-
     return showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -62,14 +63,23 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Confirma la calificación antes de enviarla. El servidor indicará si quedó registrada.',
+                'Al enviarla ya no podrás cambiarla. Tu evaluación es anónima para el docente.',
               ),
               const SizedBox(height: AppSpacing.l),
               TeacherEvaluationReviewLine(label: 'Docente', value: teacher),
               const SizedBox(height: AppSpacing.m),
-              TeacherEvaluationReviewLine(label: 'Asignación', value: course),
+              TeacherEvaluationReviewLine(
+                  label: 'Curso', value: assignment.courseName),
               const SizedBox(height: AppSpacing.m),
-              TeacherEvaluationReviewLine(label: 'Calificación', value: '$_score de 5'),
+              TeacherEvaluationReviewLine(
+                label: 'Criterios',
+                value:
+                    '${state.answered} de ${state.criteria.length} calificados',
+              ),
+              const SizedBox(height: AppSpacing.m),
+              TeacherEvaluationReviewLine(
+                  label: 'Calificación general',
+                  value: '${state.overall} de 5'),
               const SizedBox(height: AppSpacing.m),
               TeacherEvaluationReviewLine(
                 label: 'Comentario',
@@ -95,10 +105,23 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final listState = ref.watch(teachingListControllerProvider);
+    final assignment = _findAssignment(listState.items);
     final state =
         ref.watch(evaluateTeacherControllerProvider(widget.assignmentId));
-    final assignment = _assignment;
-    final listState = ref.watch(teachingListControllerProvider);
+
+    if (assignment != null &&
+        assignment.canEvaluate &&
+        !state.loaded &&
+        !state.loading &&
+        state.loadError == null) {
+      // Carga diferida: no se modifica un provider durante el build.
+      Future.microtask(() => _controller.load(assignment));
+    }
+    if (state.loaded && !_commentRestored) {
+      _commentRestored = true;
+      _commentController.text = state.initialComment;
+    }
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
@@ -110,29 +133,66 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
           onPressed: () => context.go('/teaching'),
         ),
       ),
-      body: assignment == null && listState.loading
-          ? const Center(child: CircularProgressIndicator())
-          : assignment == null
-              ? AppErrorView(
-                  message: listState.errorMessage ??
-                      'No encontramos esta asignación entre tus docentes.',
-                  onRetry: () => context.go('/teaching'),
-                  retryLabel: 'Volver a mis docentes',
-                )
-              : assignment.evaluated
-                  ? const UnavailableEvaluationView(
-                      title: 'Evaluación completada',
-                      message:
-                          'El servidor indica que esta asignación ya fue evaluada.',
-                    )
-                  : !assignment.isActive
-                      ? const UnavailableEvaluationView(
-                          title: 'Evaluación no disponible',
-                          message:
-                              'Esta asignación no está activa y no se puede evaluar ahora.',
-                        )
-                      : _buildForm(context, state, assignment),
+      body: _buildBody(context, state, assignment, listState),
     );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    EvaluateState state,
+    TeachingAssignment? assignment,
+    TeachingListState listState,
+  ) {
+    if (assignment == null) {
+      return listState.loading
+          ? const Center(child: CircularProgressIndicator())
+          : AppErrorView(
+              message: listState.errorMessage ??
+                  'No encontramos esta asignación entre tus docentes.',
+              onRetry: () => context.go('/teaching'),
+              retryLabel: 'Volver a mis docentes',
+            );
+    }
+    if (assignment.evaluated) {
+      return const UnavailableEvaluationView(
+        title: 'Evaluación completada',
+        message: 'El servidor indica que esta asignación ya fue evaluada.',
+      );
+    }
+    if (!assignment.isActive) {
+      return const UnavailableEvaluationView(
+        title: 'Evaluación no disponible',
+        message: 'Esta asignación no está activa y no se puede evaluar ahora.',
+      );
+    }
+    if (!assignment.evaluationOpen) {
+      final day = assignment.opensAt;
+      return UnavailableEvaluationView(
+        title: assignment.opensLater
+            ? 'La evaluación aún no empieza'
+            : 'La jornada de evaluación terminó',
+        message: assignment.opensLater && day != null
+            ? 'Podrás evaluar a este docente el ${evaluationDayLabel(day)}.'
+            : 'Ya no se reciben evaluaciones para este curso en el periodo.',
+      );
+    }
+    if (state.loadError != null) {
+      return AppErrorView(
+        message: state.loadError!,
+        onRetry: () => _controller.load(assignment),
+      );
+    }
+    if (!state.loaded) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.criteria.isEmpty) {
+      return const UnavailableEvaluationView(
+        title: 'Rúbrica no disponible',
+        message:
+            'Tu sede aún no publicó los criterios para evaluar este curso. Vuelve a intentarlo más tarde.',
+      );
+    }
+    return _buildForm(context, state, assignment);
   }
 
   Widget _buildForm(
@@ -141,10 +201,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
     TeachingAssignment assignment,
   ) {
     final theme = Theme.of(context);
-    final locked = state.submitting ||
-        state.checkingStatus ||
-        state.needsStatusCheck ||
-        state.confirmed;
+    final locked = state.locked;
     final teacherName = assignment.teacherFullName.trim().isEmpty
         ? 'Docente no disponible'
         : assignment.teacherFullName;
@@ -165,48 +222,51 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TeacherEvaluationHeader(
-                      assignment: assignment,
-                      teacherName: teacherName,
-                      courseName: courseName,
+                    AppMotion.reveal(
+                      0,
+                      TeacherEvaluationHeader(
+                        assignment: assignment,
+                        teacherName: teacherName,
+                        courseName: courseName,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
+                    EvaluationProgress(
+                      answered: state.answered,
+                      total: state.criteria.length,
+                      saving: state.saving.isNotEmpty,
+                    ),
+                    const SizedBox(height: AppSpacing.l),
+                    for (var i = 0; i < state.criteria.length; i++) ...[
+                      AppMotion.reveal(
+                        i + 1,
+                        CriterionRatingCard(
+                          index: i + 1,
+                          criterion: state.criteria[i],
+                          value: state.scores[state.criteria[i].id] ?? 0,
+                          enabled: !locked,
+                          saving: state.saving.contains(state.criteria[i].id),
+                          onChanged: (score) =>
+                              _controller.setScore(state.criteria[i].id, score),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.s),
+                    ],
+                    const SizedBox(height: AppSpacing.l),
                     Semantics(
                       header: true,
                       child: Text(
-                        'Califica al docente',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                        'Para terminar',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Indica una calificación general. Puedes añadir un comentario de mejora.',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: AppSpacing.l),
+                    const SizedBox(height: AppSpacing.m),
                     TeacherRatingSelector(
-                      value: _score,
+                      value: state.overall,
                       enabled: !locked,
-                      onChanged: (score) => setState(() {
-                        _score = score;
-                        _scoreError = false;
-                      }),
+                      onChanged: _controller.setOverall,
                     ),
-                    if (_scoreError) ...[
-                      const SizedBox(height: AppSpacing.s),
-                      Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          'La calificación es obligatoria. Elige de 1 a 5.',
-                          key: const ValueKey('teacher-score-error'),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: AppSpacing.l),
                     AppTextField(
                       label: 'Comentario de mejora (opcional)',
@@ -244,23 +304,19 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
                             : 'Consultar estado de la evaluación',
                         icon: PhosphorIconsRegular.arrowClockwise,
                         isLoading: state.checkingStatus,
-                        onPressed: state.checkingStatus
-                            ? null
-                            : () => ref
-                                .read(evaluateTeacherControllerProvider(
-                                        widget.assignmentId)
-                                    .notifier)
-                                .checkStatus(),
+                        onPressed: state.checkingStatus ? null : _checkStatus,
                       ),
                       const SizedBox(height: AppSpacing.s),
                     ],
                     AppButton(
                       label: state.submitting
                           ? 'Enviando evaluación'
-                          : 'Revisar y confirmar',
+                          : 'Revisar y enviar',
                       icon: PhosphorIconsRegular.paperPlaneTilt,
                       isLoading: state.submitting,
-                      onPressed: locked ? null : _reviewAndSubmit,
+                      onPressed: locked || state.saving.isNotEmpty
+                          ? null
+                          : () => _reviewAndSubmit(assignment, state),
                     ),
                     const SizedBox(height: AppSpacing.xl),
                   ],
@@ -273,4 +329,3 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
     );
   }
 }
-
