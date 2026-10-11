@@ -16,7 +16,7 @@ import '../data/teacher_results_repository.dart';
 import '../domain/teacher_results.dart';
 import 'teacher_results_widgets.dart';
 
-/// `/jury/my-evaluation` — cómo le fue al docente en la evaluación de sus
+/// `/teacher/evaluation` — cómo le fue al docente en la evaluación de sus
 /// alumnos. Solo agregados anónimos y solo cuando termina la jornada.
 class TeacherResultsPage extends ConsumerWidget {
   const TeacherResultsPage({super.key});

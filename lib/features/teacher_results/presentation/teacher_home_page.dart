@@ -1,0 +1,192 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/branding/branding_controller.dart';
+import '../../../core/theme/app_dimensions.dart';
+import '../../../core/theme/app_icons.dart';
+import '../../../core/widgets/app_bottom_nav.dart';
+import '../../../core/widgets/app_motion.dart';
+import '../../../core/widgets/organization_panel_app_bar.dart';
+import '../../auth/presentation/state/auth_controller.dart';
+import '../../jury/presentation/providers/jury_providers.dart';
+import '../../notifications/presentation/widgets/notifications_bell.dart';
+import '../data/teacher_results_repository.dart';
+import '../domain/teacher_results.dart';
+
+/// `/teacher` — inicio del docente. Todos ven su evaluación; el bloque de
+/// jurado solo se abre si la organización lo asignó a alguna feria (la
+/// mayoría de docentes no es jurado).
+class TeacherHomePage extends ConsumerWidget {
+  const TeacherHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final branding = ref.watch(brandingControllerProvider);
+    final name =
+        ref.watch(authControllerProvider.select((s) => s.user?.firstName)) ??
+            '';
+    final results = ref.watch(teacherResultsProvider);
+    final fairs = ref.watch(juryDashboardProvider);
+    final theme = Theme.of(context);
+
+    Future<void> reload() async {
+      ref.invalidate(teacherResultsProvider);
+      await ref.read(juryDashboardProvider.notifier).reload();
+    }
+
+    final evaluationSubtitle = results.when(
+      loading: () => 'Consultando tus resultados…',
+      error: (_, __) =>
+          'No pudimos cargar tus resultados. Desliza para reintentar.',
+      data: (r) => switch (r.status) {
+        TeacherResultsStatus.available =>
+          'Promedio ${r.overallAverage.toStringAsFixed(1)} de 5 · ${r.totalResponses} evaluaciones',
+        TeacherResultsStatus.locked =>
+          'Se publica cuando termine la jornada de evaluación.',
+        TeacherResultsStatus.insufficient =>
+          'Aún no hay suficientes evaluaciones para mostrarlas.',
+      },
+    );
+    final assigned = fairs.valueOrNull ?? const [];
+    final open = assigned.where((f) => f.isOpen).length;
+    final jurySubtitle = fairs.isLoading
+        ? 'Consultando tus asignaciones…'
+        : fairs.hasError
+            ? 'No pudimos consultar tus asignaciones.'
+            : assigned.isEmpty
+                ? 'No tienes ferias asignadas. Si la organización te elige como jurado, aparecerán aquí.'
+                : '${assigned.length} feria${assigned.length == 1 ? '' : 's'} asignada${assigned.length == 1 ? '' : 's'}'
+                    '${open > 0 ? ' · $open abierta${open == 1 ? '' : 's'}' : ''}';
+
+    return Scaffold(
+      appBar: OrganizationPanelAppBar(
+        branding: branding,
+        section: 'Panel docente',
+        actions: const [NotificationsBell()],
+      ),
+      body: RefreshIndicator(
+        onRefresh: reload,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(AppSpacing.l),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AppMotion.reveal(
+                      0,
+                      Text(
+                        name.trim().isEmpty ? 'Hola' : 'Hola, ${name.trim()}',
+                        style: theme.textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Revisa cómo te evaluaron tus alumnos y, si te asignaron, '
+                      'tus ferias como jurado.',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    AppMotion.reveal(
+                      1,
+                      _HomeCard(
+                        icon: PhosphorIconsRegular.chartBar,
+                        title: 'Mi evaluación docente',
+                        subtitle: evaluationSubtitle,
+                        onTap: () => context.go('/teacher/evaluation'),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s),
+                    AppMotion.reveal(
+                      2,
+                      _HomeCard(
+                        icon: PhosphorIconsRegular.gavel,
+                        title: 'Jurado de ferias',
+                        subtitle: jurySubtitle,
+                        onTap:
+                            assigned.isEmpty ? null : () => context.go('/jury'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: const AppBottomNav(current: AppNavDestination.home),
+    );
+  }
+}
+
+class _HomeCard extends StatelessWidget {
+  const _HomeCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final enabled = onTap != null;
+    return Semantics(
+      button: enabled,
+      label: '$title. $subtitle',
+      excludeSemantics: true,
+      child: Pressable(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.l),
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            borderRadius: AppRadii.rLarge,
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.s + 2),
+                decoration: BoxDecoration(
+                  color: (enabled ? scheme.primary : scheme.onSurfaceVariant)
+                      .withValues(alpha: 0.1),
+                  borderRadius: AppRadii.rMedium,
+                ),
+                child: Icon(icon,
+                    color: enabled ? scheme.primary : scheme.onSurfaceVariant),
+              ),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: theme.textTheme.bodySmall),
+                  ],
+                ),
+              ),
+              if (enabled)
+                Icon(PhosphorIconsRegular.caretRight,
+                    color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

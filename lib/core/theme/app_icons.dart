@@ -68,6 +68,10 @@ abstract final class PhosphorIconsRegular {
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const chalkboardTeacher = IconData(0xe600,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const chartBar = IconData(0xe150,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
@@ -181,6 +185,10 @@ abstract final class PhosphorIconsRegular {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const hourglassMedium = IconData(0xe2b8,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const house = IconData(0xe2c2,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
@@ -344,6 +352,10 @@ abstract final class PhosphorIconsFill {
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const chalkboardTeacher = IconData(0xe600,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const chartBar = IconData(0xe150,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
@@ -377,6 +389,10 @@ abstract final class PhosphorIconsFill {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const heart = IconData(0xe2a8,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const house = IconData(0xe2c2,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);

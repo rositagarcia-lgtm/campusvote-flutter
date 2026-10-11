@@ -8,6 +8,28 @@ import 'student_projects_translations.dart';
 /// Traducciones de textos estáticos. Claves en español para conservar la UI
 /// existente; datos de usuarios y del servidor nunca se consultan aquí.
 const appTranslations = <String, String>{
+  // Accesos por rol y panel docente.
+  'Inicio': 'Home',
+  'Explorar': 'Explore',
+  'Mi evaluación': 'My evaluation',
+  'ESTUDIANTES': 'STUDENTS',
+  'Soy estudiante': "I'm a student",
+  'Recibe un código en tu correo institucional para evaluar a tus docentes y opinar sobre los proyectos de la feria.':
+      'Get a code in your institutional email to evaluate your teachers and review the fair projects.',
+  'DOCENTES': 'TEACHERS',
+  'Soy docente': "I'm a teacher",
+  'Entra con tu correo institucional y contraseña para ver tu evaluación y, si te asignaron, tus ferias como jurado.':
+      'Sign in with your institutional email and password to see your evaluation and, if assigned, your fairs as a judge.',
+  'Ingresar como docente': 'Sign in as a teacher',
+  'JURADO EXTERNO': 'EXTERNAL JUDGE',
+  'Portal docente': 'Teacher portal',
+  'Ingresa con tu correo institucional y la contraseña que te entregó tu institución. Te enviaremos un código para confirmar.':
+      'Sign in with your institutional email and the password your institution gave you. We will send you a code to confirm.',
+  'Entrar al panel docente': 'Open the teacher panel',
+  '¿Eres estudiante? Entra con tu código':
+      'Are you a student? Sign in with your code',
+  'Esta cuenta no es de docente. Si eres estudiante, entra con tu código.':
+      'This is not a teacher account. If you are a student, sign in with your code.',
   'Volver': 'Back',
   'Actualizar': 'Refresh',
   'Cerrar sesión': 'Sign out',

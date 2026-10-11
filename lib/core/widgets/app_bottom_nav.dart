@@ -7,13 +7,14 @@ import '../theme/app_icons.dart';
 import '../../features/auth/domain/entities/auth_role.dart';
 import '../../features/auth/presentation/state/auth_controller.dart';
 import '../../features/settings/presentation/settings_copy.dart';
+import '../../features/jury/presentation/providers/jury_providers.dart';
 import '../../features/student_projects/data/student_projects_repository.dart';
 import '../theme/app_dimensions.dart';
 
 /// Destinos de la barra inferior. Cada panel declara el suyo; la barra
 /// decide qué pestañas existen según el rol (y, para el alumno, si tiene
 /// proyectos de feria).
-enum AppNavDestination { panel, projects, explore, results, account }
+enum AppNavDestination { home, panel, projects, explore, results, account }
 
 class AppNavTab {
   const AppNavTab({
@@ -56,20 +57,37 @@ class AppBottomNav extends ConsumerWidget {
       authControllerProvider.select((s) => s.user?.role == AuthRole.student),
     );
     final hasProjects = !isJury && ref.watch(hasStudentProjectsProvider);
+    // Pocos docentes son jurados: la pestaña de ferias solo aparece si la
+    // organización lo asignó a alguna.
+    final teacherIsJury = isTeacher &&
+        (ref.watch(juryDashboardProvider).valueOrNull?.isNotEmpty ?? false);
     final text = SettingsCopy.of(context);
 
     final tabs = <AppNavTab>[
-      AppNavTab(
-        destination: AppNavDestination.panel,
-        path: isJury ? '/jury' : '/teaching',
-        label: text.t(isJury ? 'Mis ferias' : 'Mi panel'),
-        icon: isJury
-            ? PhosphorIconsRegular.calendarDots
-            : PhosphorIconsRegular.graduationCap,
-        selectedIcon: isJury
-            ? PhosphorIconsFill.calendarDots
-            : PhosphorIconsFill.graduationCap,
-      ),
+      if (isTeacher)
+        AppNavTab(
+          destination: AppNavDestination.home,
+          path: '/teacher',
+          label: text.t('Inicio'),
+          icon: PhosphorIconsRegular.house,
+          selectedIcon: PhosphorIconsFill.house,
+        ),
+      if (!isTeacher || teacherIsJury)
+        AppNavTab(
+          destination: AppNavDestination.panel,
+          path: isJury ? '/jury' : '/teaching',
+          label: text.t(isTeacher
+              ? 'Jurado'
+              : isJury
+                  ? 'Mis ferias'
+                  : 'Mi panel'),
+          icon: isJury
+              ? PhosphorIconsRegular.calendarDots
+              : PhosphorIconsRegular.graduationCap,
+          selectedIcon: isJury
+              ? PhosphorIconsFill.calendarDots
+              : PhosphorIconsFill.graduationCap,
+        ),
       if (hasProjects)
         AppNavTab(
           destination: AppNavDestination.projects,
@@ -91,7 +109,7 @@ class AppBottomNav extends ConsumerWidget {
       if (isTeacher)
         AppNavTab(
           destination: AppNavDestination.results,
-          path: '/jury/my-evaluation',
+          path: '/teacher/evaluation',
           label: text.t('Mi evaluación'),
           icon: PhosphorIconsRegular.chartBar,
           selectedIcon: PhosphorIconsFill.chartBar,

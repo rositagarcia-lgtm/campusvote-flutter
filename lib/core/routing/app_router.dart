@@ -30,6 +30,7 @@ import '../../features/student_projects/presentation/student_project_detail_page
 import '../../features/student_projects/presentation/student_projects_page.dart';
 import '../../features/fair_audience/presentation/audience_projects_page.dart';
 import '../../features/fair_audience/presentation/explore_fairs_page.dart';
+import '../../features/teacher_results/presentation/teacher_home_page.dart';
 import '../../features/teacher_results/presentation/teacher_results_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
 import 'legacy_jury_routes.dart';
@@ -70,6 +71,7 @@ GoRouter buildAppRouter(
         '/splash',
         '/login',
         '/auth/jury/login',
+        '/auth/teacher/login',
         '/auth/email-request',
         '/auth/email-verify',
         '/auth/password/forgot',
@@ -112,10 +114,12 @@ GoRouter buildAppRouter(
         if ((opensJuryPanel && !isJury) || (opensStudentPanel && !isStudent)) {
           return landingPathForRole(auth.user?.role);
         }
-        // El jurado externo no es docente: no tiene evaluación propia.
-        if (loc.startsWith('/jury/my-evaluation') &&
+        // Panel docente: solo el rol TEACHER.
+        final segments = Uri.parse(loc).pathSegments;
+        if (segments.isNotEmpty &&
+            segments.first == 'teacher' &&
             auth.user?.role != AuthRole.teacher) {
-          return '/jury';
+          return landingPathForRole(auth.user?.role);
         }
       }
       return null;
@@ -127,6 +131,11 @@ GoRouter buildAppRouter(
       GoRoute(
         path: '/auth/jury/login',
         builder: (_, __) => const JuryLoginPage(),
+      ),
+      // ── DOCENTE: correo + contraseña + código (mismo flujo que el jurado)
+      GoRoute(
+        path: '/auth/teacher/login',
+        builder: (_, __) => const JuryLoginPage(teacherPortal: true),
       ),
       GoRoute(
         path: '/auth/password/forgot',
@@ -183,6 +192,18 @@ GoRouter buildAppRouter(
         ],
       ),
 
+      // ── DOCENTE: inicio propio y resultados de su evaluación ─────────
+      GoRoute(
+        path: '/teacher',
+        pageBuilder: (_, s) => _tabPage(s, const TeacherHomePage()),
+        routes: [
+          GoRoute(
+            path: 'evaluation',
+            pageBuilder: (_, s) => _tabPage(s, const TeacherResultsPage()),
+          ),
+        ],
+      ),
+
       // ── Votación de feria (JURY) ─────────────────────────────────────
       // Árbol canónico del panel de jurado. Las rutas `/juries/**` se
       // resuelven por el redirect global de `legacyJuryRedirect`.
@@ -190,11 +211,6 @@ GoRouter buildAppRouter(
         path: '/jury',
         pageBuilder: (_, s) => _tabPage(s, const JuryDashboardPage()),
         routes: [
-          // Resultados de la evaluación docente: solo el rol TEACHER.
-          GoRoute(
-            path: 'my-evaluation',
-            pageBuilder: (_, s) => _tabPage(s, const TeacherResultsPage()),
-          ),
           GoRoute(
             path: 'notifications',
             builder: (_, __) => const NotificationsPage(),

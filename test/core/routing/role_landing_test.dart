@@ -12,8 +12,8 @@ void main() {
       expect(landingPathForRole(AuthRole.student), '/teaching');
     });
 
-    test('el docente jurado interno usa el panel de jurado', () {
-      expect(landingPathForRole(AuthRole.teacher), '/jury');
+    test('el docente entra a su panel propio (no todos son jurados)', () {
+      expect(landingPathForRole(AuthRole.teacher), '/teacher');
     });
 
     test('los roles sin panel propio aterrizan en la cuenta', () {

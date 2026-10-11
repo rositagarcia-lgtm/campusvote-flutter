@@ -11,6 +11,8 @@ import '../../features/auth/domain/entities/auth_role.dart';
 /// (`user.role`), nunca con el panel que el usuario tocó en el splash: el
 /// cliente no es la autoridad sobre el rol.
 String landingPathForRole(String? role) {
+  // El docente tiene su propio inicio: la mayoría no es jurado.
+  if (role == AuthRole.teacher) return '/teacher';
   if (AuthRole.usesJuryPanel(role)) return '/jury';
   return role == AuthRole.student ? '/teaching' : '/account';
 }

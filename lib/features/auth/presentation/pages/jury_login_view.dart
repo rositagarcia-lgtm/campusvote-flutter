@@ -29,7 +29,11 @@ class JuryLoginView extends StatelessWidget {
     required this.onBack,
     required this.onEmailLogin,
     required this.onForgotPassword,
+    this.teacherPortal = false,
   });
+
+  /// Mismo acceso (correo + contraseña + código), con los textos del docente.
+  final bool teacherPortal;
 
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -49,7 +53,8 @@ class JuryLoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = SettingsCopy.of(context);
-    const accent = AppColors.juryAccessInk;
+    final accent =
+        teacherPortal ? AppColors.studentAccess : AppColors.juryAccessInk;
     const buttonColor = AppColors.studentAccess;
 
     return Scaffold(
@@ -89,12 +94,17 @@ class JuryLoginView extends StatelessWidget {
                     FadeSlide(
                       child: AuthHeader(
                         accent: accent,
-                        icon: PhosphorIconsFill.gavel,
-                        overline: text.t('JURADO CALIFICADOR'),
-                        title: text.t('Portal del jurado'),
-                        subtitle: text.t(
-                          'Ingresa con las credenciales que te entregó la organización para acceder a tu participación como jurado.',
-                        ),
+                        icon: teacherPortal
+                            ? PhosphorIconsFill.chalkboardTeacher
+                            : PhosphorIconsFill.gavel,
+                        overline: text.t(
+                            teacherPortal ? 'DOCENTES' : 'JURADO CALIFICADOR'),
+                        title: text.t(teacherPortal
+                            ? 'Portal docente'
+                            : 'Portal del jurado'),
+                        subtitle: text.t(teacherPortal
+                            ? 'Ingresa con tu correo institucional y la contraseña que te entregó tu institución. Te enviaremos un código para confirmar.'
+                            : 'Ingresa con las credenciales que te entregó la organización para acceder a tu participación como jurado.'),
                         logoSize: 64,
                       ),
                     ),
@@ -108,8 +118,7 @@ class JuryLoginView extends StatelessWidget {
                           children: [
                             AppTextField(
                               label: text.t('Correo institucional'),
-                              labelTrailing:
-                                  const _RequiredLabel(accent: accent),
+                              labelTrailing: _RequiredLabel(accent: accent),
                               hint: 'nombre@institucion.edu',
                               keyboardType: TextInputType.emailAddress,
                               autofillHints: const [AutofillHints.email],
@@ -123,8 +132,7 @@ class JuryLoginView extends StatelessWidget {
                             const SizedBox(height: AppSpacing.l),
                             AppTextField(
                               label: text.t('Contraseña institucional'),
-                              labelTrailing:
-                                  const _RequiredLabel(accent: accent),
+                              labelTrailing: _RequiredLabel(accent: accent),
                               hint: text.t('Escribe tu contraseña'),
                               obscureText: obscurePassword,
                               controller: passwordController,
@@ -178,7 +186,9 @@ class JuryLoginView extends StatelessWidget {
                     FadeSlide(
                       delay: const Duration(milliseconds: 220),
                       child: AppButton(
-                        label: text.t('Entrar al panel de evaluación'),
+                        label: text.t(teacherPortal
+                            ? 'Entrar al panel docente'
+                            : 'Entrar al panel de evaluación'),
                         icon: PhosphorIconsRegular.arrowRight,
                         backgroundColor: buttonColor,
                         foregroundColor: AppColors.inkInverse,
@@ -192,7 +202,9 @@ class JuryLoginView extends StatelessWidget {
                       child: TextButton(
                         onPressed: submitting ? null : onEmailLogin,
                         child: Text(
-                          text.t('Acceso con código institucional'),
+                          text.t(teacherPortal
+                              ? '¿Eres estudiante? Entra con tu código'
+                              : 'Acceso con código institucional'),
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: buttonColor),
                         ),

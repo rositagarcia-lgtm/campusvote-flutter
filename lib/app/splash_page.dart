@@ -98,10 +98,10 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                       icon: PhosphorIconsRegular.graduationCap,
                       actionIcon: PhosphorIconsRegular.envelopeSimple,
                       accent: studentColor,
-                      eyebrow: text.t('ESTUDIANTES Y JURADOS INTERNOS'),
-                      title: text.t('Acceso por correo'),
+                      eyebrow: text.t('ESTUDIANTES'),
+                      title: text.t('Soy estudiante'),
                       subtitle: text.t(
-                          'Estudiantes y docentes asignados como jurados reciben un código en su correo institucional. Selecciona este acceso si esa es tu participación.'),
+                          'Recibe un código en tu correo institucional para evaluar a tus docentes y opinar sobre los proyectos de la feria.'),
                       action: text.t('Continuar con mi correo'),
                       onTap: () => context.go('/auth/email-request'),
                     ),
@@ -110,11 +110,26 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                   AppMotion.reveal(
                     3,
                     AccessCard(
+                      icon: PhosphorIconsRegular.chalkboardTeacher,
+                      actionIcon: PhosphorIconsRegular.lockSimple,
+                      accent: studentColor,
+                      eyebrow: text.t('DOCENTES'),
+                      title: text.t('Soy docente'),
+                      subtitle: text.t(
+                          'Entra con tu correo institucional y contraseña para ver tu evaluación y, si te asignaron, tus ferias como jurado.'),
+                      action: text.t('Ingresar como docente'),
+                      onTap: () => context.go('/auth/teacher/login'),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.m),
+                  AppMotion.reveal(
+                    4,
+                    AccessCard(
                       icon: PhosphorIconsRegular.gavel,
                       actionIcon: PhosphorIconsRegular.lockSimple,
                       accent: juryColor,
                       accentForeground: AppColors.juryAccessInk,
-                      eyebrow: text.t('ACCESO DE JURADO'),
+                      eyebrow: text.t('JURADO EXTERNO'),
                       title: text.t('Jurado calificador'),
                       subtitle: text.t(
                           'Ingresa con las credenciales de jurado que te facilitó la organización. Si no las tienes, consulta al comité organizador.'),
@@ -124,7 +139,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   AppMotion.reveal(
-                    4,
+                    5,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
