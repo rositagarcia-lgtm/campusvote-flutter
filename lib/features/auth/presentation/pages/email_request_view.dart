@@ -24,7 +24,10 @@ class EmailRequestView extends StatelessWidget {
     required this.onSubmit,
     required this.onBack,
     required this.onJuryLogin,
+    this.teacher = false,
   });
+
+  final bool teacher;
 
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -79,8 +82,11 @@ class EmailRequestView extends StatelessWidget {
                     FadeSlide(
                       child: AuthHeader(
                         accent: accent,
-                        icon: PhosphorIconsFill.graduationCap,
-                        overline: text.t('Acceso con código'),
+                        icon: teacher
+                            ? PhosphorIconsFill.chalkboardTeacher
+                            : PhosphorIconsFill.graduationCap,
+                        overline: text.t(
+                            teacher ? 'Acceso docente' : 'Acceso con código'),
                         title: text.t('Identifica tu cuenta'),
                         subtitle: text.t(
                           'Usa el correo institucional registrado. Si tu cuenta está habilitada, recibirás un código de un solo uso para confirmar el acceso.',

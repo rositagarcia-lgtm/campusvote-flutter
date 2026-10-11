@@ -9,11 +9,7 @@ import 'jury_login_view.dart';
 
 /// Conserva el contrato de login y decide el segundo paso indicado por el API.
 class JuryLoginPage extends ConsumerStatefulWidget {
-  const JuryLoginPage({super.key, this.teacherPortal = false});
-
-  /// Acceso docente: mismo flujo, textos propios. El rol real lo decide el
-  /// backend y el destino se elige con él.
-  final bool teacherPortal;
+  const JuryLoginPage({super.key});
 
   @override
   ConsumerState<JuryLoginPage> createState() => _JuryLoginPageState();
@@ -75,9 +71,8 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
     final state = ref.watch(authControllerProvider);
     final text = SettingsCopy.of(context);
     final message = _wrongRole
-        ? text.t(widget.teacherPortal
-            ? 'Esta cuenta no es de docente. Si eres estudiante, entra con tu código.'
-            : 'Esta cuenta no tiene permiso para ingresar al portal del jurado.')
+        ? text.t(
+            'Esta cuenta no tiene permiso para ingresar al portal del jurado.')
         : state.errorMessage == null
             ? null
             : text.error(state.errorMessage!);
@@ -99,7 +94,6 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
       onBack: () => context.go('/splash'),
       onEmailLogin: () => context.go('/auth/email-request'),
       onForgotPassword: () => context.go('/auth/password/forgot'),
-      teacherPortal: widget.teacherPortal,
     );
   }
 }

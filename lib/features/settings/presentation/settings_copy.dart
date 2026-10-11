@@ -22,7 +22,7 @@ class SettingsCopy {
   String error(String message) {
     final lower = message.toLowerCase();
     if (RegExp(
-      r'(estudiantes?\s+o\s+jura[dt]os?|students?\s+or\s+jur(?:y|ies))',
+      r'(estudiantes?,?\s+(docentes?\s+)?o\s+jura[dt]os?|students?,?\s+(teachers?\s+)?or\s+jur(?:y|ies))',
     ).hasMatch(lower)) {
       return t(
         'No encontramos una cuenta habilitada para este acceso. Verifica que uses el correo registrado en CampusVote.',

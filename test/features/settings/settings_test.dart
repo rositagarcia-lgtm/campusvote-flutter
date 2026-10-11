@@ -32,6 +32,12 @@ void main() {
       'We could not find an account enabled for this sign-in. Check that you are using the email registered with CampusVote.',
     );
     expect(
+      spanish.error(
+        'No se encontró una cuenta de estudiante, docente o jurado con este correo',
+      ),
+      'No encontramos una cuenta habilitada para este acceso. Verifica que uses el correo registrado en CampusVote.',
+    );
+    expect(
       spanish.error('Prisma TypeError at /api/auth/email/request'),
       'Ocurrió un error inesperado',
     );

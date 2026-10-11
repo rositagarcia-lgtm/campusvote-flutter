@@ -111,14 +111,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                     3,
                     AccessCard(
                       icon: PhosphorIconsRegular.chalkboardTeacher,
-                      actionIcon: PhosphorIconsRegular.lockSimple,
+                      actionIcon: PhosphorIconsRegular.envelopeSimple,
                       accent: studentColor,
                       eyebrow: text.t('DOCENTES'),
                       title: text.t('Soy docente'),
                       subtitle: text.t(
-                          'Entra con tu correo institucional y contraseña para ver tu evaluación y, si te asignaron, tus ferias como jurado.'),
+                          'Recibe un código en tu correo institucional para ver tu evaluación y, si te asignaron, tus ferias como jurado.'),
                       action: text.t('Ingresar como docente'),
-                      onTap: () => context.go('/auth/teacher/login'),
+                      onTap: () => context.go('/auth/teacher'),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.m),

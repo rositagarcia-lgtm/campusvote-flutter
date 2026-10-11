@@ -71,7 +71,7 @@ GoRouter buildAppRouter(
         '/splash',
         '/login',
         '/auth/jury/login',
-        '/auth/teacher/login',
+        '/auth/teacher',
         '/auth/email-request',
         '/auth/email-verify',
         '/auth/password/forgot',
@@ -132,10 +132,10 @@ GoRouter buildAppRouter(
         path: '/auth/jury/login',
         builder: (_, __) => const JuryLoginPage(),
       ),
-      // ── DOCENTE: correo + contraseña + código (mismo flujo que el jurado)
+      // ── DOCENTE: código de un solo uso por correo (como el estudiante) ──
       GoRoute(
-        path: '/auth/teacher/login',
-        builder: (_, __) => const JuryLoginPage(teacherPortal: true),
+        path: '/auth/teacher',
+        builder: (_, __) => const EmailRequestPage(teacher: true),
       ),
       GoRoute(
         path: '/auth/password/forgot',

@@ -7,7 +7,11 @@ import 'email_request_view.dart';
 
 /// Solicita el código de acceso usando el contrato actual de autenticación.
 class EmailRequestPage extends ConsumerStatefulWidget {
-  const EmailRequestPage({super.key});
+  const EmailRequestPage({super.key, this.teacher = false});
+
+  /// Acceso docente: mismo código al correo, con textos de docente. El rol
+  /// real lo decide el backend y el destino se elige con él.
+  final bool teacher;
 
   @override
   ConsumerState<EmailRequestPage> createState() => _EmailRequestPageState();
@@ -55,6 +59,7 @@ class _EmailRequestPageState extends ConsumerState<EmailRequestPage> {
       onSubmit: _submit,
       onBack: () => context.go('/splash'),
       onJuryLogin: () => context.go('/auth/jury/login'),
+      teacher: widget.teacher,
     );
   }
 }
