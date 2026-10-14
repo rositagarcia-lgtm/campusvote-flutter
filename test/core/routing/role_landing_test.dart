@@ -41,4 +41,11 @@ void main() {
       expect(AuthRole.label('ROOT'), 'Miembro');
     });
   });
+
+  test('solo jurado y administración usan contraseña', () {
+    expect(AuthRole.usesPassword(AuthRole.student), isFalse);
+    expect(AuthRole.usesPassword(AuthRole.teacher), isFalse);
+    expect(AuthRole.usesPassword(AuthRole.jury), isTrue);
+    expect(AuthRole.usesPassword(AuthRole.admin), isTrue);
+  });
 }

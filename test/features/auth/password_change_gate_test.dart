@@ -38,12 +38,14 @@ void main() {
     expect(state.forcesPasswordChange, isTrue);
   });
 
-  test('el docente asignado como jurado conserva el cambio obligatorio', () {
+  // El docente entra con código a su correo, aunque sea jurado: no tiene una
+  // contraseña que cambiar (el backend además limpia la marca al entrar).
+  test('el docente no queda obligado a cambiar la contraseña', () {
     const state = AuthState(
       authenticated: true,
       mustChangePassword: true,
       user: teacher,
     );
-    expect(state.forcesPasswordChange, isTrue);
+    expect(state.forcesPasswordChange, isFalse);
   });
 }

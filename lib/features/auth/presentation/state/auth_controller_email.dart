@@ -62,7 +62,7 @@ extension AuthEmailLogin on AuthController {
       pendingEmail: null,
       clearPendingQrCode: true,
       mustChangePassword:
-          data.mustChangePassword && user?.role != AuthRole.student,
+          data.mustChangePassword && AuthRole.usesPassword(user?.role),
       clearTempToken: true,
     ));
     _hydrateProfile();
