@@ -11,6 +11,8 @@ class StudentProject {
     this.description,
     this.logoUrl,
     this.coverUrl,
+    this.videoUrl,
+    this.imageUrls = const [],
     this.reviewNotes,
     this.myRole,
     this.fair,
@@ -23,6 +25,8 @@ class StudentProject {
   final String? description;
   final String? logoUrl;
   final String? coverUrl;
+  final String? videoUrl;
+  final List<String> imageUrls;
 
   /// DRAFT · DRAFT_PENDING_STUDENT_CONFIRMATION · SUBMITTED · APPROVED · REJECTED
   final String status;
@@ -38,10 +42,9 @@ class StudentProject {
   bool get isApproved => status == 'APPROVED';
   bool get isRejected => status == 'REJECTED';
 
-  /// Solo un proyecto aprobado en una feria abierta o cerrada recibe likes y
-  /// comentarios del jurado.
-  bool get hasFeedback =>
-      isApproved && (fair?.isOpen == true || fair?.isClosed == true);
+  /// Las estrellas y el voto se consultan con la feria cerrada y el proyecto
+  /// aprobado. Antes de publicar, el servidor responde que aún no están.
+  bool get hasFeedback => isApproved && fair?.isClosed == true;
 
   factory StudentProject.fromJson(Map<String, dynamic> json) {
     final fair = json['fair'];
@@ -52,6 +55,8 @@ class StudentProject {
       description: _text(json['description']),
       logoUrl: _text(json['logo_url']),
       coverUrl: _text(json['cover_url']),
+      videoUrl: _text(json['video_url']),
+      imageUrls: _urls(json['image_urls']),
       status: '${json['status'] ?? 'DRAFT'}',
       reviewNotes: _text(json['review_notes']),
       myRole: _text(json['my_role']),
@@ -123,42 +128,74 @@ class ProjectMate {
       );
 }
 
-/// Me gusta y comentarios del jurado (anónimos) sobre un proyecto.
+/// Calificación por estrellas y votos del jurado. Llegan juntos cuando los
+/// resultados ya están publicados.
 class ProjectFeedback {
-  const ProjectFeedback({required this.likes, required this.comments});
+  const ProjectFeedback({
+    required this.published,
+    required this.votes,
+    required this.reviews,
+  });
 
-  final int likes;
-  final List<ProjectComment> comments;
+  const ProjectFeedback.hidden()
+      : published = false,
+        votes = null,
+        reviews = const [];
+
+  final bool published;
+  final int? votes;
+  final List<ProjectReview> reviews;
+
+  double? get average {
+    if (reviews.isEmpty) return null;
+    final total = reviews.fold<int>(0, (sum, review) => sum + review.rating);
+    return total / reviews.length;
+  }
 
   factory ProjectFeedback.fromJson(Map<String, dynamic> json) {
-    final raw = json['comments'];
+    final raw = json['reviews'];
+    final votes = json['votes'];
     return ProjectFeedback(
-      likes:
-          json['likes_count'] is num ? (json['likes_count'] as num).toInt() : 0,
-      comments: raw is List
+      published: true,
+      votes: votes is num ? votes.toInt() : 0,
+      reviews: raw is List
           ? raw
               .whereType<Map>()
-              .map((c) => ProjectComment(
-                    text: _text(c['comment']) ?? '',
-                    createdAt:
-                        DateTime.tryParse('${c['created_at']}')?.toLocal(),
-                  ))
-              .where((c) => c.text.isNotEmpty)
+              .map((row) => ProjectReview.fromJson(Map<String, dynamic>.from(row)))
+              .where((review) => review.rating >= 1 && review.rating <= 5)
               .toList(growable: false)
           : const [],
     );
   }
 }
 
-class ProjectComment {
-  const ProjectComment({required this.text, this.createdAt});
+class ProjectReview {
+  const ProjectReview({required this.rating, this.comment, this.createdAt});
 
-  final String text;
+  final int rating;
+  final String? comment;
   final DateTime? createdAt;
+
+  factory ProjectReview.fromJson(Map<String, dynamic> json) {
+    final rating = json['rating'];
+    return ProjectReview(
+      rating: rating is num ? rating.toInt() : 0,
+      comment: _text(json['comment']),
+      createdAt: DateTime.tryParse('${json['created_at']}')?.toLocal(),
+    );
+  }
 }
 
 String? _text(Object? value) {
   if (value == null) return null;
   final s = value.toString().trim();
   return s.isEmpty ? null : s;
+}
+
+List<String> _urls(Object? value) {
+  if (value is! List) return const [];
+  return value
+      .map((item) => item.toString().trim())
+      .where((item) => item.isNotEmpty)
+      .toList(growable: false);
 }

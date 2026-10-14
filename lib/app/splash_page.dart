@@ -32,7 +32,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
       _introCompleted = true;
       final auth = ref.read(authControllerProvider);
       if (!auth.initializing && auth.authenticated) {
-        final destination = auth.mustChangePassword
+        final destination = auth.forcesPasswordChange
             ? '/security/password'
             : landingPathForRole(auth.user?.role);
         debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '

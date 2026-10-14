@@ -26,6 +26,12 @@ class AppEnv {
   ///
   /// El backend puede devolver rutas relativas (`/uploads/avatars/...`) u
   /// URLs absolutas. `Image.network` solo funciona con absolutas.
+  /// Video de introducción. Si está vacío, la app usa el archivo local.
+  static const String introVideoUrl = String.fromEnvironment(
+    'INTRO_VIDEO_URL',
+    defaultValue: '',
+  );
+
   static String? mediaUrl(String? url) {
     if (url == null || url.trim().isEmpty) return null;
     final u = url.trim();

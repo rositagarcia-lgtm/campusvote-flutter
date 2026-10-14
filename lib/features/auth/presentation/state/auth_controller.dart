@@ -117,7 +117,8 @@ class AuthController extends StateNotifier<AuthState> {
       authenticated: true,
       user: user,
       clearTempToken: true,
-      mustChangePassword: data.mustChangePassword,
+      mustChangePassword:
+          data.mustChangePassword && user?.role != AuthRole.student,
     );
     _hydrateProfile();
     return true;

@@ -104,7 +104,13 @@ class AuthProfileDataSource {
       return FailureResult(mapExceptionToFailure(e));
     }
 
-    return updateProfile({'avatar_url': url});
+    final saved = await updateProfile({'avatar_url': url});
+    if (saved.isFailure) return saved;
+    final user = saved.dataOrNull!;
+    if (user.avatarUrl != null && user.avatarUrl!.isNotEmpty) return saved;
+    final kept = user.copyWith(avatarUrl: url);
+    await _persister.persistUser(kept);
+    return Success(kept);
   }
 
   String? _mimeFor(String path) {

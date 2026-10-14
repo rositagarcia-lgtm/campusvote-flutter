@@ -33,6 +33,8 @@ void main() {
     expect(_approved.fairName, 'Feria 2026');
     expect(_approved.stand, 'A-1');
     expect(_approved.team, ['Ana Ruiz', 'Luis Paz']);
+    expect(_approved.videoUrl, isNull);
+    expect(_approved.imageUrls, isEmpty);
     expect(_approved.statusLabel, ('Aprobado', false));
     expect(_pending.statusLabel.$2, isTrue);
   });

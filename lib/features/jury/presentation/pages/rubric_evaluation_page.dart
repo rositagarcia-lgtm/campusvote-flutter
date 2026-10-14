@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/app_env.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
@@ -11,6 +12,8 @@ import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../student_projects/presentation/widgets/project_visuals.dart';
+import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
 import '../widgets/project_status_chip.dart';
@@ -38,6 +41,10 @@ class RubricEvaluationPage extends ConsumerWidget {
     final args = RubricArgs(fairId: fairId, projectId: projectId);
     final state = ref.watch(rubricFormProvider(args));
     final controller = ref.read(rubricFormProvider(args).notifier);
+    final listed = ref.watch(fairProjectsProvider(fairId));
+    final project = listed.asData?.value
+        .where((item) => item.id == projectId)
+        .firstOrNull;
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(
@@ -61,16 +68,22 @@ class RubricEvaluationPage extends ConsumerWidget {
               : _RubricForm(
                   state: state,
                   controller: controller,
+                  project: project,
                 ),
     );
   }
 }
 
 class _RubricForm extends StatelessWidget {
-  const _RubricForm({required this.state, required this.controller});
+  const _RubricForm({
+    required this.state,
+    required this.controller,
+    required this.project,
+  });
 
   final RubricFormState state;
   final RubricFormController controller;
+  final FairProjectModel? project;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +134,32 @@ class _RubricForm extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.m),
+                    ],
+                    if (project != null && project!.imageUrls.isNotEmpty) ...[
+                      Text(
+                        'FOTOS',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.s),
+                      ProjectGallery(urls: project!.imageUrls),
+                      const SizedBox(height: AppSpacing.l),
+                    ],
+                    if (project?.videoUrl != null) ...[
+                      Text(
+                        'VIDEO',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.s),
+                      ProjectVideo(url: AppEnv.mediaUrl(project!.videoUrl)!),
+                      const SizedBox(height: AppSpacing.l),
                     ],
                     AppMotion.reveal(0, RubricScoreCard(state: state)),
                     const SizedBox(height: AppSpacing.l),

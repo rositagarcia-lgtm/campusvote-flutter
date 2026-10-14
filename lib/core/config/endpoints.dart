@@ -56,8 +56,8 @@ class ApiEndpoints {
 
   // Traducción de contenido escrito por usuarios
   static const String translate = '/api/translate';
-  static String projectEngagement(String fairId, String projectId) =>
-      '/api/fairs/$fairId/projects/$projectId/engagement';
+  static String projectReviews(String fairId, String projectId) =>
+      '/api/fairs/$fairId/projects/$projectId/reviews';
 
   // Fair voting — JURY
   static const String myJuryAssignments = '/api/fairs/my-assignments';

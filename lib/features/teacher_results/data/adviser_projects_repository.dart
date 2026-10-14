@@ -15,7 +15,11 @@ class AdvisedProject {
   final bool fairOpen;
   final String? category;
   final String? stand;
+  final String? description;
+  final String? logoUrl;
   final String? coverUrl;
+  final String? videoUrl;
+  final List<String> imageUrls;
   final List<String> team;
 
   const AdvisedProject({
@@ -26,7 +30,11 @@ class AdvisedProject {
     this.fairOpen = false,
     this.category,
     this.stand,
+    this.description,
+    this.logoUrl,
     this.coverUrl,
+    this.videoUrl,
+    this.imageUrls = const [],
     this.team = const [],
   });
 
@@ -47,7 +55,14 @@ class AdvisedProject {
       fairOpen: fair['status'] == 'OPEN',
       category: text(map(json['category'])['name']),
       stand: text(map(json['stand'])['code']),
+      description: text(json['description']),
+      logoUrl: text(json['logo_url']),
       coverUrl: text(json['cover_url']) ?? text(json['logo_url']),
+      videoUrl: text(json['video_url']),
+      imageUrls: [
+        for (final url in json['image_urls'] is List ? json['image_urls'] as List : const [])
+          if (text(url) case final src?) src,
+      ],
       team: [
         for (final m
             in json['members'] is List ? json['members'] as List : const [])

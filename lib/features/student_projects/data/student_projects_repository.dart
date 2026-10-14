@@ -40,16 +40,22 @@ class StudentProjectsRepository {
 
   Future<Result<ProjectFeedback>> feedback(StudentProject project) async {
     final fairId = project.fair?.id;
-    if (fairId == null) {
-      return const Success(ProjectFeedback(likes: 0, comments: []));
+    if (fairId == null || !project.hasFeedback) {
+      return const Success(ProjectFeedback.hidden());
     }
-    final path = ApiEndpoints.projectEngagement(fairId, project.id);
+    final path = ApiEndpoints.projectReviews(fairId, project.id);
     try {
       final data = _data(await _client.get(path), path);
       if (data is! Map) {
         throw const FormatException('Respuesta de valoraciones no válida.');
       }
       return Success(ProjectFeedback.fromJson(Map<String, dynamic>.from(data)));
+    } on DioException catch (e) {
+      // Antes de publicar, el servidor niega las reseñas y el voto.
+      if (e.response?.statusCode == 403) {
+        return const Success(ProjectFeedback.hidden());
+      }
+      return FailureResult(mapExceptionToFailure(e));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
     }

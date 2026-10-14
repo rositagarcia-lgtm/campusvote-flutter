@@ -23,12 +23,22 @@ const studentProjectsTranslations = <String, String>{
   'Cierre': 'Closing',
   'Recorrido': 'Journey',
   'Sobre el proyecto': 'About the project',
+  'Fotos': 'Photos',
+  'Video': 'Video',
+  'Calificación del jurado': 'Jury rating',
+  'Reseñas del jurado': 'Jury reviews',
+  '1 reseña del jurado': '1 jury review',
+  'Aún no hay video del proyecto.': 'This project has no video yet.',
+  'No pudimos reproducir el video del proyecto.':
+      'We could not play the project video.',
+  'Reproducir video': 'Play video',
+  'Pausar video': 'Pause video',
   'Equipo': 'Team',
-  'Valoración del jurado': 'Jury feedback',
-  'Me gusta del jurado': 'jury likes',
-  'Aún no hay comentarios del jurado.': 'No jury comments yet.',
-  'Los Me gusta y comentarios del jurado aparecerán cuando tu proyecto esté en una feria abierta.':
-      'Jury likes and comments will appear once your project is in an open fair.',
+  'Calificación por estrellas': 'Star rating',
+  'Votos del jurado': 'Jury votes',
+  'Aún no hay calificaciones por estrellas.': 'No star ratings yet.',
+  'La calificación por estrellas y el voto aparecerán cuando se publiquen los resultados.':
+      'The star rating and the vote will appear once the results are published.',
   'No pudimos cargar la valoración. Desliza para reintentar.':
       'We could not load the feedback. Pull to retry.',
   'No pudimos cargar tus proyectos.': 'We could not load your projects.',

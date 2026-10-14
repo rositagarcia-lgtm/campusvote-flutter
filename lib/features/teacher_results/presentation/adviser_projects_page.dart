@@ -99,7 +99,12 @@ class _AdvisedCard extends StatelessWidget {
       if (project.stand != null) 'Stand ${project.stand}',
     ].join(' · ');
 
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: AppRadii.rLarge,
+        onTap: () => context.push('/teacher/projects/${project.id}'),
+        child: Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.s),
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
@@ -134,6 +139,8 @@ class _AdvisedCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+        ),
       ),
     );
   }

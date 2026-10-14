@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../core/config/app_env.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_dimensions.dart';
 import '../features/settings/presentation/settings_copy.dart';
@@ -16,7 +18,8 @@ bool hasIntroPlaybackCompleted(VideoPlayerValue value,
     value.duration > Duration.zero &&
     value.isCompleted;
 
-/// Introducción audiovisual local que precede a la bienvenida.
+/// Introducción que precede a la bienvenida. Sale de Cloudflare cuando
+/// [AppEnv.introVideoUrl] está definida; si no, del archivo de la app.
 class SplashIntroVideo extends StatefulWidget {
   const SplashIntroVideo({super.key, required this.onFinished});
 
@@ -27,7 +30,12 @@ class SplashIntroVideo extends StatefulWidget {
 }
 
 class _SplashIntroVideoState extends State<SplashIntroVideo> {
-  late final VideoPlayerController _controller;
+  VideoPlayerController? _controller;
+
+  VideoPlayerController get _player => _controller!;
+
+  bool get _runningWidgetTests =>
+      WidgetsBinding.instance.runtimeType.toString().contains('Test');
   bool _isReady = false;
   bool _hasFailed = false;
   bool _playbackStarted = false;
@@ -42,18 +50,50 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('assets/video-campusvote.mp4')
+    final compiled = AppEnv.introVideoUrl.trim();
+    if (compiled.isNotEmpty || _runningWidgetTests) {
+      _open(compiled.isEmpty ? null : compiled);
+      return;
+    }
+    unawaited(_openFromServer());
+  }
+
+  Future<void> _openFromServer() async {
+    String? url;
+    try {
+      final dio = Dio(BaseOptions(
+        baseUrl: AppEnv.apiBaseUrl,
+        connectTimeout: const Duration(seconds: 4),
+        receiveTimeout: const Duration(seconds: 4),
+      ));
+      final response = await dio.get<Map<String, dynamic>>('/api/public/intro-video');
+      final data = response.data?['data'];
+      final raw = data is Map ? data['url']?.toString().trim() ?? '' : '';
+      if (raw.startsWith('https://')) url = raw;
+    } catch (error) {
+      _log('intro.remote.error=$error');
+    }
+    if (!mounted || _finished) return;
+    _open(url);
+  }
+
+  void _open(String? remote) {
+    final source = (remote == null || remote.isEmpty) ? null : remote;
+    _controller = source == null
+        ? VideoPlayerController.asset('assets/video-campusvote.mp4')
+        : VideoPlayerController.networkUrl(Uri.parse(source))
       ..addListener(_handlePlayback);
-    _log('initialize.begin asset=assets/video-campusvote.mp4 '
-        'isInitialized=${_controller.value.isInitialized}');
+    _log('initialize.begin source=${source ?? 'assets/video-campusvote.mp4'} '
+        'isInitialized=${_player.value.isInitialized}');
+    if (mounted) setState(() {});
     unawaited(_initialize());
   }
 
   Future<void> _initialize() async {
     try {
-      await _controller.initialize().timeout(const Duration(seconds: 12));
+      await _player.initialize().timeout(const Duration(seconds: 12));
       if (!mounted || _finished) return;
-      final value = _controller.value;
+      final value = _player.value;
       _log('initialize.done isInitialized=${value.isInitialized} '
           'duration=${value.duration} aspectRatio=${value.aspectRatio} '
           'error=${value.errorDescription}');
@@ -66,15 +106,15 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
       await WidgetsBinding.instance.endOfFrame;
       if (!mounted || _finished) return;
       _log('play.request');
-      await _controller.play();
+      await _player.play();
       if (!mounted || _finished) return;
       _playbackStarted = true;
-      _log('play.ack isPlaying=${_controller.value.isPlaying} '
-          'position=${_controller.value.position}');
+      _log('play.ack isPlaying=${_player.value.isPlaying} '
+          'position=${_player.value.position}');
       _playbackWatchdog = Timer(const Duration(seconds: 8), () {
         if (mounted &&
             !_finished &&
-            _controller.value.position == Duration.zero) {
+            _player.value.position == Duration.zero) {
           _fail(StateError('La reproducción no avanzó tras iniciar play()'),
               StackTrace.current);
         }
@@ -87,7 +127,7 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
 
   void _handlePlayback() {
     if (!mounted || _finished) return;
-    final value = _controller.value;
+    final value = _player.value;
     if (value.hasError) {
       if (!_errorLogged) {
         _errorLogged = true;
@@ -111,7 +151,7 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
   void _fail(Object error, StackTrace stackTrace) {
     if (!mounted || _finished) return;
     _log(
-        'fallback.error=$error controllerError=${_controller.value.errorDescription}');
+        'fallback.error=$error controllerError=${_player.value.errorDescription}');
     debugPrintStack(stackTrace: stackTrace, maxFrames: 8);
     setState(() => _hasFailed = true);
     _finish('playback.failed');
@@ -122,8 +162,8 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
     _finished = true;
     _playbackWatchdog?.cancel();
     _log('navigation.trigger reason=$reason '
-        'position=${_controller.value.position} '
-        'duration=${_controller.value.duration}');
+        'position=${_player.value.position} '
+        'duration=${_player.value.duration}');
     widget.onFinished();
   }
 
@@ -131,7 +171,7 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
   void dispose() {
     _playbackWatchdog?.cancel();
     _controller
-      ..removeListener(_handlePlayback)
+      ?..removeListener(_handlePlayback)
       ..dispose();
     super.dispose();
   }
@@ -147,8 +187,8 @@ class _SplashIntroVideoState extends State<SplashIntroVideo> {
         children: [
           if (_isReady)
             IntroVideoFrame(
-              aspectRatio: _controller.value.aspectRatio,
-              child: VideoPlayer(_controller),
+              aspectRatio: _player.value.aspectRatio,
+              child: VideoPlayer(_player),
             )
           else
             Semantics(

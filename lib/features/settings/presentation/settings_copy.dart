@@ -166,6 +166,10 @@ class SettingsCopy {
   String ratingOutOfFive(int score) =>
       isEnglish ? '$score out of 5' : '$score de 5';
 
+  String averageOutOfFive(double score) => isEnglish
+      ? '${score.toStringAsFixed(1)} out of 5'
+      : '${score.toStringAsFixed(1)} de 5';
+
   String ratingStars(int score) =>
       isEnglish ? '$score out of 5 stars' : '$score de 5 estrellas';
 

@@ -12,6 +12,11 @@ class AuthState {
   final String? errorMessage;
   final bool mustChangePassword;
 
+  /// El estudiante entra con un código de correo y no recibe contraseña,
+  /// así que no se le pide cambiarla aunque la cuenta venga marcada.
+  bool get forcesPasswordChange =>
+      mustChangePassword && user?.role != AuthRole.student;
+
   const AuthState({
     this.initializing = true,
     this.authenticated = false,

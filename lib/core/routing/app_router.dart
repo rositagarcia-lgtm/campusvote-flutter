@@ -30,6 +30,7 @@ import '../../features/student_projects/presentation/student_project_detail_page
 import '../../features/student_projects/presentation/student_projects_page.dart';
 import '../../features/fair_audience/presentation/audience_projects_page.dart';
 import '../../features/fair_audience/presentation/explore_fairs_page.dart';
+import '../../features/teacher_results/presentation/adviser_project_detail_page.dart';
 import '../../features/teacher_results/presentation/adviser_projects_page.dart';
 import '../../features/teacher_results/presentation/teacher_home_page.dart';
 import '../../features/teacher_results/presentation/teacher_results_page.dart';
@@ -41,7 +42,7 @@ import 'role_landing.dart';
 ///
 /// Implementa guards:
 /// - authenticated
-/// - mustChangePassword → forzado a /security/password
+/// - contraseña temporal del jurado → forzado a /security/password
 /// - election in scope (vía controllers)
 /// - voting session active (cuando aplique)
 /// [refreshListenable] debe ser provisto por el llamador para poder liberarlo
@@ -84,7 +85,7 @@ GoRouter buildAppRouter(
       // Forzar cambio de contraseña obligatorio antes de cualquier otra ruta
       // (incluido el salto al panel de su rol).
       if (auth.authenticated &&
-          auth.mustChangePassword &&
+          auth.forcesPasswordChange &&
           loc != '/security/password') {
         if (loc == '/splash' && !SplashPage.introCompleted) return null;
         if (loc == '/splash') {
@@ -172,9 +173,10 @@ GoRouter buildAppRouter(
           GoRoute(
             path: 'password',
             builder: (_, s) => ChangePasswordPage(
-              // El cambio forzado sale del estado de sesión, no de un stub.
+              // El cambio forzado sale del estado de sesión. El estudiante
+              // entra con código de correo y no queda atrapado en esta pantalla.
               required: s.extra == true ||
-                  ref.read(authControllerProvider).mustChangePassword,
+                  ref.read(authControllerProvider).forcesPasswordChange,
             ),
           ),
           GoRoute(
@@ -205,6 +207,14 @@ GoRouter buildAppRouter(
           GoRoute(
             path: 'projects',
             builder: (_, __) => const AdviserProjectsPage(),
+            routes: [
+              GoRoute(
+                path: ':projectId',
+                builder: (_, s) => AdviserProjectDetailPage(
+                  projectId: s.pathParameters['projectId']!,
+                ),
+              ),
+            ],
           ),
         ],
       ),

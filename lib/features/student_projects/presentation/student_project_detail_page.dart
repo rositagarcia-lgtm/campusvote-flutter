@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../../core/config/app_env.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_loader.dart';
@@ -12,8 +11,6 @@ import '../../../core/widgets/app_notice.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/translatable_text.dart';
 import '../../settings/presentation/settings_copy.dart';
-import '../../fair_audience/data/fair_audience_repository.dart';
-import '../../fair_audience/presentation/peer_feedback_section.dart';
 import '../data/student_projects_repository.dart';
 import '../domain/student_project.dart';
 import 'widgets/project_visuals.dart';
@@ -43,6 +40,8 @@ class StudentProjectDetailPage extends ConsumerWidget {
 
     final theme = Theme.of(context);
     final (label, tone, icon) = project.statusBadge;
+    final photos = _bannerUrls(project);
+    final videoUrl = AppEnv.mediaUrl(project.videoUrl);
     final sections = <Widget>[
       Wrap(
         spacing: AppSpacing.s,
@@ -56,7 +55,13 @@ class StudentProjectDetailPage extends ConsumerWidget {
           ),
         ],
       ),
-      Column(
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ProjectLogo(project: project),
+          const SizedBox(width: AppSpacing.m),
+          Expanded(
+            child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -83,6 +88,9 @@ class StudentProjectDetailPage extends ConsumerWidget {
               icon: PhosphorIconsRegular.mapPin,
               text: '${text.t('Stand')} ${project.stand}',
             ),
+        ],
+            ),
+          ),
         ],
       ),
       _Section(
@@ -111,35 +119,12 @@ class StudentProjectDetailPage extends ConsumerWidget {
           ],
         ),
       ),
-      if (project.fair != null)
-        _Section(
-          title: text.t('Opinión de tus compañeros'),
-          child: PeerFeedbackSection(
-            fairId: project.fair!.id,
-            projectId: project.id,
-          ),
-        ),
-      _Section(
-        title: text.t('Valoración del jurado'),
-        child: project.hasFeedback
-            ? _Feedback(project: project)
-            : Text(
-                text.t(
-                    'Los Me gusta y comentarios del jurado aparecerán cuando tu proyecto esté en una feria abierta.'),
-                style: theme.textTheme.bodyMedium,
-              ),
-      ),
     ];
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(projectFeedbackProvider(project));
-          final fairId = project.fair?.id;
-          if (fairId != null) {
-            ref.invalidate(
-                peerFeedbackProvider((fairId: fairId, projectId: project.id)));
-          }
           await ref
               .refresh(studentProjectsProvider.future)
               .catchError((_) => const <StudentProject>[]);
@@ -165,11 +150,31 @@ class StudentProjectDetailPage extends ConsumerWidget {
                   icon: const Icon(PhosphorIconsRegular.arrowLeft),
                 ),
               ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.s),
+                  child: IconButton.filledTonal(
+                    tooltip: text.t('Calificación del jurado'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => JuryReviewsPage(project: project),
+                        ),
+                      );
+                    },
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          theme.colorScheme.surface.withValues(alpha: 0.92),
+                    ),
+                    icon: const Icon(PhosphorIconsFill.star),
+                  ),
+                ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 stretchModes: const [StretchMode.zoomBackground],
-                background: Hero(
-                  tag: 'project-cover-${project.id}',
-                  child: ProjectCover(project: project, height: 280),
+                background: ProjectImageBanner(
+                  urls: photos,
+                  fallback: ProjectCover(project: project, height: 280),
                 ),
               ),
             ),
@@ -178,13 +183,29 @@ class StudentProjectDetailPage extends ConsumerWidget {
                 AppSpacing.l,
                 AppSpacing.l,
                 AppSpacing.l,
-                AppSpacing.xxxl,
+                0,
               ),
               sliver: SliverList.separated(
-                itemCount: sections.length,
+                itemCount: 2,
                 separatorBuilder: (_, __) =>
                     const SizedBox(height: AppSpacing.l),
                 itemBuilder: (_, i) => AppMotion.reveal(i, sections[i]),
+              ),
+            ),
+            SliverToBoxAdapter(child: _ProjectVideoBlock(url: videoUrl)),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.l,
+                AppSpacing.l,
+                AppSpacing.l,
+                AppSpacing.xxxl,
+              ),
+              sliver: SliverList.separated(
+                itemCount: sections.length - 2,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.l),
+                itemBuilder: (_, i) =>
+                    AppMotion.reveal(i + 2, sections[i + 2]),
               ),
             ),
           ],
@@ -284,9 +305,86 @@ class _MateRow extends StatelessWidget {
   }
 }
 
-/// Me gusta con un "latido" al aparecer y comentarios anónimos del jurado.
-class _Feedback extends ConsumerWidget {
-  const _Feedback({required this.project});
+class _StarRow extends StatelessWidget {
+  const _StarRow({required this.rating, required this.label});
+
+  final int rating;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final filled = theme.colorScheme.primary;
+    final empty = theme.colorScheme.onSurface.withValues(alpha: 0.35);
+    return Row(
+      children: [
+        for (var star = 1; star <= 5; star++)
+          Icon(
+            star <= rating ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
+            size: 22,
+            color: star <= rating ? filled : empty,
+          ),
+        if (label.isNotEmpty) ...[
+          const SizedBox(width: AppSpacing.s),
+          Text(label, style: theme.textTheme.titleSmall),
+        ],
+      ],
+    );
+  }
+}
+
+List<String> _bannerUrls(StudentProject project) {
+  final Iterable<String> raw = project.imageUrls.isNotEmpty
+      ? project.imageUrls
+      : [project.coverUrl, project.fair?.imageUrl].whereType<String>();
+  return [
+    for (final url in raw)
+      if (AppEnv.mediaUrl(url) case final src?) src,
+  ];
+}
+
+class _ProjectVideoBlock extends StatelessWidget {
+  const _ProjectVideoBlock({required this.url});
+
+  final String? url;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = SettingsCopy.of(context);
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.l),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+            child: Text(
+              text.t('Video'),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s),
+          if (url == null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+              child: Text(
+                text.t('Aún no hay video del proyecto.'),
+                style: theme.textTheme.bodyMedium,
+              ),
+            )
+          else
+            ProjectVideo(url: url!, borderRadius: BorderRadius.zero),
+        ],
+      ),
+    );
+  }
+}
+
+class JuryReviewsPage extends ConsumerWidget {
+  const JuryReviewsPage({super.key, required this.project});
 
   final StudentProject project;
 
@@ -296,104 +394,164 @@ class _Feedback extends ConsumerWidget {
     final theme = Theme.of(context);
     final feedback = ref.watch(projectFeedbackProvider(project));
 
-    return feedback.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(AppSpacing.l),
-        child: Center(child: CircularProgressIndicator()),
-      ),
-      error: (_, __) => Text(
-        text.t('No pudimos cargar la valoración. Desliza para reintentar.'),
-        style: theme.textTheme.bodyMedium,
-      ),
-      data: (data) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.4, end: 1),
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.elasticOut,
-                builder: (_, s, child) =>
-                    Transform.scale(scale: s, child: child),
-                child: const Icon(
-                  PhosphorIconsFill.heart,
-                  color: AppColors.danger,
-                  size: 34,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.m),
-              CountUpText(
-                value: data.likes,
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.s),
-              Expanded(
-                child: Text(
-                  text.t('Me gusta del jurado'),
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ),
-            ],
-          ),
-          if (data.comments.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.l),
-            for (var i = 0; i < data.comments.length; i++)
-              AppMotion.reveal(i, _CommentBubble(comment: data.comments[i])),
-          ] else ...[
-            const SizedBox(height: AppSpacing.m),
-            Text(
-              text.t('Aún no hay comentarios del jurado.'),
+    return Scaffold(
+      appBar: AppBar(title: Text(text.t('Calificación del jurado'))),
+      body: feedback.when(
+        loading: () => const AppLoader(),
+        error: (_, __) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.l),
+            child: Text(
+              text.t('No pudimos cargar la valoración. Desliza para reintentar.'),
               style: theme.textTheme.bodyMedium,
             ),
-          ],
+          ),
+        ),
+        data: (data) {
+          if (!data.published) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.l),
+                child: Text(
+                  text.t(
+                      'La calificación por estrellas y el voto aparecerán cuando se publiquen los resultados.'),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge,
+                ),
+              ),
+            );
+          }
+          final average = data.average;
+          final reviews = data.reviews;
+          return ListView(
+            padding: const EdgeInsets.all(AppSpacing.l),
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    average == null ? '—' : average.toStringAsFixed(1),
+                    style: theme.textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.l),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (average != null)
+                          _StarRow(
+                            rating: average.round().clamp(1, 5).toInt(),
+                            label: '',
+                          ),
+                        Text(
+                          text.t(reviews.length == 1
+                              ? '1 reseña del jurado'
+                              : '${reviews.length} reseñas del jurado'),
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        Text(
+                          '${text.t('Votos del jurado')} · ${text.votes(data.votes ?? 0)}',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.l),
+              for (var star = 5; star >= 1; star--)
+                _RatingBar(
+                  star: star,
+                  count: reviews.where((review) => review.rating == star).length,
+                  total: reviews.length,
+                ),
+              const SizedBox(height: AppSpacing.l),
+              Text(
+                text.t('Reseñas del jurado'),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              if (reviews.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.m),
+                  child: Text(
+                    text.t('Aún no hay calificaciones por estrellas.'),
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              for (final review in reviews) _ReviewBlock(review: review),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _RatingBar extends StatelessWidget {
+  const _RatingBar({
+    required this.star,
+    required this.count,
+    required this.total,
+  });
+
+  final int star;
+  final int count;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fraction = total == 0 ? 0.0 : count / total;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+      child: Row(
+        children: [
+          SizedBox(width: 12, child: Text('$star', style: theme.textTheme.labelMedium)),
+          const SizedBox(width: AppSpacing.s),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: fraction,
+                minHeight: 8,
+                color: theme.colorScheme.primary,
+                backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _CommentBubble extends StatelessWidget {
-  const _CommentBubble({required this.comment});
+class _ReviewBlock extends StatelessWidget {
+  const _ReviewBlock({required this.review});
 
-  final ProjectComment comment;
+  final ProjectReview review;
 
   @override
   Widget build(BuildContext context) {
     final text = SettingsCopy.of(context);
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final date = comment.createdAt == null
-        ? null
-        : DateFormat.yMMMd(Localizations.localeOf(context).languageCode)
-            .format(comment.createdAt!);
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.s),
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          scheme.primary.withValues(alpha: 0.06),
-          scheme.surface,
-        ),
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(14),
-          bottomLeft: Radius.circular(14),
-          bottomRight: Radius.circular(14),
-          topLeft: Radius.circular(4),
-        ),
-      ),
+    final comment = review.comment;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.m),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TranslatableText(comment.text, style: theme.textTheme.bodyLarge),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            [text.t('Jurado'), if (date != null) date].join(' · '),
-            style: theme.textTheme.labelSmall,
+          _StarRow(
+            rating: review.rating,
+            label: text.ratingOutOfFive(review.rating),
           ),
+          if (comment != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            TranslatableText(comment, style: theme.textTheme.bodyLarge),
+          ],
         ],
       ),
     );
