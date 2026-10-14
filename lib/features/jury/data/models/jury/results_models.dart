@@ -103,8 +103,9 @@ class FairResultsModel {
       published: (json['published'] ?? false) == true,
       publishedAt: parseDate(json['published_at'] ?? json['publishedAt']),
       publishedByName: name.isEmpty ? null : name,
-      ranking:
-          asMapList(json['ranking']).map(FairResultEntryModel.fromJson).toList(),
+      ranking: asMapList(json['ranking'])
+          .map(FairResultEntryModel.fromJson)
+          .toList(),
     );
   }
 }

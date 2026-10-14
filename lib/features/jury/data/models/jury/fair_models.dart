@@ -138,4 +138,3 @@ class FairProjectModel {
         'stand': {'id': standId, 'code': standCode},
       };
 }
-

@@ -92,9 +92,11 @@ class RubricResponseModel {
 
   factory RubricResponseModel.fromJson(Map<String, dynamic> json) =>
       RubricResponseModel(
-        criterionId: parseText(json['criterion_id'] ?? json['criterionId']) ?? '',
+        criterionId:
+            parseText(json['criterion_id'] ?? json['criterionId']) ?? '',
         checked: (json['checked'] ?? false) == true,
-        criterionName: parseText(json['criterion_name'] ?? json['criterionName']),
+        criterionName:
+            parseText(json['criterion_name'] ?? json['criterionName']),
         criterionPosition:
             (json['criterion_position'] ?? json['criterionPosition']) as int?,
       );

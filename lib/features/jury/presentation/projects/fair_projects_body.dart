@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import 'fair_project_filter.dart';
+import 'widgets/declaration_gate.dart';
 import 'widgets/fair_actions_bar.dart';
 import 'widgets/fair_progress_banner.dart';
 import 'widgets/fair_project_card.dart';
@@ -50,6 +51,11 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
       fairId: widget.fairId,
     );
     final theme = Theme.of(context);
+    // Paso obligatorio: sin declaración de imparcialidad no hay rúbrica ni
+    // voto (el backend también lo exige).
+    final needsDeclaration = progress.hasValue &&
+        progress.requireValue.declaration == null &&
+        progress.requireValue.fairStatus == FairStatus.open;
 
     // Mientras los estados no llegan, no se afirma «Pendiente»: se sabe si un
     // proyecto está evaluado solo cuando la API lo ha confirmado.
@@ -97,11 +103,15 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
+          if (needsDeclaration) ...[
+            DeclarationGate(fairId: widget.fairId),
+            const SizedBox(height: AppSpacing.l),
+          ],
           if (progress.hasValue) ...[
             FairProgressBanner(progress: progress.requireValue),
             const SizedBox(height: AppSpacing.l),
           ],
-          FairActionsBar(fairId: widget.fairId),
+          FairActionsBar(fairId: widget.fairId, locked: needsDeclaration),
           const SizedBox(height: AppSpacing.xl),
           SectionHeader(
             label: 'TU CATEGORÍA',
@@ -130,6 +140,7 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
                 project: project,
                 evaluationSubmitted:
                     known ? submittedIds.contains(project.id) : null,
+                locked: needsDeclaration,
               ),
             ),
         ],

@@ -42,9 +42,8 @@ class RubricEvaluationPage extends ConsumerWidget {
     final state = ref.watch(rubricFormProvider(args));
     final controller = ref.read(rubricFormProvider(args).notifier);
     final listed = ref.watch(fairProjectsProvider(fairId));
-    final project = listed.asData?.value
-        .where((item) => item.id == projectId)
-        .firstOrNull;
+    final project =
+        listed.asData?.value.where((item) => item.id == projectId).firstOrNull;
 
     return Scaffold(
       appBar: buildCampusVoteAppBar(

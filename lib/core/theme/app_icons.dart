@@ -420,6 +420,10 @@ abstract final class PhosphorIconsFill {
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const signature = IconData(0xebac,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const star = IconData(0xe46a,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',

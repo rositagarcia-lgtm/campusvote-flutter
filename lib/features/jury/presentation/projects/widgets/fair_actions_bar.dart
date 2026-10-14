@@ -12,9 +12,12 @@ import '../../../../../core/widgets/app_button.dart';
 /// Viven aquí, con etiqueta visible, en lugar de ser iconos sueltos en la barra
 /// superior: en pantallas estrechas el texto es lo que explica la acción.
 class FairActionsBar extends StatelessWidget {
-  const FairActionsBar({super.key, required this.fairId});
+  const FairActionsBar({super.key, required this.fairId, this.locked = false});
 
   final String fairId;
+
+  /// Sin declaración firmada tampoco se vota.
+  final bool locked;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +28,12 @@ class FairActionsBar extends StatelessWidget {
       onPressed: () => context.push('/jury/fair/$fairId/progress'),
     );
     final vote = AppButton(
-      label: 'Votación oficial',
-      icon: PhosphorIconsRegular.checkSquareOffset,
+      label: locked ? 'Votación (firma primero)' : 'Votación oficial',
+      icon: locked
+          ? PhosphorIconsRegular.lockSimple
+          : PhosphorIconsRegular.checkSquareOffset,
       dense: true,
-      onPressed: () => context.push('/jury/fair/$fairId/vote'),
+      onPressed: locked ? null : () => context.push('/jury/fair/$fairId/vote'),
     );
 
     return LayoutBuilder(
