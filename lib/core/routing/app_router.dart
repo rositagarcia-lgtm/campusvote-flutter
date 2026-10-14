@@ -30,11 +30,14 @@ import '../../features/student_projects/presentation/student_project_detail_page
 import '../../features/student_projects/presentation/student_projects_page.dart';
 import '../../features/fair_audience/presentation/audience_projects_page.dart';
 import '../../features/fair_audience/presentation/explore_fairs_page.dart';
+import '../../features/fair_audience/presentation/scan_stand_page.dart';
 import '../../features/teacher_results/presentation/adviser_project_detail_page.dart';
 import '../../features/teacher_results/presentation/adviser_projects_page.dart';
 import '../../features/teacher_results/presentation/teacher_home_page.dart';
 import '../../features/teacher_results/presentation/teacher_results_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
+import '../../features/jury/presentation/pages/jury_invitation_page.dart';
+import 'deep_links.dart';
 import 'legacy_jury_routes.dart';
 import 'role_landing.dart';
 
@@ -63,6 +66,14 @@ GoRouter buildAppRouter(
       final legacy = legacyJuryRedirect(loc);
       if (legacy != null) return legacy;
 
+      // Enlace de la web (QR del stand, invitación): si aún no se puede abrir
+      // (arranque o sin sesión), se guarda para retomarlo después.
+      final opensInvitation = loc.startsWith('/j/');
+      if (isAppLink(loc) &&
+          (auth.initializing || (!auth.authenticated && !opensInvitation))) {
+        PendingDeepLink.remember(state.uri.toString());
+      }
+
       if (auth.initializing) {
         return loc == '/splash' ? null : '/splash';
       }
@@ -79,6 +90,13 @@ GoRouter buildAppRouter(
         '/auth/password/forgot',
         '/auth/totp',
       };
+      // La invitación de jurado se puede abrir sin sesión: crea la cuenta.
+      if (!auth.authenticated && opensInvitation) return null;
+      if (!auth.authenticated &&
+          loc == '/splash' &&
+          PendingDeepLink.hasInvitation) {
+        return PendingDeepLink.take();
+      }
       if (!auth.authenticated && !publicRoutes.contains(loc)) {
         return '/splash';
       }
@@ -98,7 +116,14 @@ GoRouter buildAppRouter(
       // su rol. La autoridad es `user.role` del backend, no el panel que el
       // usuario tocó en el splash.
       if (auth.authenticated && publicRoutes.contains(loc)) {
-        if (loc == '/splash' && !SplashPage.introCompleted) return null;
+        if (loc == '/splash' &&
+            !SplashPage.introCompleted &&
+            !PendingDeepLink.hasAny) {
+          return null;
+        }
+        // Tras iniciar sesión se retoma el enlace que abrió la app.
+        final pending = PendingDeepLink.take();
+        if (pending != null) return pending;
         final destination = landingPathForRole(auth.user?.role);
         if (loc == '/splash') {
           debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '
@@ -195,6 +220,32 @@ GoRouter buildAppRouter(
         ],
       ),
 
+      // ── Enlaces de la web que abren la app ────────────────────────────
+      // QR del stand: cada rol llega a su vista del proyecto.
+      GoRoute(
+        path: '/ferias/:fairId/proyectos/:projectId',
+        redirect: (_, s) {
+          final fairId = s.pathParameters['fairId']!;
+          final projectId = s.pathParameters['projectId']!;
+          final role = ref.read(authControllerProvider).user?.role;
+          if (role == AuthRole.student) {
+            return '/teaching/explore/$fairId?project=$projectId';
+          }
+          if (AuthRole.usesJuryPanel(role)) {
+            return '/jury/fair/$fairId?project=$projectId';
+          }
+          return landingPathForRole(role);
+        },
+      ),
+      // Escáner del QR del stand (cualquier rol con sesión).
+      GoRoute(path: '/scan', builder: (_, __) => const ScanStandPage()),
+      GoRoute(
+        path: '/j/invitacion',
+        builder: (_, s) => JuryInvitationPage(
+          token: s.uri.queryParameters['token'] ?? '',
+        ),
+      ),
+
       // ── DOCENTE: inicio propio y resultados de su evaluación ─────────
       GoRoute(
         path: '/teacher',
@@ -232,8 +283,10 @@ GoRouter buildAppRouter(
           ),
           GoRoute(
             path: 'fair/:fairId',
-            builder: (_, s) =>
-                FairProjectsPage(fairId: s.pathParameters['fairId']!),
+            builder: (_, s) => FairProjectsPage(
+              fairId: s.pathParameters['fairId']!,
+              initialProjectId: s.uri.queryParameters['project'],
+            ),
             routes: [
               GoRoute(
                 path: 'project/:projectId/rubric',
@@ -274,8 +327,10 @@ GoRouter buildAppRouter(
             routes: [
               GoRoute(
                 path: ':fairId',
-                builder: (_, s) =>
-                    AudienceProjectsPage(fairId: s.pathParameters['fairId']!),
+                builder: (_, s) => AudienceProjectsPage(
+                  fairId: s.pathParameters['fairId']!,
+                  initialProjectId: s.uri.queryParameters['project'],
+                ),
               ),
             ],
           ),

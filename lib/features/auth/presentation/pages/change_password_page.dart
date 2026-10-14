@@ -59,7 +59,7 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
         // por correo `two_factor_enabled` ya queda activo), así que el cambio
         // obligatorio devuelve a su panel en vez de forzar el setup de TOTP.
         context.go(
-            landingPathForRole(ref.read(authControllerProvider).user?.role));
+            postLoginPath(ref.read(authControllerProvider).user?.role));
       } else if (context.canPop()) {
         context.pop();
       }

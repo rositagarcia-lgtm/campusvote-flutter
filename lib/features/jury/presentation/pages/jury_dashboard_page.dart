@@ -51,6 +51,11 @@ class JuryDashboardPage extends ConsumerWidget {
               icon: const Icon(PhosphorIconsRegular.house),
               onPressed: () => context.go('/teacher'),
             ),
+          IconButton(
+            tooltip: 'Escanear QR del stand',
+            icon: const Icon(PhosphorIconsRegular.qrCode),
+            onPressed: () => context.push('/scan'),
+          ),
           const NotificationsBell(),
           IconButton(
             tooltip: 'Actualizar ferias',

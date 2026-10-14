@@ -20,9 +20,16 @@ import 'rate_project_sheet.dart';
 /// `/teaching/explore/:fairId` — proyectos aprobados de la feria. El alumno
 /// abre uno para calificarlo y dejar un comentario de mejora.
 class AudienceProjectsPage extends ConsumerWidget {
-  const AudienceProjectsPage({super.key, required this.fairId});
+  const AudienceProjectsPage({
+    super.key,
+    required this.fairId,
+    this.initialProjectId,
+  });
 
   final String fairId;
+
+  /// Proyecto escaneado en el QR del stand: se abre su hoja al cargar.
+  final String? initialProjectId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,18 +54,59 @@ class AudienceProjectsPage extends ConsumerWidget {
             message: mapExceptionToFailure(error).message,
             onRetry: reload,
           ),
-          data: (data) => _Board(fairId: fairId, board: data),
+          data: (data) => _Board(
+            fairId: fairId,
+            board: data,
+            initialProjectId: initialProjectId,
+          ),
         ),
       ),
     );
   }
 }
 
-class _Board extends ConsumerWidget {
-  const _Board({required this.fairId, required this.board});
+class _Board extends ConsumerStatefulWidget {
+  const _Board({
+    required this.fairId,
+    required this.board,
+    this.initialProjectId,
+  });
 
   final String fairId;
   final AudienceBoard board;
+  final String? initialProjectId;
+
+  @override
+  ConsumerState<_Board> createState() => _BoardState();
+}
+
+class _BoardState extends ConsumerState<_Board> {
+  bool _openedInitial = false;
+
+  String get fairId => widget.fairId;
+  AudienceBoard get board => widget.board;
+
+  @override
+  void initState() {
+    super.initState();
+    final target = board.projects
+        .where((p) => p.id == widget.initialProjectId)
+        .firstOrNull;
+    if (widget.initialProjectId != null && !_openedInitial) {
+      _openedInitial = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (target != null) {
+          _open(context, ref, target);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+                'Ese proyecto no está disponible en esta feria para opinar.'),
+          ));
+        }
+      });
+    }
+  }
 
   Future<void> _open(
       BuildContext context, WidgetRef ref, AudienceProject project) async {
@@ -79,7 +127,7 @@ class _Board extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final favorite = board.favorite;
     final rated = board.projects.where((p) => p.myScore != null).length;
     final rateable = board.projects.where((p) => !p.isMine).length;

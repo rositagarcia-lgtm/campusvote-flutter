@@ -3,6 +3,8 @@
          esta línea el APK de release no puede llamar a la API y la app solo
          muestra "No se pudo contactar al servidor". -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Escanear el QR del stand desde la app. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="CampusVote"
         android:name="${applicationName}"
@@ -27,6 +29,18 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- App Links: el QR del stand y la invitación de jurado abren la
+                 app directo. Android verifica el dominio con
+                 /.well-known/assetlinks.json (firma de release). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"
+                      android:host="campusvote-front.onrender.com"/>
+                <data android:pathPrefix="/ferias/"/>
+                <data android:pathPrefix="/j/"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

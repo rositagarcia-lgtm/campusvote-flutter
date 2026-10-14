@@ -46,7 +46,7 @@ class _TotpPageState extends ConsumerState<TotpPage> {
     if (ok) {
       // El destino sale del rol que devolvió el backend, no de una ruta fija.
       context
-          .go(landingPathForRole(ref.read(authControllerProvider).user?.role));
+          .go(postLoginPath(ref.read(authControllerProvider).user?.role));
     }
   }
 

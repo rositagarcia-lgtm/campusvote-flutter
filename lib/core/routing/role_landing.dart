@@ -1,4 +1,5 @@
 import '../../features/auth/domain/entities/auth_role.dart';
+import 'deep_links.dart';
 
 /// Pantalla de inicio de cada rol.
 ///
@@ -16,3 +17,8 @@ String landingPathForRole(String? role) {
   if (AuthRole.usesJuryPanel(role)) return '/jury';
   return role == AuthRole.student ? '/teaching' : '/account';
 }
+
+/// Destino al terminar de iniciar sesión: el enlace que abrió la app (QR del
+/// stand, invitación) si lo hay; si no, el panel del rol.
+String postLoginPath(String? role) =>
+    PendingDeepLink.take() ?? landingPathForRole(role);

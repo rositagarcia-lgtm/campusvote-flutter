@@ -80,6 +80,10 @@ abstract final class PhosphorIconsRegular {
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const check = IconData(0xe182,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const checkCircle = IconData(0xe184,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
@@ -273,6 +277,10 @@ abstract final class PhosphorIconsRegular {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const shieldCheck = IconData(0xe40c,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const signIn = IconData(0xe428,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);

@@ -56,7 +56,7 @@ class _JuryLoginPageState extends ConsumerState<JuryLoginPage> {
         await ref.read(authControllerProvider.notifier).logout();
       case JuryLoginOutcome.granted:
         setState(() => _wrongRole = false);
-        context.go(landingPathForRole(state.user?.role));
+        context.go(postLoginPath(state.user?.role));
       case JuryLoginOutcome.needsEmailCode:
         context.go('/auth/email-verify');
       case JuryLoginOutcome.needsTotp:

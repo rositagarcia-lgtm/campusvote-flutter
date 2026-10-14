@@ -7,6 +7,7 @@ import '../../../core/errors/error_mapper.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loader.dart';
@@ -81,7 +82,16 @@ class _FairList extends StatelessWidget {
           'ideas para mejorar. Tu voto no cuenta para la nota del jurado.',
           style: theme.textTheme.bodyMedium,
         ),
-        const SizedBox(height: AppSpacing.l),
+        const SizedBox(height: AppSpacing.m),
+        // En la feria: el QR del stand abre ese proyecto directo.
+        if (fairs.any((f) => f.isOpen)) ...[
+          AppButton(
+            label: 'Escanear QR del stand',
+            icon: PhosphorIconsRegular.qrCode,
+            onPressed: () => context.push('/scan'),
+          ),
+          const SizedBox(height: AppSpacing.l),
+        ],
         for (var i = 0; i < fairs.length; i++)
           AppMotion.reveal(i, _FairCard(fair: fairs[i])),
       ],
