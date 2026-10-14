@@ -168,7 +168,7 @@ void main() {
       )));
       await tester.pumpAndSettle();
       expect(find.text('Aún no hay suficientes evaluaciones'), findsOneWidget);
-      expect(find.textContaining('Llevas 2'), findsOneWidget);
+      expect(find.textContaining('llevas 2 de 3'), findsOneWidget);
     });
   });
 }

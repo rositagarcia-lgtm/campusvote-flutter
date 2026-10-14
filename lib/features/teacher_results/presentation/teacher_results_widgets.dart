@@ -32,7 +32,7 @@ class ResultsHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'PROMEDIO DE TUS CRITERIOS',
+            'ACUMULADO DE TODOS TUS CURSOS Y PERIODOS',
             style: theme.textTheme.labelSmall?.copyWith(
               color: scheme.primary,
               fontWeight: FontWeight.w800,

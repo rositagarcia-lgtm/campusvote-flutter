@@ -89,8 +89,10 @@ class _Body extends StatelessWidget {
           overline: 'ANONIMATO PROTEGIDO',
           title: 'Aún no hay suficientes evaluaciones',
           message: 'Para proteger a tus alumnos, los resultados se muestran '
-              'desde ${results.minimumRequired} evaluaciones. '
-              'Llevas ${results.totalResponses}.',
+              'desde ${results.minimumRequired} evaluaciones: llevas '
+              '${results.totalResponses} de ${results.minimumRequired}. Se suman '
+              'las de todos tus cursos y periodos, así que aunque tengas un solo '
+              'curso o vengas un día a la semana, se completan con el tiempo.',
         ));
       case TeacherResultsStatus.available:
         return _Results(results: results);
