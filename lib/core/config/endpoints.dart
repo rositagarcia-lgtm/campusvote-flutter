@@ -51,6 +51,11 @@ class ApiEndpoints {
   static String audienceFeedback(String fairId, String projectId) =>
       '/api/fairs/$fairId/projects/$projectId/audience-feedback';
 
+  // Resultados publicados de feria (podio por categoría, para todos)
+  static const String publishedResults = '/api/fairs/published-results';
+  static String resultsPodium(String fairId) =>
+      '/api/fairs/$fairId/results/podium';
+
   // Proyectos de feria del alumno (solo los suyos, filtrado en el servidor)
   static const String myStudentProjects = '/api/projects/mine';
 

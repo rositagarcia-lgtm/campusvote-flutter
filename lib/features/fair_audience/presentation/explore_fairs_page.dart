@@ -14,6 +14,7 @@ import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
+import '../../fair_results/presentation/published_results_section.dart';
 import '../data/fair_audience_repository.dart';
 import '../domain/audience_models.dart';
 
@@ -83,6 +84,7 @@ class _FairList extends StatelessWidget {
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.m),
+        const PublishedResultsSection(),
         // En la feria: el QR del stand abre ese proyecto directo.
         if (fairs.any((f) => f.isOpen)) ...[
           AppButton(

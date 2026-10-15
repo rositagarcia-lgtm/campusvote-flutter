@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../fair_results/presentation/published_results_section.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_icons.dart';
@@ -134,6 +136,7 @@ class _FairsList extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.l),
+          const PublishedResultsSection(),
           if (open.isNotEmpty) ...[
             SectionHeader(
               label: 'ACCESO DISPONIBLE',

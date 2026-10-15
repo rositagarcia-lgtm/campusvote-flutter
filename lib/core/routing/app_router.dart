@@ -31,6 +31,7 @@ import '../../features/student_projects/presentation/student_projects_page.dart'
 import '../../features/fair_audience/presentation/audience_projects_page.dart';
 import '../../features/fair_audience/presentation/explore_fairs_page.dart';
 import '../../features/fair_audience/presentation/scan_stand_page.dart';
+import '../../features/fair_results/presentation/published_results_page.dart';
 import '../../features/teacher_results/presentation/adviser_project_detail_page.dart';
 import '../../features/teacher_results/presentation/adviser_projects_page.dart';
 import '../../features/teacher_results/presentation/teacher_home_page.dart';
@@ -235,6 +236,12 @@ GoRouter buildAppRouter(
           // docente califican desde su panel, no por QR.
           return landingPathForRole(role);
         },
+      ),
+      // Resultados publicados de una feria (todos los roles).
+      GoRoute(
+        path: '/resultados/:fairId',
+        builder: (_, s) =>
+            PublishedResultsPage(fairId: s.pathParameters['fairId']!),
       ),
       // Escáner del QR del stand (cualquier rol con sesión).
       GoRoute(path: '/scan', builder: (_, __) => const ScanStandPage()),

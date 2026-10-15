@@ -440,6 +440,10 @@ abstract final class PhosphorIconsFill {
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const trophy = IconData(0xe67e,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const userCircle = IconData(0xe4c4,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',

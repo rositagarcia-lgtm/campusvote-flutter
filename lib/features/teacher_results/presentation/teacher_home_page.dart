@@ -13,6 +13,7 @@ import '../../jury/presentation/providers/jury_providers.dart';
 import '../../notifications/presentation/widgets/notifications_bell.dart';
 import '../data/adviser_projects_repository.dart';
 import '../data/teacher_results_repository.dart';
+import '../../fair_results/presentation/published_results_section.dart';
 import 'jury_mode_card.dart';
 import '../domain/teacher_results.dart';
 
@@ -101,6 +102,7 @@ class TeacherHomePage extends ConsumerWidget {
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.xl),
+                    const PublishedResultsSection(),
                     if (juryActive) ...[
                       AppMotion.reveal(1, juryCard),
                       const SizedBox(height: AppSpacing.m),
