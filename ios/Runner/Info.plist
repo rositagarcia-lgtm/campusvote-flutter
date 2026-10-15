@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>CampusVote usa la camara para tomar tu foto de perfil.</string>
+	<string>CampusVote usa la cámara para escanear el código QR del stand y para tomar tu foto de perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>CampusVote accede a tus fotos para elegir tu foto de perfil.</string>
 	<key>UIApplicationSceneManifest</key>
