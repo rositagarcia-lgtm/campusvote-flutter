@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/core_providers.dart';
 import '../../../core/network/api_client.dart';
 import '../../auth/presentation/state/auth_controller.dart';
+import '../domain/evaluation_progress.dart';
 import '../domain/teacher_results.dart';
 
 /// Resultados de la evaluación docente del docente autenticado
@@ -113,6 +114,15 @@ class TeacherResultsRepository {
     }
   }
 
+  /// Jornadas publicadas de mis cursos con cuántos alumnos ya me evaluaron.
+  Future<List<ScheduleProgress>> progress() async {
+    final body = await _get('/api/academic/evaluation-progress/me');
+    final data = _map(body?['data']);
+    return [
+      for (final s in _list(data['schedules'])) ScheduleProgress.fromJson(s),
+    ];
+  }
+
   static Map<String, dynamic> _map(Object? value) =>
       value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
 
@@ -147,4 +157,10 @@ final teacherResultsProvider =
     return const TeacherResults(status: TeacherResultsStatus.insufficient);
   }
   return ref.read(teacherResultsRepositoryProvider).load(userId);
+});
+
+/// Avance de la evaluación del docente autenticado (solo conteos).
+final teacherEvaluationProgressProvider =
+    FutureProvider.autoDispose<List<ScheduleProgress>>((ref) {
+  return ref.watch(teacherResultsRepositoryProvider).progress();
 });

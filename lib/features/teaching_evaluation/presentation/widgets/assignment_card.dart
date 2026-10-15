@@ -40,6 +40,7 @@ class AssignmentCard extends StatelessWidget {
       if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
     ].join(' · ');
     final opensAt = assignment.opensAt;
+    final closesAt = assignment.closesAt;
     final status = assignment.evaluated
         ? 'Evaluado'
         : !assignment.isActive
@@ -48,7 +49,10 @@ class AssignmentCard extends StatelessWidget {
                 ? 'Abre el ${evaluationDayLabel(opensAt)}'
                 : !assignment.evaluationOpen
                     ? 'Jornada cerrada'
-                    : 'Pendiente';
+                    : closesAt != null
+                        // Jornada de varios días: el alumno ve hasta cuándo.
+                        ? 'Pendiente · hasta el ${evaluationDayLabel(closesAt)}'
+                        : 'Pendiente';
 
     void open() => context.go('/teaching/evaluate/${assignment.id}');
 

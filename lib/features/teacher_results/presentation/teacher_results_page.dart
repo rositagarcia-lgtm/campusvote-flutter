@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'evaluation_progress_card.dart';
 
 import '../../../core/branding/branding_controller.dart';
 import '../../../core/errors/error_mapper.dart';
@@ -25,7 +26,10 @@ class TeacherResultsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final results = ref.watch(teacherResultsProvider);
     final branding = ref.watch(brandingControllerProvider);
-    Future<void> reload() => ref.refresh(teacherResultsProvider.future);
+    Future<void> reload() {
+      ref.invalidate(teacherEvaluationProgressProvider);
+      return ref.refresh(teacherResultsProvider.future);
+    }
 
     return Scaffold(
       appBar: OrganizationPanelAppBar(
@@ -69,7 +73,15 @@ class _Body extends StatelessWidget {
             physics: const AlwaysScrollableScrollPhysics(),
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: child,
+              // El avance de la jornada se ve aunque aún no haya resultados.
+              child: Column(children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      AppSpacing.l, AppSpacing.l, AppSpacing.l, 0),
+                  child: EvaluationProgressCard(),
+                ),
+                child,
+              ]),
             ),
           ),
         );
@@ -122,6 +134,7 @@ class _Results extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const EvaluationProgressCard(),
                 reveal(ResultsHero(results: results)),
                 if (strongest != null && weakest != null) ...[
                   const SizedBox(height: AppSpacing.m),
