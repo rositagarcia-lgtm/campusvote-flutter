@@ -124,7 +124,8 @@ class TeacherHomePage extends ConsumerWidget {
                         onTap: () => context.go('/teacher/projects'),
                       ),
                     ),
-                    if (!juryActive) ...[
+                    // Sin asignación como jurado no se muestra nada de jurado.
+                    if (!juryActive && assigned.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.s),
                       AppMotion.reveal(3, juryCard),
                     ],

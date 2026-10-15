@@ -41,11 +41,19 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       for (var page = 2; page <= first.totalPages; page++) {
         all.addAll((await repo.getFairProjects(fairId, page: page)).items);
       }
+      final status = results[0] as VotingStatusModel;
       state = state.copyWith(
         loading: false,
         requiresStatusRefresh: false,
         scores: await _myScores(),
-        status: results[0] as VotingStatusModel,
+        status: status,
+        // El jurado vota solo en su categoría.
+        // Empieza por la primera categoría sin voto (excepción: varias).
+        activeCategoryId: status.categories.isEmpty
+            ? null
+            : (status.categories.where((c) => !c.hasVoted).firstOrNull ??
+                    status.categories.first)
+                .id,
         // El servidor solo acepta votos por proyectos aprobados.
         projects:
             all.where((p) => p.status == 'APPROVED').toList(growable: false),
@@ -100,6 +108,19 @@ class VotingFormController extends StateNotifier<VotingFormState> {
     }
   }
 
+  /// Cambia de categoría: solo entre las asignadas al jurado (excepción).
+  void selectCategory(String categoryId) {
+    if (state.submitting || !state.categories.any((c) => c.id == categoryId)) {
+      return;
+    }
+    state = state.copyWith(
+      activeCategoryId: categoryId,
+      clearSelection: true,
+      clearReceipt: true,
+      clearError: true,
+    );
+  }
+
   void select(String projectId) {
     if (!state.canVote) return;
     state = state.copyWith(selectedProjectId: projectId, clearError: true);
@@ -117,11 +138,12 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       state = state.copyWith(
         submitting: false,
         receipt: receipt,
-        status: VotingStatusModel(
-          fairId: fairId,
-          fairStatus: state.status?.fairStatus ?? FairStatus.open,
-          hasVoted: true,
-        ),
+        status: state.status?.withCategoryVoted(state.activeCategoryId) ??
+            VotingStatusModel(
+              fairId: fairId,
+              fairStatus: FairStatus.open,
+              hasVoted: true,
+            ),
         clearSelection: true,
       );
       // "Mi progreso" resume la participación: sin invalidarlo seguiría

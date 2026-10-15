@@ -18,16 +18,9 @@ import '../projects/fair_projects_body.dart';
 /// asignadas al jurado, así que aquí no se re-filtra (regla 7). Esta página solo
 /// compone: refresco, app bar y los estados de carga/error/vacío.
 class FairProjectsPage extends ConsumerWidget {
-  const FairProjectsPage({
-    super.key,
-    required this.fairId,
-    this.initialProjectId,
-  });
+  const FairProjectsPage({super.key, required this.fairId});
 
   final String fairId;
-
-  /// Proyecto escaneado en el QR del stand.
-  final String? initialProjectId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -50,7 +43,7 @@ class FairProjectsPage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: reload,
-        child: _bodyFor(fairId, projects, reload, initialProjectId),
+        child: _bodyFor(fairId, projects, reload),
       ),
     );
   }
@@ -60,7 +53,6 @@ Widget _bodyFor(
   String fairId,
   AsyncValue<List<FairProjectModel>> projects,
   Future<void> Function() onRetry,
-  String? initialProjectId,
 ) {
   switch (projects) {
     case AsyncLoading():
@@ -77,11 +69,7 @@ Widget _bodyFor(
           message: 'No tienes proyectos aprobados para evaluar en esta feria.',
         );
       }
-      return FairProjectsBody(
-        fairId: fairId,
-        projects: value,
-        initialProjectId: initialProjectId,
-      );
+      return FairProjectsBody(fairId: fairId, projects: value);
     default:
       return const AppLoader();
   }

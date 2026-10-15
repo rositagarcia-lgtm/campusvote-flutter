@@ -52,7 +52,7 @@ Widget _page(List<FairAssignmentModel> fairs) => ProviderScope(
     );
 
 void main() {
-  testWidgets('docente sin ferias: ve su evaluación y el jurado como aviso',
+  testWidgets('docente sin ferias: ve su evaluación y nada de jurado',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(360, 800));
     addTearDown(() async => tester.binding.setSurfaceSize(null));
@@ -61,7 +61,9 @@ void main() {
 
     expect(find.text('Mi evaluación docente'), findsOneWidget);
     expect(find.textContaining('Promedio 4.3 de 5'), findsOneWidget);
-    expect(find.textContaining('No tienes ferias asignadas'), findsOneWidget);
+    // Sin asignación como jurado no aparece nada de jurado.
+    expect(find.text('Jurado de ferias'), findsNothing);
+    expect(find.textContaining('jurado', findRichText: true), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 

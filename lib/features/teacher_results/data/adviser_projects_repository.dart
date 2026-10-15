@@ -60,7 +60,9 @@ class AdvisedProject {
       coverUrl: text(json['cover_url']) ?? text(json['logo_url']),
       videoUrl: text(json['video_url']),
       imageUrls: [
-        for (final url in json['image_urls'] is List ? json['image_urls'] as List : const [])
+        for (final url in json['image_urls'] is List
+            ? json['image_urls'] as List
+            : const [])
           if (text(url) case final src?) src,
       ],
       team: [

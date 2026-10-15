@@ -95,10 +95,29 @@ class VotingFormState {
     this.receipt,
     this.errorMessage,
     this.scores = const {},
+    this.activeCategoryId,
   });
 
   final VotingStatusModel? status;
   final List<FairProjectModel> projects;
+
+  /// Categoría del jurado: vota solo en ella (un jurado, una categoría).
+  final String? activeCategoryId;
+
+  List<VotingCategory> get categories => status?.categories ?? const [];
+
+  VotingCategory? get activeCategory =>
+      categories.where((c) => c.id == activeCategoryId).firstOrNull;
+
+  /// Siguiente categoría asignada sin voto (solo jurados con excepción).
+  VotingCategory? get nextPendingCategory => categories
+      .where((c) => !c.hasVoted && c.id != activeCategoryId)
+      .firstOrNull;
+
+  /// Proyectos de la categoría activa (todos si el backend no envía categorías).
+  List<FairProjectModel> get visibleProjects => categories.isEmpty
+      ? projects
+      : projects.where((p) => p.categoryId == activeCategoryId).toList();
 
   /// Puntaje (sobre 20) de las rúbricas que ESTE jurado finalizó, por
   /// proyecto. Solo el propio criterio: nunca el de otros jurados.
@@ -107,7 +126,7 @@ class VotingFormState {
   /// Proyectos de mayor a menor puntaje propio; los no evaluados van al final
   /// en orden alfabético. Es una ayuda para decidir, no un resultado oficial.
   List<FairProjectModel> get rankedProjects {
-    final list = [...projects];
+    final list = [...visibleProjects];
     list.sort((a, b) {
       final sa = scores[a.id];
       final sb = scores[b.id];
@@ -146,11 +165,18 @@ class VotingFormState {
 
   /// Regla 5: bloqueada si la feria no está abierta o ya voted.
   bool get canVote =>
-      (status?.canVote ?? false) &&
+      (categories.isEmpty
+          ? (status?.canVote ?? false)
+          : (status?.windowOpen ?? false) &&
+              !(activeCategory?.hasVoted ?? true)) &&
       !submitting &&
       !requiresStatusRefresh &&
       receipt == null;
-  bool get hasVoted => status?.hasVoted ?? false;
+
+  /// Ya votó en la categoría que está viendo (o en la feria, sin categorías).
+  bool get hasVoted => categories.isEmpty
+      ? (status?.hasVoted ?? false)
+      : (activeCategory?.hasVoted ?? false);
 
   VotingFormState copyWith({
     VotingStatusModel? status,
@@ -162,11 +188,14 @@ class VotingFormState {
     VoteReceiptModel? receipt,
     String? errorMessage,
     Map<String, double>? scores,
+    String? activeCategoryId,
     bool clearSelection = false,
     bool clearError = false,
+    bool clearReceipt = false,
   }) =>
       VotingFormState(
         scores: scores ?? this.scores,
+        activeCategoryId: activeCategoryId ?? this.activeCategoryId,
         status: status ?? this.status,
         projects: projects ?? this.projects,
         loading: loading ?? this.loading,
@@ -176,7 +205,7 @@ class VotingFormState {
         selectedProjectId: clearSelection
             ? null
             : (selectedProjectId ?? this.selectedProjectId),
-        receipt: receipt ?? this.receipt,
+        receipt: clearReceipt ? null : (receipt ?? this.receipt),
         errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       );
 }

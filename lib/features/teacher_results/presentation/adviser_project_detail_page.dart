@@ -87,7 +87,9 @@ class _Detail extends StatelessWidget {
                 width: 56,
                 height: 56,
                 child: logo == null
-                    ? ColoredBox(color: theme.colorScheme.primary.withValues(alpha: 0.12))
+                    ? ColoredBox(
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.12))
                     : Image.network(logo, fit: BoxFit.cover),
               ),
             ),
@@ -102,7 +104,8 @@ class _Detail extends StatelessWidget {
                   if (project.fairName != null)
                     Text(project.fairName!, style: theme.textTheme.bodyMedium),
                   if (project.stand != null)
-                    Text('Stand ${project.stand}', style: theme.textTheme.bodyMedium),
+                    Text('Stand ${project.stand}',
+                        style: theme.textTheme.bodyMedium),
                 ],
               ),
             ),
@@ -128,7 +131,8 @@ class _Detail extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 1)),
         const SizedBox(height: AppSpacing.s),
         if (video == null)
-          Text('Aún no hay video del proyecto.', style: theme.textTheme.bodyMedium)
+          Text('Aún no hay video del proyecto.',
+              style: theme.textTheme.bodyMedium)
         else
           ProjectVideo(url: video),
         if (project.team.isNotEmpty) ...[

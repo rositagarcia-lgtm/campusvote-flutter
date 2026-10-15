@@ -39,11 +39,48 @@ class VotingBody extends StatelessWidget {
     final theme = Theme.of(context);
     final status = state.status!;
 
+    final next = state.nextPendingCategory;
     if (state.receipt != null) {
-      return VoteReceiptView(receipt: state.receipt!);
+      final receipt = VoteReceiptView(receipt: state.receipt!);
+      if (next == null) return receipt;
+      // Jurado con excepción: le falta votar en otra categoría asignada.
+      return Column(
+        children: [
+          Expanded(child: receipt),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.l),
+              child: AppButton(
+                label: 'Votar en ${next.name}',
+                icon: PhosphorIconsRegular.arrowRight,
+                onPressed: () => controller.selectCategory(next.id),
+              ),
+            ),
+          ),
+        ],
+      );
     }
     if (state.hasVoted) {
-      return VoteParticipationView(status: status);
+      final voted = VoteParticipationView(status: status);
+      if (next == null) return voted;
+      // Ya votó en esta categoría; le falta otra asignada (excepción).
+      return Column(
+        children: [
+          Expanded(child: voted),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.l),
+              child: AppButton(
+                label: 'Votar en ${next.name}',
+                icon: PhosphorIconsRegular.arrowRight,
+                onPressed: () => controller.selectCategory(next.id),
+              ),
+            ),
+          ),
+        ],
+      );
     }
 
     return Column(
@@ -59,6 +96,35 @@ class VotingBody extends StatelessWidget {
                   status: status,
                 ),
               ),
+              if (state.categories.length > 1) ...[
+                const SizedBox(height: AppSpacing.m),
+                // Excepción: varias categorías asignadas, un voto en cada una.
+                Wrap(
+                  spacing: AppSpacing.s,
+                  runSpacing: AppSpacing.s,
+                  children: [
+                    for (final c in state.categories)
+                      ChoiceChip(
+                        selected: c.id == state.activeCategoryId,
+                        avatar: c.hasVoted
+                            ? const Icon(PhosphorIconsFill.checkCircle,
+                                size: 16)
+                            : null,
+                        label: Text(c.name),
+                        onSelected: state.submitting
+                            ? null
+                            : (_) => controller.selectCategory(c.id),
+                      ),
+                  ],
+                ),
+              ] else if (state.activeCategory != null) ...[
+                const SizedBox(height: AppSpacing.m),
+                StatusChip(
+                  label: 'Tu categoría: ${state.activeCategory!.name}',
+                  tone: AppTone.primary,
+                  icon: PhosphorIconsRegular.squaresFour,
+                ),
+              ],
               const SizedBox(height: AppSpacing.xl),
               if (!status.isOpen)
                 const NoticeBanner(
@@ -120,7 +186,7 @@ class VotingBody extends StatelessWidget {
 
   /// Lista de proyectos votables o el estado vacío real de la asignación.
   Widget _projects(BuildContext context, ThemeData theme) {
-    if (state.projects.isEmpty) {
+    if (state.visibleProjects.isEmpty) {
       return AppCard(
         child: Column(
           children: [
@@ -146,8 +212,10 @@ class VotingBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         VotingRankingHeader(
-          scored: state.scores.length,
-          total: state.projects.length,
+          scored: state.visibleProjects
+              .where((p) => state.scores.containsKey(p.id))
+              .length,
+          total: state.visibleProjects.length,
         ),
         const SizedBox(height: AppSpacing.m),
         for (final (i, project) in state.rankedProjects.indexed) ...[

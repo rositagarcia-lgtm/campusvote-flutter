@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -29,14 +28,10 @@ class FairProjectsBody extends ConsumerStatefulWidget {
     super.key,
     required this.fairId,
     required this.projects,
-    this.initialProjectId,
   });
 
   final String fairId;
   final List<FairProjectModel> projects;
-
-  /// Proyecto escaneado: con la declaración firmada se abre su rúbrica.
-  final String? initialProjectId;
 
   @override
   ConsumerState<FairProjectsBody> createState() => _FairProjectsBodyState();
@@ -44,34 +39,10 @@ class FairProjectsBody extends ConsumerStatefulWidget {
 
 class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
   FairProjectFilter _filter = FairProjectFilter.all;
-  bool _handledScan = false;
-
-  /// Abre la rúbrica del proyecto escaneado una sola vez, cuando ya se sabe si
-  /// la declaración está firmada. Sin ella, se queda aquí con el paso 1.
-  void _handleScan(AsyncValue<JuryProgressModel> progress) {
-    final target = widget.initialProjectId;
-    if (_handledScan || target == null || !progress.hasValue) return;
-    _handledScan = true;
-    final inList = widget.projects.any((p) => p.id == target);
-    final signed = progress.requireValue.declaration != null;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (!inList) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-              'Ese proyecto no está entre los que te toca evaluar en esta feria.'),
-        ));
-      } else if (signed) {
-        context.push('/jury/fair/${widget.fairId}/project/$target/rubric');
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // El progreso alimenta el banner superior sin pedir un endpoint extra.
     final progress = ref.watch(juryProgressProvider(widget.fairId));
-    _handleScan(progress);
     final evaluations = ref.watch(myEvaluationsProvider(widget.fairId));
     final assignments = ref.watch(juryDashboardProvider).asData?.value;
     final fairName = fairNameForFairId(

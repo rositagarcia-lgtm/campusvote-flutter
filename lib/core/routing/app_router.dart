@@ -231,9 +231,8 @@ GoRouter buildAppRouter(
           if (role == AuthRole.student) {
             return '/teaching/explore/$fairId?project=$projectId';
           }
-          if (AuthRole.usesJuryPanel(role)) {
-            return '/jury/fair/$fairId?project=$projectId';
-          }
+          // El QR del stand es para el alumno (opinar); el jurado y el
+          // docente califican desde su panel, no por QR.
           return landingPathForRole(role);
         },
       ),
@@ -283,10 +282,8 @@ GoRouter buildAppRouter(
           ),
           GoRoute(
             path: 'fair/:fairId',
-            builder: (_, s) => FairProjectsPage(
-              fairId: s.pathParameters['fairId']!,
-              initialProjectId: s.uri.queryParameters['project'],
-            ),
+            builder: (_, s) =>
+                FairProjectsPage(fairId: s.pathParameters['fairId']!),
             routes: [
               GoRoute(
                 path: 'project/:projectId/rubric',

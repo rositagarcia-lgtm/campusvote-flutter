@@ -105,41 +105,41 @@ class _AdvisedCard extends StatelessWidget {
         borderRadius: AppRadii.rLarge,
         onTap: () => context.push('/teacher/projects/${project.id}'),
         child: Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.s),
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: AppRadii.rLarge,
-        border: Border.all(
-          color: needsAction ? scheme.primary : scheme.outlineVariant,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(project.name,
-              style: theme.textTheme.titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w800)),
-          if (meta.isNotEmpty) Text(meta, style: theme.textTheme.bodySmall),
-          const SizedBox(height: AppSpacing.s),
-          StatusChip(label: label, tone: tone),
-          if (project.team.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.s),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(PhosphorIconsRegular.usersThree,
-                    size: 16, color: scheme.onSurfaceVariant),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(project.team.join(', '),
-                      style: theme.textTheme.bodySmall),
+          margin: const EdgeInsets.only(bottom: AppSpacing.s),
+          padding: const EdgeInsets.all(AppSpacing.m),
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            borderRadius: AppRadii.rLarge,
+            border: Border.all(
+              color: needsAction ? scheme.primary : scheme.outlineVariant,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(project.name,
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w800)),
+              if (meta.isNotEmpty) Text(meta, style: theme.textTheme.bodySmall),
+              const SizedBox(height: AppSpacing.s),
+              StatusChip(label: label, tone: tone),
+              if (project.team.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.s),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(PhosphorIconsRegular.usersThree,
+                        size: 16, color: scheme.onSurfaceVariant),
+                    const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: Text(project.team.join(', '),
+                          style: theme.textTheme.bodySmall),
+                    ),
+                  ],
                 ),
               ],
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
         ),
       ),
     );

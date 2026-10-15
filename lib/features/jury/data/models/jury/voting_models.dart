@@ -1,6 +1,26 @@
 import 'common.dart';
 
 /// `GET /fairs/:fairId/voting/status`.
+/// Categoría asignada al jurado y si ya votó en ella: el jurado elige un
+/// proyecto en CADA categoría que tiene asignada.
+class VotingCategory {
+  const VotingCategory({
+    required this.id,
+    required this.name,
+    required this.hasVoted,
+  });
+
+  final String id;
+  final String name;
+  final bool hasVoted;
+
+  factory VotingCategory.fromJson(Map<String, dynamic> json) => VotingCategory(
+        id: parseText(json['category_id']) ?? '',
+        name: parseText(json['category_name']) ?? 'Categoría',
+        hasVoted: json['has_voted'] == true,
+      );
+}
+
 class VotingStatusModel {
   const VotingStatusModel({
     required this.fairId,
@@ -10,7 +30,34 @@ class VotingStatusModel {
     this.window,
     this.startsAt,
     this.endsAt,
+    this.categories = const [],
   });
+
+  /// Categorías del jurado (vacío con backends anteriores: un voto por feria).
+  final List<VotingCategory> categories;
+
+  /// La ventana de votación está abierta (sin mirar si ya votó).
+  bool get windowOpen => isOpen && (window == null || window == 'OPEN');
+
+  /// Marca la categoría como votada tras un voto confirmado.
+  VotingStatusModel withCategoryVoted(String? categoryId) {
+    final updated = [
+      for (final c in categories)
+        c.id == categoryId
+            ? VotingCategory(id: c.id, name: c.name, hasVoted: true)
+            : c,
+    ];
+    return VotingStatusModel(
+      fairId: fairId,
+      fairStatus: fairStatus,
+      hasVoted: updated.isEmpty || updated.every((c) => c.hasVoted),
+      votedAt: DateTime.now(),
+      window: window,
+      startsAt: startsAt,
+      endsAt: endsAt,
+      categories: updated,
+    );
+  }
 
   final String fairId;
   final FairStatus fairStatus;
@@ -43,6 +90,12 @@ class VotingStatusModel {
         window: parseText(json['voting_window']),
         startsAt: parseDate(json['starts_at']),
         endsAt: parseDate(json['ends_at']),
+        categories: [
+          for (final c in json['categories'] is List
+              ? json['categories'] as List
+              : const [])
+            if (c is Map) VotingCategory.fromJson(Map<String, dynamic>.from(c)),
+        ],
       );
 }
 
