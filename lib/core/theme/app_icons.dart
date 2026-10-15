@@ -68,6 +68,10 @@ abstract final class PhosphorIconsRegular {
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
+  static const certificate = IconData(0xe766,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
   static const chalkboardTeacher = IconData(0xe600,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
@@ -125,6 +129,10 @@ abstract final class PhosphorIconsRegular {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const copy = IconData(0xe1ca,
+      fontFamily: 'PhosphorRegular',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const downloadSimple = IconData(0xe20c,
       fontFamily: 'PhosphorRegular',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
@@ -357,6 +365,10 @@ abstract final class PhosphorIconsFill {
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);
   static const calendarDots = IconData(0xe7b4,
+      fontFamily: 'PhosphorFill',
+      fontPackage: 'phosphor_flutter',
+      matchTextDirection: true);
+  static const certificate = IconData(0xe766,
       fontFamily: 'PhosphorFill',
       fontPackage: 'phosphor_flutter',
       matchTextDirection: true);

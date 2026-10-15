@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -73,6 +74,14 @@ class _ResultsBody extends StatelessWidget {
         const SizedBox(height: AppSpacing.l),
         for (final mine in results.myProjects) ...[
           AppMotion.reveal(i++, _MyProjectBanner(result: mine)),
+          const SizedBox(height: AppSpacing.s),
+        ],
+        if (results.myProjects.isNotEmpty) ...[
+          OutlinedButton.icon(
+            onPressed: () => context.push('/certificados'),
+            icon: const Icon(PhosphorIconsRegular.certificate),
+            label: const Text('Ver mis certificados'),
+          ),
           const SizedBox(height: AppSpacing.m),
         ],
         for (final category in results.categories) ...[

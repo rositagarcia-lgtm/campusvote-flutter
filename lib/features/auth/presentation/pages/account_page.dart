@@ -101,6 +101,14 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 SectionHeader(label: text.t('Ajustes')),
                 AccountSettingsGroup(
                   items: [
+                    // Certificados de feria: el alumno participa con su proyecto.
+                    if (user?.role == AuthRole.student)
+                      AccountSettingsItem(
+                        icon: PhosphorIconsRegular.certificate,
+                        title: text.t('Mis certificados'),
+                        subtitle: text.t('Descarga tus certificados de feria'),
+                        onTap: () => context.push('/certificados'),
+                      ),
                     AccountSettingsItem(
                       icon: PhosphorIconsRegular.shieldCheck,
                       title: text.t('Seguridad'),

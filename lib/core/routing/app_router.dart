@@ -31,6 +31,7 @@ import '../../features/student_projects/presentation/student_projects_page.dart'
 import '../../features/fair_audience/presentation/audience_projects_page.dart';
 import '../../features/fair_audience/presentation/explore_fairs_page.dart';
 import '../../features/fair_audience/presentation/scan_stand_page.dart';
+import '../../features/certificates/presentation/my_certificates_page.dart';
 import '../../features/fair_results/presentation/published_results_page.dart';
 import '../../features/teacher_results/presentation/adviser_project_detail_page.dart';
 import '../../features/teacher_results/presentation/adviser_projects_page.dart';
@@ -242,6 +243,11 @@ GoRouter buildAppRouter(
         path: '/resultados/:fairId',
         builder: (_, s) =>
             PublishedResultsPage(fairId: s.pathParameters['fairId']!),
+      ),
+      // Certificados de feria del usuario (descarga en PDF).
+      GoRoute(
+        path: '/certificados',
+        builder: (_, __) => const MyCertificatesPage(),
       ),
       // Escáner del QR del stand (cualquier rol con sesión).
       GoRoute(path: '/scan', builder: (_, __) => const ScanStandPage()),

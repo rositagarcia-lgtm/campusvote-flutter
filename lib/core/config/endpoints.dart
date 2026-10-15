@@ -56,6 +56,10 @@ class ApiEndpoints {
   static String resultsPodium(String fairId) =>
       '/api/fairs/$fairId/results/podium';
 
+  // Certificados de feria del usuario
+  static const String myCertificates = '/api/certificates/my';
+  static String certificatePdf(String id) => '/api/certificates/$id/pdf';
+
   // Proyectos de feria del alumno (solo los suyos, filtrado en el servidor)
   static const String myStudentProjects = '/api/projects/mine';
 
