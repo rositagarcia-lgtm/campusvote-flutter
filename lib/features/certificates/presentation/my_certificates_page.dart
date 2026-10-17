@@ -11,6 +11,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../data/certificates_repository.dart';
+import '../../../core/analytics/app_analytics.dart';
 
 /// `/certificados` — certificados de feria del usuario. Cada uno se descarga
 /// en PDF y se abre con el menú de compartir (guardar, WhatsApp, imprimir…).
@@ -76,6 +77,8 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
       final file = await ref
           .read(certificatesRepositoryProvider)
           .download(widget.certificate);
+      AppAnalytics.event('certificate_downloaded',
+          {'type': widget.certificate.winner ? 'winner' : 'participation'});
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path, mimeType: 'application/pdf')],
         subject: 'Certificado · ${widget.certificate.fairName}',

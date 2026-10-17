@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "849144253164",
+    "project_id": "campusvote-ferias",
+    "storage_bucket": "campusvote-ferias.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849144253164:android:ed8a102c0c463e9f7f73c9",
+        "android_client_info": {
+          "package_name": "com.campusvote.campusvote_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDtsk_hOmG8F5C2J5zyZYykPy3l9Tt3rU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

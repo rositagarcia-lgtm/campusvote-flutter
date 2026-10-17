@@ -6,6 +6,7 @@ import '../../domain/entities/teacher_evaluation_form.dart';
 import '../../domain/entities/teaching_assignment.dart';
 import 'teaching_evaluation_providers.dart';
 import 'teaching_list_controller.dart';
+import '../../../../core/analytics/app_analytics.dart';
 
 class EvaluateState {
   final bool loading;
@@ -239,6 +240,7 @@ class EvaluateTeacherController extends StateNotifier<EvaluateState> {
     }
 
     final failure = result.failureOrNull;
+    if (failure == null) AppAnalytics.event('teacher_evaluation_submitted');
     if (failure == null || _needsReconciliation(failure)) {
       state = state.copyWith(
         submitting: false,

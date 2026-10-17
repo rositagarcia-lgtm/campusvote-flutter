@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/branding/branding_controller.dart';
+import '../core/analytics/app_analytics.dart';
 import '../core/routing/app_router.dart';
 import '../core/settings/app_preferences.dart';
 import '../core/settings/locale_sync.dart';
@@ -30,11 +31,17 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     // navegación —el usuario quedaba de vuelta en el splash tras cada login.
     _refreshNotifier = GoRouterRefreshNotifier(ref);
     _router = buildAppRouter(ref, refreshListenable: _refreshNotifier);
+    // Analytics: una pantalla vista por cada cambio de ruta (sin IDs).
+    _router.routerDelegate.addListener(_trackScreen);
     bindLocaleSync(ref);
   }
 
+  void _trackScreen() =>
+      AppAnalytics.screen(_router.routerDelegate.currentConfiguration.uri.path);
+
   @override
   void dispose() {
+    _router.routerDelegate.removeListener(_trackScreen);
     _router.dispose();
     _refreshNotifier.dispose();
     super.dispose();

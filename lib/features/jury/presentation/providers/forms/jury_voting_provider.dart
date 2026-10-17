@@ -6,6 +6,7 @@ import '../../../data/models/jury_models.dart';
 import '../data/jury_dependencies.dart';
 import '../jury_state.dart';
 import '../progress/jury_progress_provider.dart';
+import '../../../../../core/analytics/app_analytics.dart';
 
 /// Estado de votación + proyectos votables de la feria.
 final votingFormProvider =
@@ -149,6 +150,7 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       // "Mi progreso" resume la participación: sin invalidarlo seguiría
       // mostrando el voto como pendiente al volver a esa pantalla.
       _ref.invalidate(juryProgressProvider(fairId));
+      AppAnalytics.event('jury_vote_cast');
       return true;
     } catch (e) {
       final message = describeJuryError(e);

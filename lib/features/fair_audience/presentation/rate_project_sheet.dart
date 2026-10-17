@@ -12,6 +12,7 @@ import '../../teaching_evaluation/presentation/widgets/teacher_rating_selector.d
 import '../data/fair_audience_repository.dart';
 import '../domain/audience_models.dart';
 import 'audience_widgets.dart';
+import '../../../core/analytics/app_analytics.dart';
 
 /// Hoja para calificar un proyecto como público. Devuelve `true` si guardó.
 Future<bool?> showRateProjectSheet(
@@ -72,6 +73,7 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
             score: _score,
             comment: _comment.text,
           );
+      AppAnalytics.event('audience_project_rated', {'score': _score});
       if (mounted) Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
