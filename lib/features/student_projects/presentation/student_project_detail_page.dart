@@ -10,13 +10,14 @@ import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_notice.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/translatable_text.dart';
+import '../../fair_audience/data/fair_audience_repository.dart';
+import '../../fair_audience/presentation/peer_feedback_section.dart';
 import '../../settings/presentation/settings_copy.dart';
 import '../data/student_projects_repository.dart';
 import '../domain/student_project.dart';
 import 'widgets/project_visuals.dart';
 
-/// `/teaching/projects/:projectId` — detalle con recorrido, equipo y la
-/// valoración del jurado.
+/// `/teaching/projects/:projectId` — detalle con equipo y opiniones del público.
 class StudentProjectDetailPage extends ConsumerWidget {
   const StudentProjectDetailPage({super.key, required this.projectId});
 
@@ -40,6 +41,7 @@ class StudentProjectDetailPage extends ConsumerWidget {
 
     final theme = Theme.of(context);
     final (label, tone, icon) = project.statusBadge;
+    final fair = project.fair;
     final photos = _bannerUrls(project);
     final videoUrl = AppEnv.mediaUrl(project.videoUrl);
     final sections = <Widget>[
@@ -62,33 +64,33 @@ class StudentProjectDetailPage extends ConsumerWidget {
           const SizedBox(width: AppSpacing.m),
           Expanded(
             child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            project.name,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.4,
-            ),
-          ),
-          if (project.fair != null) ...[
-            const SizedBox(height: AppSpacing.xs),
-            _MetaLine(
-              icon: PhosphorIconsRegular.calendarDots,
-              text: project.fair!.name,
-            ),
-          ],
-          if (project.category != null)
-            _MetaLine(
-              icon: PhosphorIconsRegular.squaresFour,
-              text: project.category!,
-            ),
-          if (project.stand != null)
-            _MetaLine(
-              icon: PhosphorIconsRegular.mapPin,
-              text: '${text.t('Stand')} ${project.stand}',
-            ),
-        ],
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  project.name,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                if (project.fair != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  _MetaLine(
+                    icon: PhosphorIconsRegular.calendarDots,
+                    text: project.fair!.name,
+                  ),
+                ],
+                if (project.category != null)
+                  _MetaLine(
+                    icon: PhosphorIconsRegular.squaresFour,
+                    text: project.category!,
+                  ),
+                if (project.stand != null)
+                  _MetaLine(
+                    icon: PhosphorIconsRegular.mapPin,
+                    text: '${text.t('Stand')} ${project.stand}',
+                  ),
+              ],
             ),
           ),
         ],
@@ -119,12 +121,21 @@ class StudentProjectDetailPage extends ConsumerWidget {
           ],
         ),
       ),
+      if (project.isApproved && fair != null && (fair.isOpen || fair.isClosed))
+        _Section(
+          title: text.t('Opinión de tus compañeros'),
+          child: PeerFeedbackSection(fairId: fair.id, projectId: project.id),
+        ),
     ];
 
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(projectFeedbackProvider(project));
+          if (fair != null) {
+            ref.invalidate(
+                peerFeedbackProvider((fairId: fair.id, projectId: project.id)));
+          }
           await ref
               .refresh(studentProjectsProvider.future)
               .catchError((_) => const <StudentProject>[]);
@@ -204,8 +215,7 @@ class StudentProjectDetailPage extends ConsumerWidget {
                 itemCount: sections.length - 2,
                 separatorBuilder: (_, __) =>
                     const SizedBox(height: AppSpacing.l),
-                itemBuilder: (_, i) =>
-                    AppMotion.reveal(i + 2, sections[i + 2]),
+                itemBuilder: (_, i) => AppMotion.reveal(i + 2, sections[i + 2]),
               ),
             ),
           ],
@@ -402,7 +412,8 @@ class JuryReviewsPage extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.l),
             child: Text(
-              text.t('No pudimos cargar la valoración. Desliza para reintentar.'),
+              text.t(
+                  'No pudimos cargar la valoración. Desliza para reintentar.'),
               style: theme.textTheme.bodyMedium,
             ),
           ),
@@ -464,7 +475,8 @@ class JuryReviewsPage extends ConsumerWidget {
               for (var star = 5; star >= 1; star--)
                 _RatingBar(
                   star: star,
-                  count: reviews.where((review) => review.rating == star).length,
+                  count:
+                      reviews.where((review) => review.rating == star).length,
                   total: reviews.length,
                 ),
               const SizedBox(height: AppSpacing.l),
@@ -510,7 +522,9 @@ class _RatingBar extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
       child: Row(
         children: [
-          SizedBox(width: 12, child: Text('$star', style: theme.textTheme.labelMedium)),
+          SizedBox(
+              width: 12,
+              child: Text('$star', style: theme.textTheme.labelMedium)),
           const SizedBox(width: AppSpacing.s),
           Expanded(
             child: ClipRRect(
@@ -519,7 +533,8 @@ class _RatingBar extends StatelessWidget {
                 value: fraction,
                 minHeight: 8,
                 color: theme.colorScheme.primary,
-                backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+                backgroundColor:
+                    theme.colorScheme.primary.withValues(alpha: 0.12),
               ),
             ),
           ),
