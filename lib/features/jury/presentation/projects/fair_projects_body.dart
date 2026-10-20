@@ -139,7 +139,6 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
                 project: project,
                 evaluationSubmitted:
                     known ? submittedIds.contains(project.id) : null,
-                locked: needsDeclaration,
               ),
             ),
         ],

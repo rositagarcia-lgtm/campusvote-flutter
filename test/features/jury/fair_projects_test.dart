@@ -220,7 +220,7 @@ void main() {
       expect(find.text('R-01'), findsOneWidget);
       expect(find.text('Robótica'), findsOneWidget);
       expect(find.text('Aprobado'), findsOneWidget);
-      expect(find.text('Evaluar con rúbrica'), findsOneWidget);
+      expect(find.text('Ver proyecto y evaluación'), findsOneWidget);
     });
 
     testWidgets('es plana y traducible por el lector de pantalla',
@@ -240,10 +240,10 @@ void main() {
       expect(find.text('Evaluado'), findsNothing);
     });
 
-    testWidgets('con rúbrica enviada ofrece volver a verla', (tester) async {
+    testWidgets('con rúbrica enviada marca el proyecto evaluado', (tester) async {
       await pumpCard(tester, submitted: true);
       expect(find.text('Evaluado'), findsOneWidget);
-      expect(find.text('Ver rúbrica registrada'), findsOneWidget);
+      expect(find.text('Ver proyecto y evaluación'), findsOneWidget);
     });
 
     testWidgets('no se corta el nombre en 320 px', (tester) async {

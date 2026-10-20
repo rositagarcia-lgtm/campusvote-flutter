@@ -19,11 +19,7 @@ class FairProjectCard extends StatelessWidget {
     required this.fairId,
     required this.project,
     this.evaluationSubmitted,
-    this.locked = false,
   });
-
-  /// Sin la declaración firmada no se abre la rúbrica: se lleva a firmarla.
-  final bool locked;
 
   final String fairId;
   final FairProjectModel project;
@@ -40,19 +36,13 @@ class FairProjectCard extends StatelessWidget {
     final muted = appMuted(isDark);
     final category = project.categoryName;
     final stand = project.standCode;
-    final actionLabel = locked
-        ? 'Firma tu declaración para evaluar'
-        : evaluationSubmitted == true
-            ? 'Ver rúbrica registrada'
-            : 'Evaluar con rúbrica';
+    const actionLabel = 'Ver proyecto y evaluación';
 
     return Semantics(
       button: true,
       label: '${project.name}. ${SettingsCopy.of(context).t(actionLabel)}',
       child: AppCard(
-        onTap: () => context.push(locked
-            ? '/jury/fair/$fairId/declaration'
-            : '/jury/fair/$fairId/project/${project.id}/rubric'),
+        onTap: () => context.push('/jury/fair/$fairId/project/${project.id}'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

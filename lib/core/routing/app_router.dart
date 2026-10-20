@@ -39,6 +39,7 @@ import '../../features/teacher_results/presentation/teacher_home_page.dart';
 import '../../features/teacher_results/presentation/teacher_results_page.dart';
 import '../../features/teaching_evaluation/presentation/pages/teaching_home_page.dart';
 import '../../features/jury/presentation/pages/jury_invitation_page.dart';
+import '../../features/jury/presentation/pages/jury_project_detail_page.dart';
 import 'deep_links.dart';
 import 'legacy_jury_routes.dart';
 import 'role_landing.dart';
@@ -299,11 +300,20 @@ GoRouter buildAppRouter(
                 FairProjectsPage(fairId: s.pathParameters['fairId']!),
             routes: [
               GoRoute(
-                path: 'project/:projectId/rubric',
-                builder: (_, s) => RubricEvaluationPage(
+                path: 'project/:projectId',
+                builder: (_, s) => JuryProjectDetailPage(
                   fairId: s.pathParameters['fairId']!,
                   projectId: s.pathParameters['projectId']!,
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'rubric',
+                    builder: (_, s) => RubricEvaluationPage(
+                      fairId: s.pathParameters['fairId']!,
+                      projectId: s.pathParameters['projectId']!,
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'progress',
