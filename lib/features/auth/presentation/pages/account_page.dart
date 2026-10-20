@@ -106,7 +106,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       AccountSettingsItem(
                         icon: PhosphorIconsRegular.certificate,
                         title: text.t('Mis certificados'),
-                        subtitle: text.t('Descarga tus certificados de feria'),
+                        subtitle: text.t('Consulta tus certificados de feria'),
                         onTap: () => context.push('/certificados'),
                       ),
                     AccountSettingsItem(

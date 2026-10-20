@@ -13,8 +13,11 @@ import '../../../core/widgets/app_motion.dart';
 import '../data/certificates_repository.dart';
 import '../../../core/analytics/app_analytics.dart';
 
-/// `/certificados` — certificados de feria del usuario. Cada uno se descarga
-/// en PDF y se abre con el menú de compartir (guardar, WhatsApp, imprimir…).
+// Se habilita solo en una compilación validada para descargar certificados.
+const certificateDownloadsEnabled =
+    bool.fromEnvironment('CERTIFICATE_DOWNLOAD_ENABLED', defaultValue: false);
+
+/// `/certificados` — certificados de feria del usuario.
 class MyCertificatesPage extends ConsumerWidget {
   const MyCertificatesPage({super.key});
 
@@ -49,8 +52,18 @@ class MyCertificatesPage extends ConsumerWidget {
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppSpacing.l),
                   children: [
+                    if (!certificateDownloadsEnabled)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.m),
+                        child: Text(
+                          'Puedes consultar tus certificados. La descarga estará '
+                          'disponible cuando terminen las pruebas.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
                     for (var i = 0; i < items.length; i++)
-                      AppMotion.reveal(i, _CertificateCard(certificate: items[i])),
+                      AppMotion.reveal(
+                          i, _CertificateCard(certificate: items[i])),
                   ],
                 ),
         ),
@@ -72,6 +85,7 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
   bool _busy = false;
 
   Future<void> _download() async {
+    if (!certificateDownloadsEnabled) return;
     setState(() => _busy = true);
     try {
       final file = await ref
@@ -151,7 +165,8 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
             ),
             const SizedBox(height: AppSpacing.m),
             FilledButton.icon(
-              onPressed: _busy ? null : _download,
+              onPressed:
+                  certificateDownloadsEnabled && !_busy ? _download : null,
               icon: _busy
                   ? const SizedBox(
                       width: 18,
@@ -159,7 +174,11 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(PhosphorIconsRegular.downloadSimple),
-              label: Text(_busy ? 'Descargando…' : 'Descargar PDF'),
+              label: Text(_busy
+                  ? 'Descargando…'
+                  : certificateDownloadsEnabled
+                      ? 'Descargar PDF'
+                      : 'Descarga en pruebas'),
             ),
           ],
         ),
