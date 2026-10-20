@@ -42,9 +42,7 @@ abstract class JuryRepository {
 
   Future<JuryDeclarationModel> signDeclaration(String fairId, String statement);
 
-  // Resultados y mis evaluaciones
-  Future<FairResultsModel> getResults(String fairId);
-
+  // Mis evaluaciones
   Future<PaginatedResult<JuryEvaluationSummaryModel>> getMyEvaluations({
     int page,
     int limit,

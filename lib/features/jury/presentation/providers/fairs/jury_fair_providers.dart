@@ -51,30 +51,6 @@ class FairProjectsNotifier
   }
 }
 
-// ── Resultados de la feria ──────────────────────────────────────────────────
-
-/// `GET /fairs/:fairId/results` — ADMIN-only: un JURY recibe 403.
-final fairResultsProvider =
-    AsyncNotifierProvider.family<FairResultsNotifier, FairResultsModel, String>(
-        FairResultsNotifier.new);
-
-class FairResultsNotifier
-    extends FamilyAsyncNotifier<FairResultsModel, String> {
-  @override
-  Future<FairResultsModel> build(String fairId) {
-    return ref.read(juryRepositoryProvider).getResults(fairId);
-  }
-
-  /// Reintento manual de la pantalla de resultados: sin esto el botón de
-  /// reintentar no dispara nada y la pantalla se queda en el mismo error.
-  Future<void> reload() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => ref.read(juryRepositoryProvider).getResults(arg),
-    );
-  }
-}
-
 // ── Mis evaluaciones ────────────────────────────────────────────────────────
 
 /// `GET /fairs/my-evaluations` (opcionalmente `?fair_id=`).

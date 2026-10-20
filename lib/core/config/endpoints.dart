@@ -113,7 +113,6 @@ class JuryEndpoints {
   static String castVote(String fairId) => '/api/fairs/$fairId/votes';
   static String declaration(String fairId) =>
       '/api/fairs/$fairId/jury/declaration';
-  static String results(String fairId) => '/api/fairs/$fairId/results';
 }
 
 /// Bandeja autenticada del usuario; el backend limita cada registro al dueño.

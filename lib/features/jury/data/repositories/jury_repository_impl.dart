@@ -110,12 +110,6 @@ class JuryRepositoryImpl implements JuryRepository {
   }
 
   @override
-  Future<FairResultsModel> getResults(String fairId) async {
-    final body = await _remote.getResults(fairId);
-    return FairResultsModel.fromJson(_object(body));
-  }
-
-  @override
   Future<PaginatedResult<JuryEvaluationSummaryModel>> getMyEvaluations({
     int page = 1,
     int limit = 50,

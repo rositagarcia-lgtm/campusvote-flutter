@@ -120,12 +120,6 @@ class JuryRemoteDataSource {
         body: {'statement': statement},
       );
 
-  // ── Resultados ────────────────────────────────────────────────────────
-
-  /// `GET /fairs/:fairId/results` — **ADMIN-only**: un JURY recibe 403.
-  Future<Map<String, dynamic>> getResults(String fairId) =>
-      _get(JuryEndpoints.results(fairId));
-
   /// `GET /fairs/my-evaluations`
   Future<Map<String, dynamic>> getMyEvaluations({
     int page = 1,
