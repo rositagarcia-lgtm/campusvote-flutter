@@ -6,6 +6,7 @@ import '../../../core/di/core_providers.dart';
 import '../../../core/network/api_client.dart';
 import '../../auth/domain/entities/auth_role.dart';
 import '../../auth/presentation/state/auth_controller.dart';
+import '../../student_projects/domain/student_project.dart';
 import '../domain/audience_models.dart';
 
 /// Opinión del público: el alumno califica y comenta proyectos de feria.
@@ -45,6 +46,19 @@ class FairAudienceRepository {
     );
   }
 
+  Future<StandSheet> standProject(String fairId, String projectId) async {
+    final data = await _get(ApiEndpoints.audienceProject(fairId, projectId));
+    if (data is! Map) throw const FormatException('Proyecto no válido.');
+    final json = Map<String, dynamic>.from(data);
+    final score = json['my_score'];
+    return StandSheet(
+      project: StudentProject.fromJson(json),
+      canRate: json['can_rate'] == true,
+      myScore: score is num ? score.toInt() : null,
+      myComment: json['my_comment']?.toString(),
+    );
+  }
+
   Future<PeerFeedback> feedback(String fairId, String projectId) async {
     final data = await _get(ApiEndpoints.audienceFeedback(fairId, projectId));
     if (data is! Map) throw const FormatException('Opiniones no válidas.');
@@ -68,6 +82,21 @@ class FairAudienceRepository {
   }
 }
 
+/// Ficha del stand para quien escanea el QR.
+class StandSheet {
+  const StandSheet({
+    required this.project,
+    required this.canRate,
+    this.myScore,
+    this.myComment,
+  });
+
+  final StudentProject project;
+  final bool canRate;
+  final int? myScore;
+  final String? myComment;
+}
+
 final fairAudienceRepositoryProvider = Provider<FairAudienceRepository>(
   (ref) => FairAudienceRepository(ref.watch(apiClientProvider)),
 );
@@ -86,6 +115,14 @@ final audienceFairsProvider =
 final audienceBoardProvider = FutureProvider.autoDispose
     .family<AudienceBoard, String>((ref, fairId) async {
   return ref.watch(fairAudienceRepositoryProvider).board(fairId);
+});
+
+/// Portada, video y recorrido de un proyecto aprobado, para el QR del stand.
+final audienceProjectProvider = FutureProvider.autoDispose
+    .family<StandSheet, ({String fairId, String projectId})>((ref, key) async {
+  return ref
+      .watch(fairAudienceRepositoryProvider)
+      .standProject(key.fairId, key.projectId);
 });
 
 /// Opinión de los compañeros sobre un proyecto propio.

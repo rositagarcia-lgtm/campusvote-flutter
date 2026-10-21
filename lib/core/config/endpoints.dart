@@ -46,6 +46,8 @@ class ApiEndpoints {
   static const String audienceFairs = '/api/fairs/audience/fairs';
   static String audienceProjects(String fairId) =>
       '/api/fairs/$fairId/audience/projects';
+  static String audienceProject(String fairId, String projectId) =>
+      '/api/fairs/$fairId/audience/projects/$projectId';
   static String audienceRating(String fairId, String projectId) =>
       '/api/fairs/$fairId/projects/$projectId/audience-rating';
   static String audienceFeedback(String fairId, String projectId) =>
