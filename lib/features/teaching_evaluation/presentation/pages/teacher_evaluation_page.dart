@@ -11,15 +11,18 @@ import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../domain/entities/teacher_evaluation_form.dart';
 import '../../domain/entities/teaching_assignment.dart';
+import '../../domain/entities/teacher_evaluation_form.dart';
 import '../state/evaluate_controller.dart';
+import '../state/evaluate_state.dart';
 import '../state/teaching_list_controller.dart';
 import '../widgets/criterion_widgets.dart';
 import '../widgets/teacher_evaluation_views.dart';
 import '../widgets/teacher_rating_selector.dart';
 
 part 'teacher_evaluation_state.dart';
+part 'teacher_evaluation_confirmation.dart';
+part 'teacher_evaluation_form.dart';
 
 /// Evaluación del docente por criterios de la rúbrica, calificación general
 /// y comentario opcional. Cada respuesta se guarda como borrador al marcarla.

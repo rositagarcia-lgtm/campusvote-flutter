@@ -16,6 +16,8 @@ import '../../widgets/voting_widgets.dart';
 import 'voting_ranking.dart';
 import 'vote_confirm_dialog.dart';
 
+part 'voting_body/voting_projects.dart';
+
 /// Cuerpo de la votación con el estado ya cargado.
 ///
 /// Tres salidas posibles, todas reales: comprobante (acaba de votar), estado de
@@ -175,7 +177,7 @@ class VotingBody extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: AppSpacing.l),
-              _projects(context, theme),
+              _buildVotingProjects(context, theme, state, controller),
             ],
           ),
         ),
@@ -185,59 +187,6 @@ class VotingBody extends StatelessWidget {
   }
 
   /// Lista de proyectos votables o el estado vacío real de la asignación.
-  Widget _projects(BuildContext context, ThemeData theme) {
-    if (state.visibleProjects.isEmpty) {
-      return AppCard(
-        child: Column(
-          children: [
-            Icon(PhosphorIconsRegular.archive,
-                color: theme.colorScheme.primary),
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              'No hay proyectos disponibles',
-              style: theme.textTheme.titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            const Text(
-              'No encontramos proyectos aprobados para tu asignación. Puedes '
-              'volver a consultar más tarde.',
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        VotingRankingHeader(
-          scored: state.visibleProjects
-              .where((p) => state.scores.containsKey(p.id))
-              .length,
-          total: state.visibleProjects.length,
-        ),
-        const SizedBox(height: AppSpacing.m),
-        for (final (i, project) in state.rankedProjects.indexed) ...[
-          AppMotion.reveal(
-            i + 1,
-            RankedProjectOption(
-              project: project,
-              rank: state.rankOf(project.id),
-              score: state.scores[project.id],
-              selected: state.selectedProjectId == project.id,
-              enabled: state.canVote,
-              onTap: () => controller.select(project.id),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s),
-        ],
-      ],
-    );
-  }
-
-  /// Acción fija al pie. `canVote` ya incluye `!submitting`: el botón no se
-  /// rearma hasta que el POST termine.
   Widget _submitBar(BuildContext context) {
     return SafeArea(
       top: false,
