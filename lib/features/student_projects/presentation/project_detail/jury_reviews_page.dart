@@ -39,8 +39,10 @@ class JuryReviewsPage extends ConsumerWidget {
 
     final juryData = jury.valueOrNull ?? const ProjectFeedback.hidden();
     final peerData = peers?.valueOrNull;
-    final open = project.fair?.reviewsOpen ?? false;
-    final classmates = open && (peerData?.available ?? false) ? peerData : null;
+    final classmates = peerData != null &&
+            (peerData.available || peerData.reviews.isNotEmpty)
+        ? peerData
+        : null;
     final voices = <_Voice>[
       if (classmates != null)
         for (final review in classmates.reviews)
@@ -62,7 +64,7 @@ class JuryReviewsPage extends ConsumerWidget {
           ),
     ];
 
-    if (voices.isEmpty && !open && !juryData.published) {
+    if (voices.isEmpty && !(project.fair?.reviewsOpen ?? false) && !juryData.published) {
       return _ReviewsMessage(
         icon: PhosphorIconsRegular.star,
         title: text.t('Reseñas no disponibles'),

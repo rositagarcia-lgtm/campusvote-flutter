@@ -97,13 +97,13 @@ class StudentProjectFair {
   bool get isOpen => status == 'OPEN';
   bool get isClosed => status == 'CLOSED';
 
-  /// Compañeros: en curso y hasta 7 días después del cierre.
+  /// Compañeros: con la feria abierta se ven al instante. Al cerrar, 7 días más.
   bool get reviewsOpen {
-    final now = DateTime.now();
-    if (startsAt != null && now.isBefore(startsAt!)) return false;
+    if (isOpen) return true;
+    if (!isClosed) return false;
     final end = endsAt;
-    if (end != null) return now.isBefore(end.add(const Duration(days: 7)));
-    return isOpen;
+    if (end == null) return false;
+    return DateTime.now().isBefore(end.add(const Duration(days: 7)));
   }
 
   factory StudentProjectFair.fromJson(Map<String, dynamic> json) =>
