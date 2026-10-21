@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,12 +11,41 @@ import '../../../core/widgets/app_section_header.dart';
 import '../data/published_results_repository.dart';
 
 /// Ferias con resultados publicados. No ocupa espacio si no hay ninguna.
-class PublishedResultsSection extends ConsumerWidget {
+class PublishedResultsSection extends ConsumerStatefulWidget {
   const PublishedResultsSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final fairs = ref.watch(publishedFairsProvider).valueOrNull ?? const [];
+  ConsumerState<PublishedResultsSection> createState() =>
+      _PublishedResultsSectionState();
+}
+
+class _PublishedResultsSectionState
+    extends ConsumerState<PublishedResultsSection> {
+  Timer? _expiryRefresh;
+
+  @override
+  void initState() {
+    super.initState();
+    _expiryRefresh = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _expiryRefresh?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now().toUtc();
+    final fairs = (ref.watch(publishedFairsProvider).valueOrNull ?? const [])
+        .where((fair) =>
+            fair.publishedAt != null &&
+            now.isBefore(
+                fair.publishedAt!.toUtc().add(const Duration(hours: 48))))
+        .toList();
     if (fairs.isEmpty) return const SizedBox.shrink();
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;

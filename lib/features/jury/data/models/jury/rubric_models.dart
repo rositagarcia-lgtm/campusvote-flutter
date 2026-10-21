@@ -7,6 +7,7 @@ class RubricCriterionModel {
     required this.id,
     required this.name,
     required this.position,
+    this.points = 0,
     this.description,
     this.isActive = true,
   });
@@ -14,6 +15,7 @@ class RubricCriterionModel {
   final String id;
   final String name;
   final int position;
+  final double points;
   final String? description;
   final bool isActive;
 
@@ -22,6 +24,7 @@ class RubricCriterionModel {
         id: parseText(json['id']) ?? '',
         name: parseText(json['name']) ?? '',
         position: (json['position'] as num?)?.toInt() ?? 0,
+        points: (json['points'] as num?)?.toDouble() ?? 0,
         description: parseText(json['description']),
         isActive: (json['is_active'] ?? json['isActive'] ?? true) == true,
       );
@@ -31,6 +34,7 @@ class RubricCriterionModel {
         'name': name,
         'description': description,
         'position': position,
+        'points': points,
         'is_active': isActive,
       };
 }

@@ -199,6 +199,7 @@ class _RubricForm extends StatelessWidget {
                           position: criteria[i].position,
                           title: criteria[i].name,
                           description: criteria[i].description,
+                          points: criteria[i].points,
                           value: state.answers[criteria[i].id] ?? false,
                           enabled: !state.locked,
                           onChanged: (_) => controller.toggle(criteria[i].id),

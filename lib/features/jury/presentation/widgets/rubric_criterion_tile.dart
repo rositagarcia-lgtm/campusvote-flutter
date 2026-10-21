@@ -18,12 +18,14 @@ class RubricCriterionTile extends StatelessWidget {
     this.description,
     this.enabled = true,
     this.position,
+    this.points,
   });
 
   final String title;
   final String? description;
   final bool value;
   final int? position;
+  final double? points;
 
   /// `false` cuando la hoja ya se finalizó: el backend responde 409.
   final bool enabled;
@@ -84,6 +86,16 @@ class RubricCriterionTile extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
+                      if (points != null) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          '${points!.toStringAsFixed(points! % 1 == 0 ? 0 : 2)} puntos',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: scheme.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                       if (description != null && description!.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xs),
                         Text(description!, style: theme.textTheme.bodySmall),

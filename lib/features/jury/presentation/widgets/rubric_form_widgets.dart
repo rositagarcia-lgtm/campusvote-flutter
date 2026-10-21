@@ -26,6 +26,9 @@ class RubricScoreCard extends StatelessWidget {
     final total = evaluation.rubric.criteria.length;
     final checked = state.checkedCount;
     final ratio = total == 0 ? 0.0 : checked / total;
+    final markedPoints = evaluation.rubric.criteria
+        .where((criterion) => state.answers[criterion.id] == true)
+        .fold<double>(0, (sum, criterion) => sum + criterion.points);
 
     return AppCard(
       child: Row(
@@ -64,13 +67,16 @@ class RubricScoreCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Puntaje', style: theme.textTheme.labelMedium),
+                Text(
+                  evaluation.submitted ? 'Puntaje final' : 'Puntaje marcado',
+                  style: theme.textTheme.labelMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   // El score solo existe cuando la hoja está finalizada.
-                  score == null
-                      ? 'Pendiente de finalizar'
-                      : '${score.toStringAsFixed(1)} / 20',
+                  evaluation.submitted && score != null
+                      ? '${score.toStringAsFixed(2)} / 20'
+                      : '${markedPoints.toStringAsFixed(2)} / 20',
                   style: theme.textTheme.titleLarge
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
