@@ -124,9 +124,15 @@ class JuryDashboardOverview extends StatelessWidget {
                             style: theme.textTheme.titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w700)),
                       ),
+                      const SizedBox(width: AppSpacing.s),
                       Text(progressLabel,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            color: accent,
+                          style: (percentage == null
+                                  ? theme.textTheme.labelLarge
+                                  : theme.textTheme.titleLarge)
+                              ?.copyWith(
+                            color: percentage == null
+                                ? colors.onSurfaceVariant
+                                : accent,
                             fontWeight: FontWeight.w800,
                           )),
                     ],

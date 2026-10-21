@@ -45,13 +45,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                 ref.read(authControllerProvider).user?.role,
               )),
         actions: [
-          IconButton(
-            tooltip: 'Marcar todas como leídas',
-            onPressed: state.unreadCount > 0 && state.updatingId != 'all'
-                ? controller.markAllRead
-                : null,
-            icon: const Icon(PhosphorIconsRegular.checks),
-          ),
+          if (state.unreadCount > 0)
+            IconButton(
+              tooltip: 'Marcar todas como leídas',
+              onPressed:
+                  state.updatingId != 'all' ? controller.markAllRead : null,
+              icon: const Icon(PhosphorIconsRegular.checks),
+            ),
         ],
       ),
       body: _content(state, controller),
@@ -70,11 +70,13 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       );
     }
     if (state.items.isEmpty) {
-      return const AppEmptyView(
+      return AppEmptyView(
         icon: PhosphorIconsRegular.bell,
         overline: 'AVISOS',
         title: 'Estás al día',
-        message: 'Aquí aparecerán los avisos de tu organización.',
+        message: 'Aquí verás avisos sobre tus ferias y actividades.',
+        actionLabel: 'Actualizar avisos',
+        onAction: controller.load,
       );
     }
 
