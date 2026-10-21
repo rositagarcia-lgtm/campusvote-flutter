@@ -41,16 +41,16 @@ class JuryReviewsPage extends ConsumerWidget {
     final peerData = peers?.valueOrNull;
     final open = project.fair?.reviewsOpen ?? false;
     final classmates = open && (peerData?.available ?? false) ? peerData : null;
-    final showClassmateScores =
-        classmates != null && classmates.votes >= classmates.minVotes;
     final voices = <_Voice>[
       if (classmates != null)
         for (final review in classmates.reviews)
           if (review.comment != null || review.score != null)
             _Voice(
-              who: 'Compañero',
-              rating: showClassmateScores ? review.score : null,
+              who: review.author ?? 'Compañero',
+              rating: review.score,
               comment: review.comment,
+              date: review.createdAt,
+              avatarUrl: review.avatarUrl,
             ),
       if (juryData.published)
         for (final review in juryData.reviews)
@@ -67,7 +67,7 @@ class JuryReviewsPage extends ConsumerWidget {
         icon: PhosphorIconsRegular.star,
         title: text.t('Reseñas no disponibles'),
         message: text.t(
-          'Las de tus compañeros se ven durante la feria y 7 días después del cierre. Las del jurado, desde que se publican los resultados.',
+          'Las de tus compañeros y las del jurado se ven en cuanto se envían, durante la feria y 7 días después del cierre.',
         ),
       );
     }
@@ -83,7 +83,6 @@ class JuryReviewsPage extends ConsumerWidget {
     return _ReviewsBody(
       voices: voices,
       juryVotes: juryData.published ? juryData.votes : null,
-      juryPending: !juryData.published,
     );
   }
 }
@@ -143,24 +142,29 @@ class _ReviewsMessage extends StatelessWidget {
 }
 
 class _Voice {
-  const _Voice({required this.who, this.rating, this.comment, this.date});
+  const _Voice({
+    required this.who,
+    this.rating,
+    this.comment,
+    this.date,
+    this.avatarUrl,
+  });
 
   final String who;
   final int? rating;
   final String? comment;
   final DateTime? date;
+  final String? avatarUrl;
 }
 
 class _ReviewsBody extends StatelessWidget {
   const _ReviewsBody({
     required this.voices,
-    required this.juryPending,
     this.juryVotes,
   });
 
   final List<_Voice> voices;
   final int? juryVotes;
-  final bool juryPending;
 
   @override
   Widget build(BuildContext context) {
@@ -173,6 +177,12 @@ class _ReviewsBody extends StatelessWidget {
     final average = rated.isEmpty
         ? null
         : rated.fold<int>(0, (sum, rating) => sum + rating) / rated.length;
+    final countLabel = voices.length == 1
+        ? text.t('1 reseña')
+        : '${voices.length} ${text.t('reseñas')}';
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.l,
@@ -181,72 +191,49 @@ class _ReviewsBody extends StatelessWidget {
         AppSpacing.xxl,
       ),
       children: [
-        if (average != null)
-          AppCard(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  average.toStringAsFixed(1),
-                  style: theme.textTheme.displayMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    height: 1,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 112,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    average == null ? '—' : average.toStringAsFixed(1),
+                    style: theme.textTheme.displayMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.l),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _Stars(rating: average, size: 22),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        voices.length == 1
-                            ? text.t('1 reseña')
-                            : '${voices.length} ${text.t('reseñas')}',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (juryVotes != null)
-                        Text(
-                          '${text.t('Votos del jurado')} · ${text.votes(juryVotes!)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.s),
+                  _Stars(rating: average ?? 0, size: 16),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text('($countLabel)', style: muted),
+                  if (juryVotes != null)
+                    Text(
+                      '${text.t('Votos del jurado')} · ${text.votes(juryVotes!)}',
+                      style: muted,
+                    ),
+                ],
+              ),
             ),
-          ),
-        if (average != null) const SizedBox(height: AppSpacing.l),
-        if (rated.isNotEmpty)
-          for (var star = 5; star >= 1; star--)
-            _HistogramRow(
-              star: star,
-              count: rated.where((rating) => rating == star).length,
-              total: rated.length,
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: Column(
+                children: [
+                  for (var star = 5; star >= 1; star--)
+                    _HistogramRow(
+                      star: star,
+                      count: rated.where((rating) => rating == star).length,
+                      total: rated.length,
+                    ),
+                ],
+              ),
             ),
-        if (juryPending) ...[
-          const SizedBox(height: AppSpacing.s),
-          Text(
-            text.t('Las del jurado se ven al publicar los resultados.'),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-        const SizedBox(height: AppSpacing.l),
-        Text(
-          text.t('Reseñas'),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
+          ],
         ),
-        const SizedBox(height: AppSpacing.s),
+        const SizedBox(height: AppSpacing.l),
         for (final voice in voices) _ReviewCard(voice: voice),
       ],
     );
@@ -315,51 +302,55 @@ class _ReviewCard extends StatelessWidget {
     final theme = Theme.of(context);
     final date = voice.date;
     final comment = voice.comment;
+    final scheme = theme.colorScheme;
+    final jury = voice.who == 'Jurado';
+    final named = !jury && voice.who != 'Compañero';
+    final label = named ? voice.who : text.t(voice.who);
     return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.s),
+      padding: const EdgeInsets.only(bottom: AppSpacing.m),
       child: AppCard(
         padding: const EdgeInsets.all(AppSpacing.l),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                if (voice.rating != null)
-                  _Stars(rating: voice.rating!.toDouble(), size: 16)
-                else
+            _ReviewAvatar(voice: voice, label: label, jury: jury),
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      if (date != null)
+                        Text(
+                          _reviewDate(date.toLocal()),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (voice.rating != null) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    _Stars(rating: voice.rating!.toDouble(), size: 16),
+                  ],
+                  const SizedBox(height: AppSpacing.s),
                   Text(
-                    text.t('Compañero'),
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
+                    comment ?? text.t('Calificación sin comentario'),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      height: 1.4,
+                      color: comment == null ? scheme.onSurfaceVariant : null,
                     ),
                   ),
-                const Spacer(),
-                if (date != null)
-                  Text(
-                    '${date.day}/${date.month}/${date.year}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-              ],
-            ),
-            if (voice.rating != null) ...[
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                text.t(voice.who),
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              comment ?? text.t('Calificación sin comentario'),
-              style: theme.textTheme.bodyLarge?.copyWith(
-                height: 1.4,
-                color: comment == null
-                    ? theme.colorScheme.onSurfaceVariant
-                    : null,
+                ],
               ),
             ),
           ],
@@ -390,6 +381,76 @@ class _Stars extends StatelessWidget {
             color: star <= rating.round() ? _starGold : empty,
           ),
       ],
+    );
+  }
+}
+
+const _reviewMonths = [
+  'ene.', 'feb.', 'mar.', 'abr.', 'may.', 'jun.',
+  'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.',
+];
+
+String _reviewDate(DateTime date) =>
+    '${date.day} ${_reviewMonths[date.month - 1]} ${date.year}';
+
+class _ReviewAvatar extends StatelessWidget {
+  const _ReviewAvatar({
+    required this.voice,
+    required this.label,
+    required this.jury,
+  });
+
+  final _Voice voice;
+  final String label;
+  final bool jury;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final url = AppEnv.mediaUrl(voice.avatarUrl);
+    if (url != null) {
+      return ClipOval(
+        child: Image.network(
+          url,
+          width: 40,
+          height: 40,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _fallback(context, scheme),
+        ),
+      );
+    }
+    return _fallback(context, scheme);
+  }
+
+  Widget _fallback(BuildContext context, ColorScheme scheme) {
+    if (jury || voice.who == 'Compañero') {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: scheme.primary.withValues(alpha: 0.16),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          jury ? PhosphorIconsFill.star : PhosphorIconsRegular.userCircle,
+          size: 20,
+          color: scheme.primary,
+        ),
+      );
+    }
+    final initial = label.isEmpty ? '?' : label[0].toUpperCase();
+    return Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
+      child: Text(
+        initial,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: scheme.onPrimary,
+              fontWeight: FontWeight.w800,
+            ),
+      ),
     );
   }
 }

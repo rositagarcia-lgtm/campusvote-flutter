@@ -81,31 +81,15 @@ class _Board extends ConsumerStatefulWidget {
 }
 
 class _BoardState extends ConsumerState<_Board> {
-  bool _openedInitial = false;
+  var _warnedMissing = false;
 
   String get fairId => widget.fairId;
   AudienceBoard get board => widget.board;
 
-  @override
-  void initState() {
-    super.initState();
-    final target = board.projects
-        .where((p) => p.id == widget.initialProjectId)
-        .firstOrNull;
-    if (widget.initialProjectId != null && !_openedInitial) {
-      _openedInitial = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        if (target != null) {
-          _open(context, ref, target);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                'Ese proyecto no está disponible en esta feria para opinar.'),
-          ));
-        }
-      });
-    }
+  AudienceProject? get scanned {
+    final id = widget.initialProjectId;
+    if (id == null) return null;
+    return board.projects.where((project) => project.id == id).firstOrNull;
   }
 
   Future<void> _open(
@@ -128,6 +112,26 @@ class _BoardState extends ConsumerState<_Board> {
 
   @override
   Widget build(BuildContext context) {
+    final scannedProject = scanned;
+    if (scannedProject != null) {
+      return _ScannedDetail(
+        project: scannedProject,
+        canRate: board.fair.isOpen,
+        onRate: () => _open(context, ref, scannedProject),
+      );
+    }
+    if (widget.initialProjectId != null &&
+        board.projects.isNotEmpty &&
+        !_warnedMissing) {
+      _warnedMissing = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text('Ese proyecto no está disponible en esta feria para opinar.'),
+        ));
+      });
+    }
     final favorite = board.favorite;
     final rated = board.projects.where((p) => p.myScore != null).length;
     final rateable = board.projects.where((p) => !p.isMine).length;
@@ -160,7 +164,7 @@ class _BoardState extends ConsumerState<_Board> {
               ? PhosphorIconsRegular.star
               : PhosphorIconsRegular.lockSimple,
           message: board.fair.isOpen
-              ? 'Calificaste $rated de $rateable proyectos. Tu voto es anónimo y no cuenta para la nota del jurado.'
+              ? 'Calificaste $rated de $rateable proyectos. El equipo del proyecto ve tu nombre. Tu voto no cuenta para la nota del jurado.'
               : 'La feria cerró: las opiniones quedaron congeladas.',
         ),
         const SizedBox(height: AppSpacing.l),
@@ -173,6 +177,89 @@ class _BoardState extends ConsumerState<_Board> {
               canRate: board.fair.isOpen,
               isFavorite: board.projects[i].id == board.favoriteProjectId,
               onTap: () => _open(context, ref, board.projects[i]),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ScannedDetail extends StatelessWidget {
+  const _ScannedDetail({
+    required this.project,
+    required this.canRate,
+    required this.onRate,
+  });
+
+  final AudienceProject project;
+  final bool canRate;
+  final VoidCallback onRate;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final meta = [
+      if (project.category != null) project.category!,
+      if (project.stand != null) 'Stand ${project.stand}',
+    ].join(' · ');
+    final showStar = canRate && !project.isMine;
+    return Stack(
+      children: [
+        ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.l,
+            AppSpacing.l,
+            AppSpacing.l,
+            96,
+          ),
+          children: [
+            Center(child: AudienceThumb(project: project, size: 120)),
+            const SizedBox(height: AppSpacing.l),
+            Text(
+              project.name,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            if (meta.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.s),
+              Text(
+                meta,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            if (project.description != null) ...[
+              const SizedBox(height: AppSpacing.l),
+              Text(
+                project.description!,
+                style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
+              ),
+            ],
+            if (project.isMine) ...[
+              const SizedBox(height: AppSpacing.l),
+              const NoticeBanner(
+                tone: AppTone.info,
+                icon: PhosphorIconsRegular.info,
+                message:
+                    'Es tu proyecto: no puedes calificarlo. Las opiniones de tus compañeros se ven en Mis proyectos.',
+              ),
+            ],
+          ],
+        ),
+        if (showStar)
+          Positioned(
+            right: AppSpacing.l,
+            bottom: AppSpacing.l,
+            child: FloatingActionButton(
+              tooltip: project.myScore == null ? 'Calificar' : 'Editar tu opinión',
+              onPressed: onRate,
+              child: const Icon(PhosphorIconsFill.star),
             ),
           ),
       ],

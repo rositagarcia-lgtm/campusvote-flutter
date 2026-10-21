@@ -153,17 +153,30 @@ class PeerFeedback {
 }
 
 class PeerReview {
-  const PeerReview({required this.score, this.comment});
+  const PeerReview({
+    required this.score,
+    this.comment,
+    this.author,
+    this.avatarUrl,
+    this.createdAt,
+  });
 
   final int? score;
   final String? comment;
+  final String? author;
+  final String? avatarUrl;
+  final DateTime? createdAt;
 
   factory PeerReview.fromJson(Map<String, dynamic> json) {
     final score = json['score'];
     final comment = '${json['comment'] ?? ''}'.trim();
+    final author = '${json['author'] ?? ''}'.trim();
     return PeerReview(
       score: score is num ? score.toInt() : null,
       comment: comment.isEmpty ? null : comment,
+      author: author.isEmpty ? null : author,
+      avatarUrl: _nullable(json['avatar_url']),
+      createdAt: DateTime.tryParse('${json['created_at'] ?? ''}'),
     );
   }
 }

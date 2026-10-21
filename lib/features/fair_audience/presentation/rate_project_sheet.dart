@@ -152,7 +152,7 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
               AppTextField(
                 label: 'Comentario de mejora (opcional)',
                 hint: '¿Qué podrían mejorar? Sé concreto y respetuoso.',
-                helperText: 'Solo lo verá el equipo, sin tu nombre.',
+                helperText: 'Solo lo verá el equipo del proyecto.',
                 controller: _comment,
                 maxLines: 3,
                 maxLength: 500,

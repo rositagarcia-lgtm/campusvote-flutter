@@ -30,10 +30,12 @@ const studentProjectsTranslations = <String, String>{
   '1 reseña': '1 review',
   'reseñas': 'reviews',
   'Compañero': 'Classmate',
-  'Las de tus compañeros se ven durante la feria y 7 días después del cierre. Las del jurado, desde que se publican los resultados.':
-      'Classmate reviews show during the fair and for 7 days after it ends. Jury reviews show once the results are published.',
+  'Las de tus compañeros y las del jurado se ven en cuanto se envían, durante la feria y 7 días después del cierre.':
+      'Classmate and jury reviews show as soon as they are sent, during the fair and for 7 days after it ends.',
   'Las del jurado se ven al publicar los resultados.':
       'Jury reviews show once the results are published.',
+  'El promedio se ve desde 3 calificaciones.':
+      'The average shows from 3 ratings.',
   'Cuando tus compañeros o el jurado califiquen este proyecto, el promedio y las reseñas se verán aquí.':
       'When your classmates or the jury rate this project, the average and the reviews will show up here.',
   'Aún no hay video del proyecto.': 'This project has no video yet.',
