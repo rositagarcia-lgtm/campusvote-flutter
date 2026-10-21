@@ -10,7 +10,7 @@ List<RouteBase> _fairRoutes(WidgetRef ref) => [
           final projectId = s.pathParameters['projectId']!;
           final role = ref.read(authControllerProvider).user?.role;
           if (role == AuthRole.student) {
-            return '/teaching/explore/$fairId?project=$projectId';
+            return '/teaching/projects/$projectId?fair=$fairId';
           }
           // El QR del stand es para el alumno (opinar); el jurado y el
           // docente califican desde su panel, no por QR.

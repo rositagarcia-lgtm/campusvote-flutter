@@ -15,7 +15,6 @@ List<RouteBase> _studentRoutes(WidgetRef ref) => [
                 path: ':fairId',
                 builder: (_, s) => AudienceProjectsPage(
                   fairId: s.pathParameters['fairId']!,
-                  initialProjectId: s.uri.queryParameters['project'],
                 ),
               ),
             ],
@@ -29,6 +28,7 @@ List<RouteBase> _studentRoutes(WidgetRef ref) => [
                 path: ':projectId',
                 builder: (_, s) => StudentProjectDetailPage(
                   projectId: s.pathParameters['projectId']!,
+                  fairId: s.uri.queryParameters['fair'],
                 ),
               ),
             ],
