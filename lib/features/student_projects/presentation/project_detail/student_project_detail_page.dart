@@ -83,6 +83,8 @@ class _ProjectDetailView extends StatelessWidget {
     required this.starTooltip,
     required this.onStar,
     required this.onRefresh,
+    this.onRate,
+    this.rateTooltip = 'Calificar',
   });
 
   final StudentProject project;
@@ -91,6 +93,8 @@ class _ProjectDetailView extends StatelessWidget {
   final String starTooltip;
   final VoidCallback onStar;
   final Future<void> Function() onRefresh;
+  final VoidCallback? onRate;
+  final String rateTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +184,16 @@ class _ProjectDetailView extends StatelessWidget {
     ];
 
     return Scaffold(
+      floatingActionButton: onRate == null
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 72),
+              child: FloatingActionButton(
+                tooltip: rateTooltip,
+                onPressed: onRate,
+                child: const Icon(PhosphorIconsFill.star),
+              ),
+            ),
       body: RefreshIndicator(
         onRefresh: onRefresh,
         edgeOffset: 260,
@@ -298,12 +312,48 @@ class _StandProjectDetail extends ConsumerWidget {
           showStar: false,
           starTooltip: text.t('Reseñas'),
           onStar: () {},
+          onRate: data.canRate ? () => _rateStand(context, ref, fairId, data) : null,
+          rateTooltip: data.myScore == null ? 'Calificar' : 'Editar tu opinión',
           onRefresh: () async {
             ref.invalidate(audienceProjectProvider(
                 (fairId: fairId, projectId: projectId)));
           },
         );
       },
+    );
+  }
+}
+
+Future<void> _rateStand(
+  BuildContext context,
+  WidgetRef ref,
+  String fairId,
+  StandSheet sheet,
+) async {
+  final project = sheet.project;
+  final saved = await showRateProjectSheet(
+    context,
+    fairId: fairId,
+    project: AudienceProject(
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      coverUrl: project.coverUrl,
+      logoUrl: project.logoUrl,
+      category: project.category,
+      stand: project.stand,
+      myScore: sheet.myScore,
+      myComment: sheet.myComment,
+    ),
+    canRate: sheet.canRate,
+  );
+  if (saved != true) return;
+  ref.invalidate(
+      audienceProjectProvider((fairId: fairId, projectId: project.id)));
+  ref.invalidate(audienceBoardProvider(fairId));
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('¡Gracias! Tu opinión quedó guardada.')),
     );
   }
 }

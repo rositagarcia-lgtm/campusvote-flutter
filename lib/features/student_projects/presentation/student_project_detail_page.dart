@@ -15,6 +15,7 @@ import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/translatable_text.dart';
 import '../../fair_audience/data/fair_audience_repository.dart';
 import '../../fair_audience/domain/audience_models.dart';
+import '../../fair_audience/presentation/rate_project_sheet.dart';
 import '../../settings/presentation/settings_copy.dart';
 import '../data/student_projects_repository.dart';
 import '../domain/student_project.dart';
