@@ -14,6 +14,7 @@ class StudentProjectsPage extends ConsumerWidget {
       appBar: OrganizationPanelAppBar(
         branding: ref.watch(brandingControllerProvider),
         section: text.t('Mis proyectos'),
+        actions: const [NotificationsBell()],
       ),
       body: projects.when(
         loading: () => const AppLoader(),

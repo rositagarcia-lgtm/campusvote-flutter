@@ -14,6 +14,7 @@ import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
+import '../../notifications/presentation/widgets/notifications_bell.dart';
 import '../../fair_results/presentation/published_results_section.dart';
 import '../data/fair_audience_repository.dart';
 import '../domain/audience_models.dart';
@@ -31,7 +32,10 @@ class ExploreFairsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: OrganizationPanelAppBar(
-          branding: branding, section: 'Explorar ferias'),
+        branding: branding,
+        section: 'Explorar ferias',
+        actions: const [NotificationsBell()],
+      ),
       body: RefreshIndicator(
         onRefresh: reload,
         child: fairs.when(

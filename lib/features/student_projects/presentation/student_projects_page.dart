@@ -14,6 +14,7 @@ import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
 import '../../settings/presentation/settings_copy.dart';
+import '../../notifications/presentation/widgets/notifications_bell.dart';
 import '../data/student_projects_repository.dart';
 import '../domain/student_project.dart';
 import 'widgets/project_visuals.dart';

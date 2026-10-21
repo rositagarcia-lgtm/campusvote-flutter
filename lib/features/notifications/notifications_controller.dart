@@ -10,6 +10,48 @@ class _NotificationRequestFailure implements Exception {
   final int? statusCode;
 }
 
+/// El servidor manda la lista en `data` y el total en `meta.pagination`.
+/// También se acepta el objeto `{ notifications, pagination }` por si cambia.
+class _NotificationPage {
+  const _NotificationPage(this.items, this.total);
+
+  final List<NotificationItem> items;
+  final int? total;
+}
+
+_NotificationPage _notificationPage(Object? body) {
+  if (body is! Map || body['success'] != true) {
+    throw const FormatException('Respuesta de notificaciones inválida');
+  }
+  final data = body['data'];
+  final List<dynamic> raw;
+  final Object? pagination;
+  if (data is List) {
+    raw = data;
+    final meta = body['meta'];
+    pagination = meta is Map ? meta['pagination'] : null;
+  } else if (data is Map && data['notifications'] is List) {
+    raw = data['notifications'] as List;
+    pagination = data['pagination'];
+  } else {
+    throw const FormatException('Respuesta de notificaciones inválida');
+  }
+  final total = pagination is Map && pagination['total'] is num
+      ? (pagination['total'] as num).toInt()
+      : null;
+  return _NotificationPage(
+    raw
+        .whereType<Map>()
+        .map(
+          (item) => NotificationItem.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .toList(growable: false),
+    total,
+  );
+}
+
 final notificationsControllerProvider = StateNotifierProvider.autoDispose<
     NotificationsController, NotificationsState>(
   (ref) => NotificationsController(ref),
@@ -39,31 +81,17 @@ class NotificationsController extends StateNotifier<NotificationsState> {
           throw _NotificationRequestFailure(response.statusCode);
         }
       }
-      if (listBody is! Map ||
-          listBody['success'] != true ||
-          countBody is! Map ||
-          countBody['success'] != true) {
+      final page = _notificationPage(listBody);
+      if (countBody is! Map || countBody['success'] != true) {
         throw const FormatException('Respuesta de notificaciones inválida');
       }
-      final data = listBody['data'];
       final countData = countBody['data'];
-      final raw = data is Map ? data['notifications'] : null;
-      final pagination = data is Map ? data['pagination'] : null;
       final count = countData is Map ? countData['unread_count'] : null;
       state = state.copyWith(
         loading: false,
         page: 1,
-        total: pagination is Map && pagination['total'] is num
-            ? (pagination['total'] as num).toInt()
-            : (raw is List ? raw.length : 0),
-        items: raw is List
-            ? raw
-                .whereType<Map>()
-                .map((item) => NotificationItem.fromJson(
-                      Map<String, dynamic>.from(item),
-                    ))
-                .toList(growable: false)
-            : const [],
+        total: page.total ?? page.items.length,
+        items: page.items,
         unreadCount: count is num ? count.toInt() : 0,
       );
     } catch (error) {
@@ -86,29 +114,15 @@ class NotificationsController extends StateNotifier<NotificationsState> {
       if ((response.statusCode ?? 500) >= 400) {
         throw _NotificationRequestFailure(response.statusCode);
       }
-      final body = response.data;
-      final data = body is Map ? body['data'] : null;
-      final raw = data is Map ? data['notifications'] : null;
-      final pagination = data is Map ? data['pagination'] : null;
-      if (body is! Map || body['success'] != true || raw is! List) {
-        throw const FormatException('Respuesta de notificaciones inválida');
-      }
-      final additional = raw
-          .whereType<Map>()
-          .map((item) => NotificationItem.fromJson(
-                Map<String, dynamic>.from(item),
-              ))
-          .toList(growable: false);
+      final page = _notificationPage(response.data);
       final knownIds = state.items.map((item) => item.id).toSet();
       state = state.copyWith(
         loading: false,
         page: nextPage,
-        total: pagination is Map && pagination['total'] is num
-            ? (pagination['total'] as num).toInt()
-            : state.total,
+        total: page.total ?? state.total,
         items: [
           ...state.items,
-          for (final item in additional)
+          for (final item in page.items)
             if (!knownIds.contains(item.id)) item,
         ],
       );
