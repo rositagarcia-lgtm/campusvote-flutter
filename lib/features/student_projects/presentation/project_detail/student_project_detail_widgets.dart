@@ -90,34 +90,6 @@ class _MateRow extends StatelessWidget {
   }
 }
 
-class _StarRow extends StatelessWidget {
-  const _StarRow({required this.rating, required this.label});
-
-  final int rating;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final filled = theme.colorScheme.primary;
-    final empty = theme.colorScheme.onSurface.withValues(alpha: 0.35);
-    return Row(
-      children: [
-        for (var star = 1; star <= 5; star++)
-          Icon(
-            star <= rating ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
-            size: 22,
-            color: star <= rating ? filled : empty,
-          ),
-        if (label.isNotEmpty) ...[
-          const SizedBox(width: AppSpacing.s),
-          Text(label, style: theme.textTheme.titleSmall),
-        ],
-      ],
-    );
-  }
-}
-
 List<String> _bannerUrls(StudentProject project) {
   final Iterable<String> raw = project.imageUrls.isNotEmpty
       ? project.imageUrls

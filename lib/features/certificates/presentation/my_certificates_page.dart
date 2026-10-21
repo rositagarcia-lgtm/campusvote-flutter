@@ -112,7 +112,18 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final c = widget.certificate;
-    final color = c.winner ? const Color(0xFFD4A017) : scheme.primary;
+    final color = switch (c.rank) {
+      1 => const Color(0xFFD4A017),
+      2 => const Color(0xFF9AA4AE),
+      3 => const Color(0xFFB0703C),
+      _ => scheme.primary,
+    };
+    final label = switch (c.rank) {
+      1 => 'Primer puesto',
+      2 => 'Segundo puesto',
+      3 => 'Tercer puesto',
+      _ => 'Certificado',
+    };
     final date = c.issuedAt?.toLocal();
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
@@ -141,9 +152,7 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        c.winner
-                            ? 'Ganador${c.category == null ? '' : ' · ${c.category}'}'
-                            : 'Participación',
+                        c.category == null ? label : '$label · ${c.category}',
                         style: theme.textTheme.labelMedium
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),

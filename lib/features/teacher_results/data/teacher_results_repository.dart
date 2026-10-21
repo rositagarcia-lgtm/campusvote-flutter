@@ -25,7 +25,7 @@ class TeacherResultsRepository {
       return const TeacherResults(status: TeacherResultsStatus.locked);
     }
     final meta = _map(summary['meta']);
-    final minimum = _int(meta['minimum_required'], 3);
+    final minimum = _int(meta['minimum_required'], 1);
     final data = summary['data'];
     if (data is! Map) {
       return TeacherResults(

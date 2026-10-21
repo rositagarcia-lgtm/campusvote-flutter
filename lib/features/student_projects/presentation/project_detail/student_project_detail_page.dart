@@ -104,11 +104,6 @@ class StudentProjectDetailPage extends ConsumerWidget {
           ],
         ),
       ),
-      if (project.isApproved && fair != null && (fair.isOpen || fair.isClosed))
-        _Section(
-          title: text.t('Opinión de tus compañeros'),
-          child: PeerFeedbackSection(fairId: fair.id, projectId: project.id),
-        ),
     ];
 
     return Scaffold(
@@ -148,7 +143,7 @@ class StudentProjectDetailPage extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.all(AppSpacing.s),
                   child: IconButton.filledTonal(
-                    tooltip: text.t('Calificación del jurado'),
+                    tooltip: text.t('Reseñas'),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(

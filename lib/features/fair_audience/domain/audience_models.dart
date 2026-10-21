@@ -113,26 +113,59 @@ class PeerFeedback {
   final int minVotes;
   final double? average;
   final List<String> comments;
+  final List<PeerReview> reviews;
+  final bool available;
 
   const PeerFeedback({
     required this.votes,
     this.minVotes = 3,
     this.average,
     this.comments = const [],
+    this.reviews = const [],
+    this.available = true,
   });
 
-  factory PeerFeedback.fromJson(Map<String, dynamic> json) => PeerFeedback(
-        votes: json['votes'] is num ? (json['votes'] as num).toInt() : 0,
-        minVotes:
-            json['min_votes'] is num ? (json['min_votes'] as num).toInt() : 3,
-        average:
-            json['average'] is num ? (json['average'] as num).toDouble() : null,
-        comments: [
-          for (final c
-              in json['comments'] is List ? json['comments'] as List : const [])
-            if ('$c'.trim().isNotEmpty) '$c'.trim(),
-        ],
-      );
+  factory PeerFeedback.fromJson(Map<String, dynamic> json) {
+    final rawReviews = json['reviews'];
+    final reviews = rawReviews is List
+        ? [
+            for (final row in rawReviews)
+              if (row is Map) PeerReview.fromJson(Map<String, dynamic>.from(row)),
+          ]
+        : const <PeerReview>[];
+    final comments = [
+      for (final c in json['comments'] is List ? json['comments'] as List : const [])
+        if ('$c'.trim().isNotEmpty) '$c'.trim(),
+    ];
+    return PeerFeedback(
+      votes: json['votes'] is num ? (json['votes'] as num).toInt() : 0,
+      minVotes: json['min_votes'] is num ? (json['min_votes'] as num).toInt() : 3,
+      average: json['average'] is num ? (json['average'] as num).toDouble() : null,
+      comments: comments,
+      reviews: reviews.isNotEmpty
+          ? reviews
+          : [
+              for (final comment in comments) PeerReview(score: null, comment: comment),
+            ],
+      available: json['available'] is bool ? json['available'] as bool : true,
+    );
+  }
+}
+
+class PeerReview {
+  const PeerReview({required this.score, this.comment});
+
+  final int? score;
+  final String? comment;
+
+  factory PeerReview.fromJson(Map<String, dynamic> json) {
+    final score = json['score'];
+    final comment = '${json['comment'] ?? ''}'.trim();
+    return PeerReview(
+      score: score is num ? score.toInt() : null,
+      comment: comment.isEmpty ? null : comment,
+    );
+  }
 }
 
 Map<String, dynamic> _map(Object? value) =>

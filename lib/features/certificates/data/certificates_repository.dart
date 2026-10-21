@@ -8,13 +8,14 @@ import '../../../core/config/endpoints.dart';
 import '../../../core/di/core_providers.dart';
 import '../../../core/network/api_client.dart';
 
-/// Certificado de feria del usuario (participación o ganador).
+/// Certificado de feria de primer, segundo o tercer puesto.
 class MyCertificate {
   const MyCertificate({
     required this.id,
     required this.winner,
     required this.fairName,
     required this.projectName,
+    this.place,
     this.category,
     this.issuedAt,
   });
@@ -23,8 +24,19 @@ class MyCertificate {
   final bool winner;
   final String fairName;
   final String projectName;
+
+  /// 1, 2 o 3. Vacío si el servidor todavía no manda el puesto.
+  final int? place;
   final String? category;
   final DateTime? issuedAt;
+
+  /// El de participación (sin puesto) no se muestra.
+  bool get shown {
+    if (place == 1 || place == 2 || place == 3) return true;
+    return winner && place == null;
+  }
+
+  int get rank => place ?? (winner ? 1 : 0);
 
   factory MyCertificate.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> map(Object? v) =>
@@ -32,9 +44,12 @@ class MyCertificate {
     final fair = map(json['fair']);
     final project = map(json['project']);
     final category = '${project['category'] ?? ''}'.trim();
+    final rawPlace = json['place'];
+    final place = rawPlace is num ? rawPlace.toInt() : int.tryParse('$rawPlace');
     return MyCertificate(
       id: '${json['id'] ?? ''}',
       winner: json['certificate_type'] == 'WINNER',
+      place: place,
       fairName: '${fair['name'] ?? 'Feria'}',
       projectName: '${project['name'] ?? 'Proyecto'}',
       category: category.isEmpty ? null : category,
@@ -55,8 +70,9 @@ class CertificatesRepository {
     final list = data is Map ? data['certificates'] : null;
     return [
       for (final c in list is List ? list : const [])
-        if (c is Map) MyCertificate.fromJson(Map<String, dynamic>.from(c)),
-    ];
+        if (c is Map)
+          MyCertificate.fromJson(Map<String, dynamic>.from(c)),
+    ].where((certificate) => certificate.shown).toList();
   }
 
   /// Descarga el PDF a la carpeta temporal y devuelve el archivo.
@@ -72,7 +88,8 @@ class CertificatesRepository {
     _check(response, path);
     final dir = await getTemporaryDirectory();
     final kind = certificate.winner ? 'ganador' : 'participacion';
-    final file = File('${dir.path}/certificado-$kind-${certificate.id.substring(0, 8)}.pdf');
+    final file = File(
+        '${dir.path}/certificado-$kind-${certificate.id.substring(0, 8)}.pdf');
     return file.writeAsBytes(response.data ?? const [], flush: true);
   }
 

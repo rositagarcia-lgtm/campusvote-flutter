@@ -7,18 +7,21 @@ class PublishedFair {
     required this.name,
     this.imageUrl,
     this.publishedAt,
+    this.endsAt,
   });
 
   final String id;
   final String name;
   final String? imageUrl;
   final DateTime? publishedAt;
+  final DateTime? endsAt;
 
   factory PublishedFair.fromJson(Map<String, dynamic> json) => PublishedFair(
         id: '${json['id'] ?? ''}',
         name: '${json['name'] ?? 'Feria'}',
         imageUrl: _text(json['image_url']),
         publishedAt: DateTime.tryParse('${json['published_at'] ?? ''}'),
+        endsAt: DateTime.tryParse('${json['ends_at'] ?? ''}'),
       );
 }
 

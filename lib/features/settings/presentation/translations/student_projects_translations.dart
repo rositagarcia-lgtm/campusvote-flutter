@@ -26,8 +26,16 @@ const studentProjectsTranslations = <String, String>{
   'Fotos': 'Photos',
   'Video': 'Video',
   'Calificación del jurado': 'Jury rating',
-  'Reseñas del jurado': 'Jury reviews',
-  '1 reseña del jurado': '1 jury review',
+  'Reseñas': 'Reviews',
+  '1 reseña': '1 review',
+  'reseñas': 'reviews',
+  'Compañero': 'Classmate',
+  'Las de tus compañeros se ven durante la feria y 7 días después del cierre. Las del jurado, desde que se publican los resultados.':
+      'Classmate reviews show during the fair and for 7 days after it ends. Jury reviews show once the results are published.',
+  'Las del jurado se ven al publicar los resultados.':
+      'Jury reviews show once the results are published.',
+  'Cuando tus compañeros o el jurado califiquen este proyecto, el promedio y las reseñas se verán aquí.':
+      'When your classmates or the jury rate this project, the average and the reviews will show up here.',
   'Aún no hay video del proyecto.': 'This project has no video yet.',
   'No pudimos reproducir el video del proyecto.':
       'We could not play the project video.',
@@ -36,11 +44,16 @@ const studentProjectsTranslations = <String, String>{
   'Equipo': 'Team',
   'Calificación por estrellas': 'Star rating',
   'Votos del jurado': 'Jury votes',
-  'Aún no hay calificaciones por estrellas.': 'No star ratings yet.',
-  'La calificación por estrellas y el voto aparecerán cuando se publiquen los resultados.':
-      'The star rating and the vote will appear once the results are published.',
-  'No pudimos cargar la valoración. Desliza para reintentar.':
-      'We could not load the feedback. Pull to retry.',
+  'Calificación sin comentario': 'Rating without a comment',
+  'Reseñas no disponibles': 'Reviews not available',
+  'La calificación y las reseñas del jurado se ven desde que se publican los resultados y durante los 7 días siguientes al cierre de la feria.':
+      'The jury rating and reviews show once the results are published, and for 7 days after the fair ends.',
+  'No hay reseñas ni calificaciones': 'No reviews or ratings',
+  'Cuando el jurado califique este proyecto, el promedio y las reseñas se verán aquí.':
+      'When the jury rates this project, the average and the reviews will show up here.',
+  'No pudimos cargar la valoración': 'We could not load the rating',
+  'Desliza el proyecto e inténtalo de nuevo.':
+      'Go back to the project and try again.',
   'No pudimos cargar tus proyectos.': 'We could not load your projects.',
   'FERIAS': 'FAIRS',
   'Aún no participas en una feria': 'You are not in a fair yet',

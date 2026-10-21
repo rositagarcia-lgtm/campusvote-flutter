@@ -71,7 +71,7 @@ class TeacherResults {
   const TeacherResults({
     required this.status,
     this.totalResponses = 0,
-    this.minimumRequired = 3,
+    this.minimumRequired = 1,
     this.overallAverage = 0,
     this.overallRating,
     this.byCourse = const [],

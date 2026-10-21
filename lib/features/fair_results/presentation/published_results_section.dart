@@ -9,6 +9,16 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../data/published_results_repository.dart';
+import '../domain/published_results.dart';
+
+/// Desde la publicación, y 7 días después del cierre de la feria.
+bool _resultsStillVisible(PublishedFair fair, DateTime now) {
+  final published = fair.publishedAt?.toUtc();
+  if (published == null || now.isBefore(published)) return false;
+  final end = fair.endsAt?.toUtc();
+  final anchor = end != null && end.isAfter(published) ? end : published;
+  return now.isBefore(anchor.add(const Duration(days: 7)));
+}
 
 /// Ferias con resultados publicados. No ocupa espacio si no hay ninguna.
 class PublishedResultsSection extends ConsumerStatefulWidget {
@@ -41,10 +51,7 @@ class _PublishedResultsSectionState
   Widget build(BuildContext context) {
     final now = DateTime.now().toUtc();
     final fairs = (ref.watch(publishedFairsProvider).valueOrNull ?? const [])
-        .where((fair) =>
-            fair.publishedAt != null &&
-            now.isBefore(
-                fair.publishedAt!.toUtc().add(const Duration(hours: 48))))
+        .where((fair) => _resultsStillVisible(fair, now))
         .toList();
     if (fairs.isEmpty) return const SizedBox.shrink();
     final theme = Theme.of(context);
