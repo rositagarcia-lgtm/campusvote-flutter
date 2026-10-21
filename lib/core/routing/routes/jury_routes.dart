@@ -1,7 +1,7 @@
 part of '../app_router.dart';
 
 List<RouteBase> _juryRoutes(WidgetRef ref) => [
-      // �"?�"? Votación de feria (JURY) �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+      // Panel y evaluaciones del jurado.
       // Árbol canónico del panel de jurado. Las rutas `/juries/**` se
       // resuelven por el redirect global de `legacyJuryRedirect`.
       GoRoute(

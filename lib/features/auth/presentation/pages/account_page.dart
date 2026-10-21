@@ -71,9 +71,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         appBar: OrganizationPanelAppBar(
           branding: branding,
           section: isJury ? text.t('Mi cuenta') : text.t('Sobre mí'),
-          actions: [
-            if (isJury) const NotificationsBell(),
-          ],
+          actions: const [NotificationsBell()],
         ),
         body: SafeArea(
           top: false,

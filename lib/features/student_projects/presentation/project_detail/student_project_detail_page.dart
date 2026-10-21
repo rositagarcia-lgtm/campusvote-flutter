@@ -1,6 +1,6 @@
 part of '../student_project_detail_page.dart';
 
-/// `/teaching/projects/:projectId` �?" detalle con equipo y opiniones del público.
+/// `/teaching/projects/:projectId`: detalle con equipo y opiniones del público.
 class StudentProjectDetailPage extends ConsumerWidget {
   const StudentProjectDetailPage({super.key, required this.projectId});
 

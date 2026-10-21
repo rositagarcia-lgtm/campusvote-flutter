@@ -3,12 +3,12 @@ part of '../app_router.dart';
 List<RouteBase> _authRoutes(WidgetRef ref) => [
       GoRoute(path: '/splash', builder: (_, __) => const SplashPage()),
 
-      // �"?�"? JURADO: correo + contraseña (credencial que envía el admin) �"?�"?�"?�"?
+      // Acceso del jurado con sus credenciales.
       GoRoute(
         path: '/auth/jury/login',
         builder: (_, __) => const JuryLoginPage(),
       ),
-      // �"?�"? DOCENTE: código de un solo uso por correo (como el estudiante) �"?�"?
+      // Acceso del docente mediante código por correo.
       GoRoute(
         path: '/auth/teacher',
         builder: (_, __) => const EmailRequestPage(teacher: true),
@@ -18,7 +18,7 @@ List<RouteBase> _authRoutes(WidgetRef ref) => [
         builder: (_, __) => const PasswordResetRequestPage(),
       ),
 
-      // �"?�"? ESTUDIANTE: código de un solo uso por correo �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+      // Acceso del estudiante mediante código por correo.
       GoRoute(
         path: '/auth/email-request',
         builder: (_, __) => const EmailRequestPage(),

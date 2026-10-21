@@ -15,6 +15,7 @@ import '../data/adviser_projects_repository.dart';
 import '../data/teacher_results_repository.dart';
 import '../../fair_results/presentation/published_results_section.dart';
 import 'jury_mode_card.dart';
+import 'evaluation_progress_card.dart';
 import '../domain/teacher_results.dart';
 
 /// `/teacher` — inicio del docente. Todos ven su evaluación; el bloque de
@@ -87,6 +88,13 @@ class TeacherHomePage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Text('PANEL DOCENTE',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.2,
+                        )),
+                    const SizedBox(height: AppSpacing.s),
                     AppMotion.reveal(
                       0,
                       Text(
@@ -102,6 +110,7 @@ class TeacherHomePage extends ConsumerWidget {
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.xl),
+                    const EvaluationProgressCard(),
                     const PublishedResultsSection(),
                     if (juryActive) ...[
                       AppMotion.reveal(1, juryCard),

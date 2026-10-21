@@ -161,6 +161,9 @@ GoRouter buildAppRouter(
     },
     routes: [
       ..._authRoutes(ref),
+      GoRoute(
+          path: '/notifications',
+          builder: (_, __) => const NotificationsPage()),
       ..._fairRoutes(ref),
       ..._teacherRoutes(ref),
       ..._juryRoutes(ref),

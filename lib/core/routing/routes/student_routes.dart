@@ -1,7 +1,7 @@
 part of '../app_router.dart';
 
 List<RouteBase> _studentRoutes(WidgetRef ref) => [
-      // �"?�"? Evaluación docente (STUDENT) �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+      // Evaluación docente y ferias del estudiante.
       GoRoute(
         path: '/teaching',
         pageBuilder: (_, s) => _tabPage(s, const TeachingHomePage()),

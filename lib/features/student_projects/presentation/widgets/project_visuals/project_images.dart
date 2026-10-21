@@ -136,7 +136,11 @@ class _ProjectImageViewerState extends State<ProjectImageViewer> {
               child: IconButton(
                 tooltip: 'Cerrar',
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                icon: const Icon(
+                  PhosphorIconsRegular.x,
+                  color: Colors.white,
+                  size: 28,
+                ),
               ),
             ),
           ),

@@ -1,7 +1,7 @@
 part of '../app_router.dart';
 
 List<RouteBase> _fairRoutes(WidgetRef ref) => [
-      // �"?�"? Enlaces de la web que abren la app �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+      // Enlaces de la web que abren la aplicación.
       // QR del stand: cada rol llega a su vista del proyecto.
       GoRoute(
         path: '/ferias/:fairId/proyectos/:projectId',

@@ -1,5 +1,33 @@
 part of '../teacher_results_widgets.dart';
 
+/// Superficie consistente para comparar varias métricas de una misma sección.
+class ResultsPanel extends StatelessWidget {
+  const ResultsPanel({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.l,
+        vertical: AppSpacing.s,
+      ),
+      decoration: _cardDecoration(scheme),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var index = 0; index < children.length; index++) ...[
+            if (index > 0) Divider(height: 1, color: scheme.outlineVariant),
+            children[index],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class ScoreBarRow extends StatelessWidget {
   const ScoreBarRow({
     super.key,
@@ -80,8 +108,13 @@ class DistributionBars extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: 34,
-                  child: Text('$stars ★', style: theme.textTheme.labelMedium),
+                  width: 40,
+                  child: Row(children: [
+                    Text('$stars', style: theme.textTheme.labelMedium),
+                    const SizedBox(width: 3),
+                    Icon(PhosphorIconsFill.star,
+                        size: 12, color: scheme.primary),
+                  ]),
                 ),
                 Expanded(
                   child: ClipRRect(

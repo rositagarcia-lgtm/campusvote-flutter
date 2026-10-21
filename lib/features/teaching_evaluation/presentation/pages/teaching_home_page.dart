@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../settings/presentation/settings_copy.dart';
+import '../../../notifications/presentation/widgets/notifications_bell.dart';
 import '../../../student_projects/presentation/widgets/student_projects_shortcut.dart';
 import '../state/teaching_list_controller.dart';
 import '../widgets/assignment_card.dart';
@@ -36,6 +37,7 @@ class TeachingHomePage extends ConsumerWidget {
         branding: ref.watch(brandingControllerProvider),
         section: text.t('Evaluación docente'),
         actions: [
+          const NotificationsBell(),
           IconButton(
             tooltip: text.t('Actualizar asignaciones'),
             icon: const Icon(PhosphorIconsRegular.arrowClockwise),

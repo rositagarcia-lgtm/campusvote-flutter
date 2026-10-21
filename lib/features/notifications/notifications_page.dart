@@ -3,19 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_icons.dart';
+import '../../core/routing/role_landing.dart';
 import '../../core/branding/branding_controller.dart';
 import '../../core/theme/app_dimensions.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_empty_view.dart';
-import '../../core/widgets/app_loader.dart';
 import '../../core/widgets/app_notice.dart';
 import '../../core/widgets/app_status_chip.dart';
 import '../../core/widgets/organization_panel_app_bar.dart';
+import '../auth/domain/entities/auth_role.dart';
+import '../auth/presentation/state/auth_controller.dart';
 import 'notification_item.dart';
 import 'notification_presentation.dart';
 import 'notification_widgets.dart';
 import 'notifications_controller.dart';
 import 'notifications_state.dart';
+import 'presentation/widgets/notifications_loading_view.dart';
 
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -36,8 +39,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       appBar: OrganizationPanelAppBar(
         branding: branding,
         section: 'Avisos',
-        onBack: () =>
-            context.canPop() ? context.pop() : context.go('/jury'),
+        onBack: () => context.canPop()
+            ? context.pop()
+            : context.go(landingPathForRole(
+                ref.read(authControllerProvider).user?.role,
+              )),
         actions: [
           IconButton(
             tooltip: 'Marcar todas como leídas',
@@ -55,7 +61,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   Widget _content(
       NotificationsState state, NotificationsController controller) {
     if (state.loading && state.items.isEmpty) {
-      return const AppLoader();
+      return const NotificationsLoadingView();
     }
     if (state.error != null && state.items.isEmpty) {
       return _ErrorRetry(
@@ -126,8 +132,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               icon: PhosphorIconsRegular.funnelSimpleX,
             ),
           for (final group in grouped.entries) ...[
-            NotificationDateHeader(
-                label: group.key, count: group.value.length),
+            NotificationDateHeader(label: group.key, count: group.value.length),
             const SizedBox(height: AppSpacing.m),
             for (final item in group.value) ...[
               NotificationCard(
@@ -157,7 +162,12 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     if (!mounted) return;
     final fairId = item.metadata['fair_id']?.toString();
     if (fairId != null && fairId.isNotEmpty) {
-      context.go('/jury/fair/${Uri.encodeComponent(fairId)}');
+      final role = ref.read(authControllerProvider).user?.role;
+      if (role == AuthRole.student) {
+        context.push('/teaching/explore/${Uri.encodeComponent(fairId)}');
+      } else if (AuthRole.usesJuryPanel(role)) {
+        context.push('/jury/fair/${Uri.encodeComponent(fairId)}');
+      }
     }
   }
 }

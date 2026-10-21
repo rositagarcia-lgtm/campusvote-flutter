@@ -136,7 +136,7 @@ class _ProjectVideoState extends State<ProjectVideo> {
                 playing ? controller.pause() : controller.play();
               }),
               icon: Icon(
-                playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                playing ? PhosphorIconsFill.pause : PhosphorIconsFill.play,
                 size: 32,
               ),
             ),

@@ -1,7 +1,7 @@
 part of '../app_router.dart';
 
 List<RouteBase> _teacherRoutes(WidgetRef ref) => [
-      // �"?�"? DOCENTE: inicio propio y resultados de su evaluación �"?�"?�"?�"?�"?�"?�"?�"?�"?
+      // Inicio docente y resultados de su evaluación.
       GoRoute(
         path: '/teacher',
         pageBuilder: (_, s) => _tabPage(s, const TeacherHomePage()),

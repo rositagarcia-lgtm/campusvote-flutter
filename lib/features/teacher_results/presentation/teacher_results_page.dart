@@ -148,11 +148,13 @@ class _Results extends StatelessWidget {
                     title: 'Por criterio',
                     subtitle: 'De mayor a menor puntaje.',
                   ),
-                  for (final c in results.byCriterion)
-                    ScoreBarRow(
-                        label: c.name,
-                        caption: c.description,
-                        average: c.average),
+                  ResultsPanel(children: [
+                    for (final c in results.byCriterion)
+                      ScoreBarRow(
+                          label: c.name,
+                          caption: c.description,
+                          average: c.average),
+                  ]),
                 ],
                 if (results.byCourse.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xl),
@@ -161,17 +163,20 @@ class _Results extends StatelessWidget {
                     title: 'Por curso',
                     subtitle: 'Solo cursos con suficientes evaluaciones.',
                   ),
-                  for (final c in results.byCourse)
-                    ScoreBarRow(
-                      label: c.courseName.isEmpty ? c.courseCode : c.courseName,
-                      caption: [
-                        if (c.courseCode.isNotEmpty) c.courseCode,
-                        if (c.cycle != null) 'Ciclo ${c.cycle}',
-                        if (c.periodName != null) c.periodName!,
-                        '${c.responses} evaluaciones',
-                      ].join(' · '),
-                      average: c.average,
-                    ),
+                  ResultsPanel(children: [
+                    for (final c in results.byCourse)
+                      ScoreBarRow(
+                        label:
+                            c.courseName.isEmpty ? c.courseCode : c.courseName,
+                        caption: [
+                          if (c.courseCode.isNotEmpty) c.courseCode,
+                          if (c.cycle != null) 'Ciclo ${c.cycle}',
+                          if (c.periodName != null) c.periodName!,
+                          '${c.responses} evaluaciones',
+                        ].join(' · '),
+                        average: c.average,
+                      ),
+                  ]),
                 ],
                 if (results.distribution.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xl),
@@ -180,7 +185,14 @@ class _Results extends StatelessWidget {
                     title: 'Cómo te calificaron',
                     subtitle: 'Total de estrellas recibidas en los criterios.',
                   ),
-                  DistributionBars(distribution: results.distribution),
+                  ResultsPanel(children: [
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.m),
+                      child:
+                          DistributionBars(distribution: results.distribution),
+                    ),
+                  ]),
                 ],
                 if (results.evolution.length > 1) ...[
                   const SizedBox(height: AppSpacing.xl),
@@ -188,12 +200,14 @@ class _Results extends StatelessWidget {
                     label: 'HISTORIAL',
                     title: 'Evolución por periodo',
                   ),
-                  for (final p in results.evolution)
-                    ScoreBarRow(
-                      label: p.periodName,
-                      caption: '${p.responses} evaluaciones',
-                      average: p.average,
-                    ),
+                  ResultsPanel(children: [
+                    for (final p in results.evolution)
+                      ScoreBarRow(
+                        label: p.periodName,
+                        caption: '${p.responses} evaluaciones',
+                        average: p.average,
+                      ),
+                  ]),
                 ],
                 const SizedBox(height: AppSpacing.xl),
                 SectionHeader(

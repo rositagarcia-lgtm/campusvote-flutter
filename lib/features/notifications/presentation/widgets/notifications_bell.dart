@@ -7,7 +7,7 @@ import '../../../../core/widgets/app_motion.dart';
 import '../../../settings/presentation/settings_copy.dart';
 import '../../notifications_controller.dart';
 
-/// Campana de avisos para la barra superior del jurado.
+/// Campana de avisos para la barra superior de cada rol.
 ///
 /// Los avisos son algo que se consulta de vez en cuando, no un destino de
 /// trabajo: viven arriba, como en cualquier app institucional, y el contador
@@ -27,7 +27,7 @@ class NotificationsBell extends ConsumerWidget {
       tooltip: unread > 0
           ? '${text.t('Avisos')}: $label ${text.t('sin leer')}'
           : text.t('Avisos'),
-      onPressed: () => context.push('/jury/notifications'),
+      onPressed: () => context.push('/notifications'),
       icon: Badge(
         isLabelVisible: unread > 0,
         label: TweenAnimationBuilder<double>(

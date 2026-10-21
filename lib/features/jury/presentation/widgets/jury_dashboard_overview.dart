@@ -56,6 +56,15 @@ class JuryDashboardOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Text(
+            'PANEL DEL JURADO',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: accent,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.s),
           Semantics(
             header: true,
             child: Text(
@@ -74,7 +83,7 @@ class JuryDashboardOverview extends StatelessWidget {
               height: 1.4,
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.l),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -89,52 +98,72 @@ class JuryDashboardOverview extends StatelessWidget {
                       value: '$assignedCount',
                       label: 'Asignadas',
                       icon: PhosphorIconsRegular.clipboardText)),
-              const SizedBox(width: AppSpacing.s),
-              Expanded(
-                  child: _Metric(
-                      value: progressLabel,
-                      label: 'Avance',
-                      icon: PhosphorIconsRegular.listChecks)),
             ],
           ),
-          const SizedBox(height: AppSpacing.l),
+          const SizedBox(height: AppSpacing.m),
           Semantics(
-            label: detail,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (percentage != null || progress.isLoading) ...[
-                  ClipRRect(
-                    borderRadius: AppRadii.rMedium,
-                    // La barra se llena desde 0 al entrar: el avance se lee
-                    // como movimiento, no como un dato estático.
-                    child: percentage == null
-                        ? LinearProgressIndicator(
-                            minHeight: 6,
+            label: 'Avance: $progressLabel. $detail',
+            excludeSemantics: true,
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.l),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: AppRadii.rLarge,
+                border: Border.all(color: colors.outlineVariant),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Icon(PhosphorIconsRegular.listChecks,
+                          size: 20, color: accent),
+                      const SizedBox(width: AppSpacing.s),
+                      Expanded(
+                        child: Text('Avance de rúbricas',
+                            style: theme.textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                      ),
+                      Text(progressLabel,
+                          style: theme.textTheme.titleLarge?.copyWith(
                             color: accent,
-                            backgroundColor: accent.withValues(alpha: 0.13),
-                          )
-                        : TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0, end: percentage / 100),
-                            duration: AppMotion.slow,
-                            curve: AppMotion.emphasized,
-                            builder: (_, v, __) => LinearProgressIndicator(
-                              value: v,
-                              minHeight: 6,
+                            fontWeight: FontWeight.w800,
+                          )),
+                    ],
+                  ),
+                  if (percentage != null || progress.isLoading) ...[
+                    const SizedBox(height: AppSpacing.m),
+                    ClipRRect(
+                      borderRadius: AppRadii.rMedium,
+                      child: percentage == null
+                          ? LinearProgressIndicator(
+                              minHeight: 8,
                               color: accent,
                               backgroundColor: accent.withValues(alpha: 0.13),
+                            )
+                          : TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: percentage / 100),
+                              duration: AppMotion.reduced(context)
+                                  ? Duration.zero
+                                  : AppMotion.slow,
+                              curve: AppMotion.emphasized,
+                              builder: (_, value, __) =>
+                                  LinearProgressIndicator(
+                                value: value,
+                                minHeight: 8,
+                                color: accent,
+                                backgroundColor: accent.withValues(alpha: 0.13),
+                              ),
                             ),
-                          ),
-                  ),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.s),
+                  Text(detail,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      )),
                 ],
-                Text(
-                  detail,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],

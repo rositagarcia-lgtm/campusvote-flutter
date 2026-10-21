@@ -48,7 +48,7 @@ class JuryReviewsPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    average == null ? '�?"' : average.toStringAsFixed(1),
+                    average == null ? '—' : average.toStringAsFixed(1),
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),

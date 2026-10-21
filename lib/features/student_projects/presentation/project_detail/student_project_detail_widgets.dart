@@ -161,7 +161,7 @@ class _ProjectVideoBlock extends StatelessWidget {
                       borderRadius: AppRadii.rMedium,
                     ),
                     child: Icon(
-                      Icons.video_library_rounded,
+                      PhosphorIconsRegular.videoCamera,
                       color: theme.colorScheme.primary,
                     ),
                   ),
@@ -171,7 +171,7 @@ class _ProjectVideoBlock extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          text.t('Presentaci�n en video'),
+                          text.t('Presentación en video'),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
@@ -206,13 +206,13 @@ class _ProjectVideoBlock extends StatelessWidget {
                 child: Column(
                   children: [
                     Icon(
-                      Icons.video_library_rounded,
+                      PhosphorIconsRegular.videoCamera,
                       size: 28,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(height: AppSpacing.s),
                     Text(
-                      text.t('A�n no hay video del proyecto.'),
+                      text.t('Aún no hay video del proyecto.'),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,

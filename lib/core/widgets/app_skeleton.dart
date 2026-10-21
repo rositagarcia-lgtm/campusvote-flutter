@@ -39,16 +39,19 @@ class _AppSkeletonState extends State<AppSkeleton>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final base = isDark ? AppColors.darkBorder : AppColors.border;
 
+    final surface = Container(
+      width: widget.width,
+      height: widget.height,
+      decoration: BoxDecoration(
+        color: base,
+        borderRadius: widget.borderRadius ?? AppRadii.rSmall,
+      ),
+    );
+    if (MediaQuery.disableAnimationsOf(context)) return surface;
+
     return FadeTransition(
       opacity: Tween<double>(begin: 0.4, end: 1).animate(_controller),
-      child: Container(
-        width: widget.width,
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: base,
-          borderRadius: widget.borderRadius ?? AppRadii.rSmall,
-        ),
-      ),
+      child: surface,
     );
   }
 }

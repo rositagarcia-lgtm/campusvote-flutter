@@ -101,13 +101,13 @@ class _Row extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(item.subtitle, style: theme.textTheme.bodySmall),
+                    if (item.trailing != null) ...[
+                      const SizedBox(height: AppSpacing.s),
+                      item.trailing!,
+                    ],
                   ],
                 ),
               ),
-              if (item.trailing != null) ...[
-                const SizedBox(width: AppSpacing.s),
-                item.trailing!,
-              ],
               const SizedBox(width: AppSpacing.xs),
               Icon(
                 PhosphorIconsRegular.caretRight,
