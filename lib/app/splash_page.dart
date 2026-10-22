@@ -61,7 +61,6 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             AppSpacing.l,
             AppSpacing.xl,

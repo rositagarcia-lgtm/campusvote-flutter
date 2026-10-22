@@ -61,7 +61,7 @@ class PageScrollBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: physics ?? const ClampingScrollPhysics(),
+      physics: physics,
       padding: padding ??
           EdgeInsets.fromLTRB(
             AppSpacing.l,

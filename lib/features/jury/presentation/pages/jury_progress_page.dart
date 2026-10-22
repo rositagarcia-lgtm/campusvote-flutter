@@ -38,7 +38,7 @@ class JuryProgressPage extends ConsumerWidget {
         section: 'Mi progreso',
         onBack: () => context.pop(),
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: () => reloadJuryProgress(context, ref, fairId),
         child: data != null
             ? JuryProgressView(

@@ -47,9 +47,7 @@ class JuryProgressView extends ConsumerWidget {
     return PageScrollBody(
       // Siempre desplazable para que el gesto de recargar funcione aunque la
       // feria tenga poco contenido.
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: ClampingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

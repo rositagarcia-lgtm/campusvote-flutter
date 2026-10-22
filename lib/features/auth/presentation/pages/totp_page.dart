@@ -64,7 +64,6 @@ class _TotpPageState extends ConsumerState<TotpPage> {
       appBar: buildAuthAppBar(context, onBack: () => context.go('/splash')),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             AppSpacing.l,
             AppSpacing.s,

@@ -33,7 +33,7 @@ class AdviserProjectsPage extends ConsumerWidget {
           onPressed: () => context.go('/teacher'),
         ),
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: projects.when(
           loading: () => const AppLoader(),

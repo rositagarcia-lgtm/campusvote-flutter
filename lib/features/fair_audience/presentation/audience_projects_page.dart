@@ -42,7 +42,7 @@ class AudienceProjectsPage extends ConsumerWidget {
           onPressed: () => context.go('/teaching/explore'),
         ),
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: board.when(
           loading: () => const AppLoader(),

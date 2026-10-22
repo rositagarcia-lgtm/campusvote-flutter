@@ -26,7 +26,8 @@ class AppLoader extends StatelessWidget {
             SizedBox(
               width: size,
               height: size,
-              child: CircularProgressIndicator(
+              // En iOS se ve la ruedita nativa (CupertinoActivityIndicator).
+              child: CircularProgressIndicator.adaptive(
                 strokeWidth: 3,
                 valueColor: AlwaysStoppedAnimation(
                   color ?? theme.colorScheme.primary,

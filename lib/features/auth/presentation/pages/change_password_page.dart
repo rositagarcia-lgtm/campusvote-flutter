@@ -127,7 +127,6 @@ class _ChangePasswordPageState extends ConsumerState<ChangePasswordPage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
             padding: EdgeInsets.fromLTRB(
               AppSpacing.l,
               AppSpacing.l,

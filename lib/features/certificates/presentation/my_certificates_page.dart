@@ -27,7 +27,7 @@ class MyCertificatesPage extends ConsumerWidget {
     Future<void> reload() => ref.refresh(myCertificatesProvider.future);
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Mis certificados'),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: certificates.when(
           loading: () => const AppLoader(),

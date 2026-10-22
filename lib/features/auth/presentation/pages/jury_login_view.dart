@@ -71,7 +71,6 @@ class JuryLoginView extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             AppSpacing.l,
             AppSpacing.s,

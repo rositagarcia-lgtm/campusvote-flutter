@@ -41,9 +41,7 @@ class AppEmptyView extends StatelessWidget {
     final muted = appMuted(isDark);
 
     return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: ClampingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Center(
         child: ConstrainedBox(

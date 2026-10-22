@@ -194,7 +194,7 @@ class _ProjectDetailView extends StatelessWidget {
                 child: const Icon(PhosphorIconsFill.star),
               ),
             ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: onRefresh,
         edgeOffset: 260,
         child: CustomScrollView(

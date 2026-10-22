@@ -39,7 +39,6 @@ class TotpBackupCodesPage extends ConsumerWidget {
           buildCampusVoteAppBar(context, title: text.t('Códigos de respaldo')),
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
           padding: const EdgeInsets.all(AppSpacing.l),
           child: Center(
             child: ConstrainedBox(

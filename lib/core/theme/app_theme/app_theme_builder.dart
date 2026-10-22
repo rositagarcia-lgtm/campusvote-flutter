@@ -41,7 +41,9 @@ class _AppThemeBuilder {
       canvasColor: p.background,
       textTheme: textTheme,
       primaryTextTheme: textTheme,
-      splashFactory: InkSparkle.splashFactory,
+      // iOS: sin onda al tocar y controles Cupertino con el color de marca.
+      splashFactory: _isApple ? NoSplash.splashFactory : InkSparkle.splashFactory,
+      cupertinoOverrideTheme: CupertinoThemeData(primaryColor: p.primary),
       visualDensity: VisualDensity.standard,
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
@@ -235,15 +237,7 @@ class _AppThemeBuilder {
           side: BorderSide(color: p.border),
         ),
       ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: p.surface,
-        surfaceTintColor: Colors.transparent,
-        showDragHandle: true,
-        dragHandleColor: p.borderStrong,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-      ),
+      bottomSheetTheme: _bottomSheetTheme(p),
     );
   }
 }

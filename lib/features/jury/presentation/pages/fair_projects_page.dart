@@ -41,7 +41,7 @@ class FairProjectsPage extends ConsumerWidget {
         section: 'Proyectos',
         onBack: () => context.pop(),
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: _bodyFor(fairId, projects, reload),
       ),

@@ -92,7 +92,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
     final theme = Theme.of(context);
 
-    return RefreshIndicator(
+    return RefreshIndicator.adaptive(
       onRefresh: controller.load,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

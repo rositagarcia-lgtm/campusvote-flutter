@@ -36,7 +36,7 @@ class ExploreFairsPage extends ConsumerWidget {
         section: 'Explorar ferias',
         actions: const [NotificationsBell()],
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: fairs.when(
           loading: () => const AppLoader(),

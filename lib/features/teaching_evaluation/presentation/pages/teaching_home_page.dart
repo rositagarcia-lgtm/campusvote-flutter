@@ -89,7 +89,7 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
     final completed = state.done;
     final branding = ref.watch(brandingControllerProvider);
 
-    return RefreshIndicator(
+    return RefreshIndicator.adaptive(
       onRefresh: onRefresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

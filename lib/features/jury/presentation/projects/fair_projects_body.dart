@@ -78,9 +78,7 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
     return PageScrollBody(
       // Siempre desplazable para que el pull-to-refresh funcione con poco
       // contenido.
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: ClampingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

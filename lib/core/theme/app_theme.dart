@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../branding/organization_branding.dart';
@@ -8,6 +9,7 @@ import 'app_typography.dart';
 import 'brand_colors.dart';
 
 part 'app_theme/app_theme_builder.dart';
+part 'app_theme/app_theme_sheets.dart';
 part 'app_theme/app_theme_palette.dart';
 
 class AppTheme {
@@ -23,3 +25,8 @@ class AppTheme {
 
   static ThemeData _build(_Palette palette) => _AppThemeBuilder.build(palette);
 }
+
+/// iOS/macOS: controles y toques con el aspecto nativo de Apple.
+bool get _isApple =>
+    defaultTargetPlatform == TargetPlatform.iOS ||
+    defaultTargetPlatform == TargetPlatform.macOS;

@@ -43,7 +43,7 @@ class TeacherResultsPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: results.when(
           loading: () => const AppLoader(),

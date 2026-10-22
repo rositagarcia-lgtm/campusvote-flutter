@@ -61,7 +61,7 @@ class JuryDashboardPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: () => _reload(ref),
         child: _bodyFor(context, ref, fairs),
       ),
@@ -121,9 +121,7 @@ class _FairsList extends ConsumerWidget {
     final others = fairs.where((f) => !f.isOpen).toList(growable: false);
     return PageScrollBody(
       // Siempre desplazable para permitir actualizar con poco contenido.
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: ClampingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

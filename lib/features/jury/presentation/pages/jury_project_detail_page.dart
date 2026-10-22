@@ -75,7 +75,7 @@ class _ProjectContent extends ConsumerWidget {
     final cover = AppEnv.mediaUrl(project.coverUrl ??
         (project.imageUrls.isEmpty ? null : project.imageUrls.first));
 
-    return RefreshIndicator(
+    return RefreshIndicator.adaptive(
       onRefresh: () async {
         ref.invalidate(fairProjectsProvider(fairId));
         ref.invalidate(myEvaluationsProvider(fairId));

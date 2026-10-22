@@ -76,7 +76,7 @@ class TeacherHomePage extends ConsumerWidget {
         section: 'Panel docente',
         actions: const [NotificationsBell()],
       ),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),

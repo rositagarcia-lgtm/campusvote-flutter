@@ -44,9 +44,7 @@ class AppErrorView extends StatelessWidget {
     final text = SettingsCopy.of(context);
 
     return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: ClampingScrollPhysics(),
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Center(
         child: ConstrainedBox(
