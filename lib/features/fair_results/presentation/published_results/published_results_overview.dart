@@ -24,7 +24,7 @@ class PublishedResultsPage extends ConsumerWidget {
         ref.refresh(publishedResultsProvider(fairId).future);
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Resultados'),
-      body: RefreshIndicator(
+      body: RefreshIndicator.adaptive(
         onRefresh: reload,
         child: results.when(
           loading: () => const AppLoader(),
@@ -67,7 +67,7 @@ class _ResultsBody extends StatelessWidget {
           AppMotion.reveal(i++, _MyProjectBanner(result: mine)),
           const SizedBox(height: AppSpacing.s),
         ],
-        if (results.myProjects.isNotEmpty) ...[
+        if (AppFeatures.studentCertificates && results.myProjects.isNotEmpty) ...[
           OutlinedButton.icon(
             onPressed: () => context.push('/certificados'),
             icon: const Icon(PhosphorIconsRegular.certificate),

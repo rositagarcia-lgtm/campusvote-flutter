@@ -25,6 +25,7 @@ import '../../../notifications/presentation/widgets/notifications_bell.dart';
 import '../widgets/logout_flow.dart';
 import '../../../../core/routing/role_landing.dart';
 import '../../../settings/presentation/settings_copy.dart';
+import '../../../../core/config/constants.dart';
 
 /// "Sobre mí": foto de perfil, datos de la cuenta y de la organización,
 /// acceso a seguridad y cierre de sesión.
@@ -100,7 +101,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 AccountSettingsGroup(
                   items: [
                     // Certificados de feria: el alumno participa con su proyecto.
-                    if (user?.role == AuthRole.student)
+                    if (AppFeatures.studentCertificates &&
+                        user?.role == AuthRole.student)
                       AccountSettingsItem(
                         icon: PhosphorIconsRegular.certificate,
                         title: text.t('Mis certificados'),

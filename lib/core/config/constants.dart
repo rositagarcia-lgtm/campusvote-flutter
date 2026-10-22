@@ -1,3 +1,12 @@
+/// Funciones que se activan cuando la institución lo decide.
+class AppFeatures {
+  const AppFeatures._();
+
+  /// Descarga de certificados de feria por el alumno en la app. Apagada por
+  /// ahora: los certificados de ganador los entrega el admin impresos.
+  static const bool studentCertificates = false;
+}
+
 /// Constantes transversales de la aplicación.
 class AppConstants {
   const AppConstants._();
@@ -6,7 +15,7 @@ class AppConstants {
 
   /// Versión visible de la app. Debe coincidir con `version:` de
   /// `pubspec.yaml`; se muestra en la cabecera de Configuración.
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.10';
 
   /// Versión con prefijo, como aparece junto al nombre de la organización.
   static const String appVersionLabel = 'v$appVersion';

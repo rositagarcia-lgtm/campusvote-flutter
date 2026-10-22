@@ -43,6 +43,7 @@ import '../../features/jury/presentation/pages/jury_project_detail_page.dart';
 import 'deep_links.dart';
 import 'legacy_jury_routes.dart';
 import 'role_landing.dart';
+import '../config/constants.dart';
 part 'routes/auth_routes.dart';
 part 'routes/fair_routes.dart';
 part 'routes/jury_routes.dart';

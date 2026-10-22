@@ -26,6 +26,10 @@ List<RouteBase> _fairRoutes(WidgetRef ref) => [
       // Certificados de feria del usuario (descarga en PDF).
       GoRoute(
         path: '/certificados',
+        // Apagado por ahora (AppFeatures.studentCertificates): vuelve al inicio.
+        redirect: (_, __) => AppFeatures.studentCertificates
+            ? null
+            : landingPathForRole(ref.read(authControllerProvider).user?.role),
         builder: (_, __) => const MyCertificatesPage(),
       ),
       // Escáner del QR del stand (cualquier rol con sesión).
