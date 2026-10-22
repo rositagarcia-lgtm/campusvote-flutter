@@ -27,6 +27,11 @@ const studentProjectsTranslations = <String, String>{
   'Video': 'Video',
   'Calificación del jurado': 'Jury rating',
   'Reseñas': 'Reviews',
+  'Reseñas y comentarios': 'Reviews and comments',
+  'Ver reseñas y comentarios': 'See reviews and comments',
+  'Compañeros': 'Classmates',
+  'Las reseñas del jurado y de tus compañeros se ven en cuanto se envían, durante la feria y 7 días después del cierre.':
+      'Reviews from the jury and your classmates show up as soon as they are sent, during the fair and for 7 days after it closes.',
   '1 reseña': '1 review',
   'reseñas': 'reviews',
   'Compañero': 'Classmate',

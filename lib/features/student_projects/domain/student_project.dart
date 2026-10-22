@@ -42,9 +42,10 @@ class StudentProject {
   bool get isApproved => status == 'APPROVED';
   bool get isRejected => status == 'REJECTED';
 
-  /// Las estrellas y el voto se consultan con la feria cerrada y el proyecto
-  /// aprobado. Antes de publicar, el servidor responde que aún no están.
-  bool get hasFeedback => isApproved && fair?.isClosed == true;
+  /// Las reseñas y comentarios del jurado se ven en cuanto se envían: con la
+  /// feria abierta y 7 días después del cierre. El conteo de votos llega
+  /// solo cuando se publican los resultados (voto secreto).
+  bool get hasFeedback => isApproved && (fair?.reviewsOpen ?? false);
 
   factory StudentProject.fromJson(Map<String, dynamic> json) {
     final fair = json['fair'];
@@ -144,16 +145,26 @@ class ProjectFeedback {
     required this.published,
     required this.votes,
     required this.reviews,
+    this.comments = const [],
   });
 
   const ProjectFeedback.hidden()
       : published = false,
         votes = null,
-        reviews = const [];
+        reviews = const [],
+        comments = const [];
 
   final bool published;
+
+  /// Votos del jurado; null mientras los resultados no se publiquen.
   final int? votes;
   final List<ProjectReview> reviews;
+
+  /// Comentarios del jurado (sin estrellas ni autor).
+  final List<ProjectReview> comments;
+
+  ProjectFeedback withComments(List<ProjectReview> value) => ProjectFeedback(
+      published: published, votes: votes, reviews: reviews, comments: value);
 
   double? get average {
     if (reviews.isEmpty) return null;
@@ -166,7 +177,7 @@ class ProjectFeedback {
     final votes = json['votes'];
     return ProjectFeedback(
       published: true,
-      votes: votes is num ? votes.toInt() : 0,
+      votes: votes is num ? votes.toInt() : null,
       reviews: raw is List
           ? raw
               .whereType<Map>()
@@ -180,6 +191,17 @@ class ProjectFeedback {
 
 class ProjectReview {
   const ProjectReview({required this.rating, this.comment, this.createdAt});
+
+  /// `GET /engagement` → comentario del jurado, sin estrellas.
+  static ProjectReview? juryComment(Map<String, dynamic> json) {
+    final text = _text(json['comment']);
+    if (text == null) return null;
+    return ProjectReview(
+      rating: 0,
+      comment: text,
+      createdAt: DateTime.tryParse('${json['created_at']}')?.toLocal(),
+    );
+  }
 
   final int rating;
   final String? comment;

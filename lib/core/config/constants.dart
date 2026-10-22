@@ -15,7 +15,7 @@ class AppConstants {
 
   /// Versión visible de la app. Debe coincidir con `version:` de
   /// `pubspec.yaml`; se muestra en la cabecera de Configuración.
-  static const String appVersion = '1.0.10';
+  static const String appVersion = '1.0.11';
 
   /// Versión con prefijo, como aparece junto al nombre de la organización.
   static const String appVersionLabel = 'v$appVersion';

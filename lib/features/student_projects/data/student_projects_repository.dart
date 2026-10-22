@@ -49,7 +49,8 @@ class StudentProjectsRepository {
       if (data is! Map) {
         throw const FormatException('Respuesta de valoraciones no válida.');
       }
-      return Success(ProjectFeedback.fromJson(Map<String, dynamic>.from(data)));
+      final feedback = ProjectFeedback.fromJson(Map<String, dynamic>.from(data));
+      return Success(feedback.withComments(await _juryComments(fairId, project.id)));
     } on DioException catch (e) {
       // Antes de publicar, el servidor niega las reseñas y el voto.
       if (e.response?.statusCode == 403) {
@@ -58,6 +59,22 @@ class StudentProjectsRepository {
       return FailureResult(mapExceptionToFailure(e));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));
+    }
+  }
+
+  /// Comentarios del jurado; si fallan, la pantalla sigue con las reseñas.
+  Future<List<ProjectReview>> _juryComments(String fairId, String projectId) async {
+    final path = ApiEndpoints.projectEngagement(fairId, projectId);
+    try {
+      final data = _data(await _client.get(path), path);
+      final rows = data is Map ? data['comments'] : null;
+      if (rows is! List) return const [];
+      return [
+        for (final row in rows)
+          if (row is Map) ProjectReview.juryComment(Map<String, dynamic>.from(row)),
+      ].whereType<ProjectReview>().toList(growable: false);
+    } catch (_) {
+      return const [];
     }
   }
 

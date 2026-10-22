@@ -45,13 +45,26 @@ void main() {
         ProjectStage.finished);
   });
 
-  test('las estrellas y el voto se consultan al cerrar la feria', () {
-    expect(StudentProject.fromJson(_json(fair: 'CLOSED')).hasFeedback, isTrue);
-    expect(StudentProject.fromJson(_json()).hasFeedback, isFalse);
-    expect(
-        StudentProject.fromJson(_json(status: 'SUBMITTED', fair: 'CLOSED'))
-            .hasFeedback,
+  test('las reseñas del jurado se ven durante la feria y 7 días después', () {
+    expect(StudentProject.fromJson(_json()).hasFeedback, isTrue);
+    expect(StudentProject.fromJson(_json(fair: 'DRAFT')).hasFeedback, isFalse);
+    final closed = _json(fair: 'CLOSED');
+    (closed['fair'] as Map)['ends_at'] =
+        DateTime.now().subtract(const Duration(days: 2)).toIso8601String();
+    expect(StudentProject.fromJson(closed).hasFeedback, isTrue);
+    (closed['fair'] as Map)['ends_at'] =
+        DateTime.now().subtract(const Duration(days: 8)).toIso8601String();
+    expect(StudentProject.fromJson(closed).hasFeedback, isFalse);
+    expect(StudentProject.fromJson(_json(status: 'SUBMITTED')).hasFeedback,
         isFalse);
+  });
+
+  test('sin resultados publicados no llega el conteo de votos', () {
+    final f = ProjectFeedback.fromJson({'votes': null, 'reviews': []});
+    expect(f.votes, isNull);
+    final note = ProjectReview.juryComment({'comment': ' Mejoren la demo '});
+    expect(note?.comment, 'Mejoren la demo');
+    expect(ProjectReview.juryComment({'comment': '  '}), isNull);
   });
 
   test('la valoración lee estrellas y votos, sin me gusta', () {

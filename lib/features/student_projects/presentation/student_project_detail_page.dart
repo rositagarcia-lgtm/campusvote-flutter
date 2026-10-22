@@ -23,4 +23,8 @@ import 'widgets/project_visuals.dart';
 
 part 'project_detail/student_project_detail_page.dart';
 part 'project_detail/jury_reviews_page.dart';
+part 'project_detail/jury_review_summary.dart';
+part 'project_detail/jury_review_card.dart';
+part 'project_detail/project_detail_view.dart';
+part 'project_detail/reviews_summary_card.dart';
 part 'project_detail/student_project_detail_widgets.dart';
