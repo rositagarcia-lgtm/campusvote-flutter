@@ -24,6 +24,7 @@ import '../../data/models/jury_models.dart';
 import '../providers/jury_dashboard_progress.dart';
 import '../providers/jury_providers.dart';
 import '../widgets/jury_dashboard_overview.dart';
+import '../../../../features/auth/presentation/widgets/account_avatar_button.dart';
 import '../widgets/jury_fair_card.dart';
 
 /// `/jury` — dashboard de ferias asignadas (`GET /fairs/my-assignments`).
@@ -54,11 +55,7 @@ class JuryDashboardPage extends ConsumerWidget {
               onPressed: () => context.go('/teacher'),
             ),
           const NotificationsBell(),
-          IconButton(
-            tooltip: 'Actualizar ferias',
-            icon: const Icon(PhosphorIconsRegular.arrowClockwise),
-            onPressed: () => _reload(ref),
-          ),
+          const AccountAvatarButton(),
         ],
       ),
       body: RefreshIndicator.adaptive(

@@ -15,6 +15,7 @@ import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
 import '../data/teacher_results_repository.dart';
 import '../domain/teacher_results.dart';
+import '../../../features/auth/presentation/widgets/account_avatar_button.dart';
 import 'teacher_results_widgets.dart';
 
 /// `/teacher/evaluation` — cómo le fue al docente en la evaluación de sus
@@ -35,13 +36,7 @@ class TeacherResultsPage extends ConsumerWidget {
       appBar: OrganizationPanelAppBar(
         branding: branding,
         section: 'Mi evaluación docente',
-        actions: [
-          IconButton(
-            tooltip: 'Actualizar resultados',
-            icon: const Icon(PhosphorIconsRegular.arrowClockwise),
-            onPressed: reload,
-          ),
-        ],
+        actions: const [AccountAvatarButton()],
       ),
       body: RefreshIndicator.adaptive(
         onRefresh: reload,

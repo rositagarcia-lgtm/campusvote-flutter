@@ -165,6 +165,7 @@ void main() {
       await tester.pumpWidget(_page(const TeacherResults(
         status: TeacherResultsStatus.insufficient,
         totalResponses: 2,
+        minimumRequired: 3,
       )));
       await tester.pumpAndSettle();
       expect(find.text('Aún no hay suficientes evaluaciones'), findsOneWidget);

@@ -18,6 +18,7 @@ import '../../../settings/presentation/settings_copy.dart';
 import '../../../notifications/presentation/widgets/notifications_bell.dart';
 import '../../../student_projects/presentation/widgets/student_projects_shortcut.dart';
 import '../state/teaching_list_controller.dart';
+import '../../../../features/auth/presentation/widgets/account_avatar_button.dart';
 import '../widgets/assignment_card.dart';
 
 /// Inicio del estudiante: asignaciones docentes entregadas por el backend.
@@ -36,14 +37,7 @@ class TeachingHomePage extends ConsumerWidget {
       appBar: OrganizationPanelAppBar(
         branding: ref.watch(brandingControllerProvider),
         section: text.t('Evaluación docente'),
-        actions: [
-          const NotificationsBell(),
-          IconButton(
-            tooltip: text.t('Actualizar asignaciones'),
-            icon: const Icon(PhosphorIconsRegular.arrowClockwise),
-            onPressed: state.loading ? null : controller.refresh,
-          ),
-        ],
+        actions: const [NotificationsBell(), AccountAvatarButton()],
       ),
       body: _TeachingAssignmentsBody(
         state: state,

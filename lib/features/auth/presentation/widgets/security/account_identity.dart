@@ -214,9 +214,12 @@ class AccountAvatar extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         initial,
+        // La inicial escala con el avatar: sirve igual en el carnet (96) que
+        // en la barra superior (36).
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w700,
+              fontSize: size * 0.42,
             ),
       ),
     );
