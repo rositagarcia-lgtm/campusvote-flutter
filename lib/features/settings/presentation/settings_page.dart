@@ -8,6 +8,7 @@ import '../../../core/widgets/app_appbar.dart';
 import '../../../core/widgets/app_page_layout.dart';
 import 'sections/settings_appearance_section.dart';
 import 'sections/settings_language_section.dart';
+import 'sections/settings_notifications_section.dart';
 import 'sections/settings_organization_header.dart';
 import 'settings_copy.dart';
 
@@ -49,6 +50,8 @@ class SettingsPage extends StatelessWidget {
               SettingsAppearanceSection(),
               SizedBox(height: AppSpacing.xl),
               SettingsLanguageSection(),
+              SizedBox(height: AppSpacing.xl),
+              SettingsNotificationsSection(),
             ],
           ),
         ),

@@ -26,7 +26,7 @@ void main() {
       expect(find.text('Preferencias del sistema'), findsOneWidget);
       // La versión viene de `AppConstants`, no de un literal en la vista.
       expect(find.text(AppConstants.appVersionLabel), findsOneWidget);
-      expect(AppConstants.appVersionLabel, 'v1.0.0');
+      expect(AppConstants.appVersionLabel, 'v${AppConstants.appVersion}');
     });
 
     testWidgets('el nombre de la organización no se traduce', (tester) async {
