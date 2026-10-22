@@ -25,10 +25,16 @@ class RubricScoreCard extends StatelessWidget {
     final score = evaluation.score;
     final total = evaluation.rubric.criteria.length;
     final checked = state.checkedCount;
-    final ratio = total == 0 ? 0.0 : checked / total;
     final markedPoints = evaluation.rubric.criteria
         .where((criterion) => state.answers[criterion.id] == true)
         .fold<double>(0, (sum, criterion) => sum + criterion.points);
+    // Máximo real de la rúbrica (el admin reparte 20 puntos entre criterios).
+    final maxPoints = evaluation.rubric.criteria
+        .where((criterion) => criterion.isActive)
+        .fold<double>(0, (sum, criterion) => sum + criterion.points);
+    final outOf = maxPoints > 0 ? maxPoints : 20.0;
+    // El anillo avanza por puntos: un criterio que vale más pesa más.
+    final ratio = (markedPoints / outOf).clamp(0.0, 1.0);
 
     return AppCard(
       child: Row(
@@ -75,8 +81,8 @@ class RubricScoreCard extends StatelessWidget {
                 Text(
                   // El score solo existe cuando la hoja está finalizada.
                   evaluation.submitted && score != null
-                      ? '${score.toStringAsFixed(2)} / 20'
-                      : '${markedPoints.toStringAsFixed(2)} / 20',
+                      ? '${_fmt(score)} / ${_fmt(outOf)}'
+                      : '${_fmt(markedPoints)} / ${_fmt(outOf)}',
                   style: theme.textTheme.titleLarge
                       ?.copyWith(fontWeight: FontWeight.w800),
                 ),
@@ -150,4 +156,10 @@ class RubricActionsBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "12" o "12,5" o "6,67": sin decimales sobrantes.
+String _fmt(double value) {
+  final fixed = value.toStringAsFixed(value % 1 == 0 ? 0 : 2);
+  return fixed.contains('.') ? fixed.replaceAll(RegExp(r'0+$'), '').replaceAll('.', ',') : fixed;
 }
