@@ -12,6 +12,7 @@ import '../../teaching_evaluation/presentation/widgets/teacher_rating_selector.d
 import '../data/fair_audience_repository.dart';
 import '../domain/audience_models.dart';
 import 'audience_widgets.dart';
+import '../../../core/feedback/app_haptics.dart';
 import '../../../core/analytics/app_analytics.dart';
 
 /// Hoja para calificar un proyecto como público. Devuelve `true` si guardó.
@@ -74,6 +75,7 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
             comment: _comment.text,
           );
       AppAnalytics.event('audience_project_rated', {'score': _score});
+      AppHaptics.success();
       if (mounted) Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;

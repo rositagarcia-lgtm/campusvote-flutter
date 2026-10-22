@@ -10,6 +10,8 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
+import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/app_status_chip.dart';
 import '../providers/jury_voting_status_provider.dart';
 
 /// Detalle de un proyecto que el backend asignó a una categoría del jurado.
@@ -131,8 +133,14 @@ class _ProjectContent extends ConsumerWidget {
                         : 'Pendiente',
           ),
           const SizedBox(height: AppSpacing.s),
-          if (progress.isLoading)
-            const Center(child: CircularProgressIndicator())
+          if (ref.watch(juryFairInPreviewProvider(fairId)))
+            const NoticeBanner(
+              tone: AppTone.warning,
+              icon: PhosphorIconsRegular.eye,
+              message: 'Vista previa: estudia el proyecto. Podrás completar la rúbrica y votar cuando empiece la feria.',
+            )
+          else if (progress.isLoading)
+            const Center(child: CircularProgressIndicator.adaptive())
           else if (progress.hasError)
             TextButton.icon(
               onPressed: () => ref.invalidate(juryProgressProvider(fairId)),

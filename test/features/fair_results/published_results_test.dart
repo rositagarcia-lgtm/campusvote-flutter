@@ -4,6 +4,7 @@ import 'package:campusvote_flutter/features/fair_results/domain/published_result
 import 'package:campusvote_flutter/features/fair_results/presentation/published_results_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _json = {
@@ -52,7 +53,8 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.text('Brazo Robótico'), findsOneWidget);
-    expect(find.text('GANADOR'), findsOneWidget);
+    // El ganador sube al centro del podio con la corona.
+    expect(find.byIcon(PhosphorIconsFill.crownSimple), findsOneWidget);
     expect(find.textContaining('3.° puesto de Robótica'), findsOneWidget);
     expect(find.text('Esta categoría no recibió votos del jurado.'),
         findsOneWidget);

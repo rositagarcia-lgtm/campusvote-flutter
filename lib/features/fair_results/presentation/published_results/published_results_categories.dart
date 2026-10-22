@@ -63,7 +63,13 @@ class _CategoryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final winner = category.winner;
-    final rest = category.podium.where((p) => p.position != 1).toList();
+    // El podio muestra el primero de cada puesto 1.°–3.°; el resto (4.° en
+    // adelante o un empate en el mismo puesto) sigue en la lista.
+    final onPodium = {
+      for (final position in [1, 2, 3])
+        category.podium.where((p) => p.position == position).firstOrNull,
+    }..remove(null);
+    final rest = category.podium.where((p) => !onPodium.contains(p)).toList();
     return Container(
       decoration: BoxDecoration(
         color: scheme.surface,
@@ -89,7 +95,7 @@ class _CategoryCard extends StatelessWidget {
                   style: theme.textTheme.bodyMedium),
             )
           else
-            _WinnerTile(entry: winner),
+            _AnimatedPodium(category: category),
           for (final entry in rest) _PlaceTile(entry: entry),
           const SizedBox(height: AppSpacing.s),
         ],

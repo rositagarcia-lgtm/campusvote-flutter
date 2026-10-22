@@ -17,6 +17,7 @@ import 'widgets/fair_actions_bar.dart';
 import 'widgets/fair_progress_banner.dart';
 import 'widgets/fair_project_card.dart';
 import 'widgets/fair_project_filter_bar.dart';
+import '../widgets/fair_phase_countdown.dart';
 
 /// Cuerpo de `/jury/fair/:fairId`: cabecera, progreso, accesos y proyectos.
 ///
@@ -50,9 +51,12 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
       fairId: widget.fairId,
     );
     final theme = Theme.of(context);
+    final assignment = ref.watch(juryFairAssignmentProvider(widget.fairId));
+    final preview = assignment?.phase == JuryPhase.preview;
     // Paso obligatorio: sin declaración de imparcialidad no hay rúbrica ni
     // voto (el backend también lo exige).
-    final needsDeclaration = progress.hasValue &&
+    final needsDeclaration = !preview &&
+        progress.hasValue &&
         progress.requireValue.declaration == null &&
         progress.requireValue.fairStatus == FairStatus.open;
 
@@ -104,11 +108,17 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
             DeclarationGate(fairId: widget.fairId),
             const SizedBox(height: AppSpacing.l),
           ],
-          if (progress.hasValue) ...[
-            FairProgressBanner(progress: progress.requireValue),
+          if (preview && assignment != null) ...[
+            // Vista previa: se estudia sin calificar; el reloj dice cuándo.
+            FairPhaseCountdown(fair: assignment),
             const SizedBox(height: AppSpacing.l),
+          ] else ...[
+            if (progress.hasValue) ...[
+              FairProgressBanner(progress: progress.requireValue),
+              const SizedBox(height: AppSpacing.l),
+            ],
+            FairActionsBar(fairId: widget.fairId, locked: needsDeclaration),
           ],
-          FairActionsBar(fairId: widget.fairId, locked: needsDeclaration),
           const SizedBox(height: AppSpacing.xl),
           SectionHeader(
             label: 'TU CATEGORÍA',

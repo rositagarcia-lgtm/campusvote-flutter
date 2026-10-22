@@ -177,5 +177,15 @@ abstract final class PhosphorIconsRegular {
       fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
   static const x = IconData(0xe4f6,
       fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
+  static const flagCheckered = IconData(0xea38,
+      fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
+  static const hourglass = IconData(0xe2b2,
+      fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
+  static const sparkle = IconData(0xe6a2,
+      fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
+  static const confetti = IconData(0xe81a,
+      fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
+  static const scan = IconData(0xebb6,
+      fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
 }
 // dart format on

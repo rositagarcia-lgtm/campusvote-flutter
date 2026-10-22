@@ -5,6 +5,7 @@ import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_motion.dart';
 import '../providers/jury_dashboard_progress.dart';
+import 'jury_overview_metric.dart';
 
 /// Resumen de asignaciones y avance confirmado por el servidor.
 class JuryDashboardOverview extends StatelessWidget {
@@ -13,17 +14,29 @@ class JuryDashboardOverview extends StatelessWidget {
     required this.openCount,
     required this.assignedCount,
     required this.progress,
+    this.firstName,
   });
 
   final int openCount;
   final int assignedCount;
   final AsyncValue<JuryDashboardProgress> progress;
 
+  /// Nombre de pila para el saludo; sin él, el título genérico.
+  final String? firstName;
+
+  /// Saludo según la hora del celular (sin inventar nada del usuario).
+  static String greeting(DateTime now) => now.hour < 12
+      ? 'Buenos días'
+      : now.hour < 19
+          ? 'Buenas tardes'
+          : 'Buenas noches';
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final accent = colors.primary;
+    final firstName = this.firstName?.trim().split(' ').first;
     final isDark = theme.brightness == Brightness.dark;
     final data = progress.valueOrNull;
     final percentage =
@@ -57,7 +70,7 @@ class JuryDashboardOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'PANEL DEL JURADO',
+            greeting(DateTime.now()).toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
               color: accent,
               fontWeight: FontWeight.w800,
@@ -68,7 +81,9 @@ class JuryDashboardOverview extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              'Tus ferias asignadas',
+              firstName == null || firstName.isEmpty
+                  ? 'Tus ferias asignadas'
+                  : 'Hola, $firstName',
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.4,
@@ -77,7 +92,11 @@ class JuryDashboardOverview extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            'Consulta tus ferias y el avance de las evaluaciones registradas.',
+            openCount == 0
+                ? 'Aquí verás tus ferias cuando cierre la inscripción o empiecen.'
+                : openCount == 1
+                    ? 'Tienes 1 feria en curso. Todo lo que necesitas está abajo.'
+                    : 'Tienes $openCount ferias en curso. Todo lo que necesitas está abajo.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colors.onSurfaceVariant,
               height: 1.4,
@@ -88,13 +107,13 @@ class JuryDashboardOverview extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                  child: _Metric(
+                  child: JuryOverviewMetric(
                       value: '$openCount',
-                      label: 'Abiertas',
+                      label: 'En curso',
                       icon: PhosphorIconsRegular.calendarCheck)),
               const SizedBox(width: AppSpacing.s),
               Expanded(
-                  child: _Metric(
+                  child: JuryOverviewMetric(
                       value: '$assignedCount',
                       label: 'Asignadas',
                       icon: PhosphorIconsRegular.clipboardText)),
@@ -176,64 +195,4 @@ class JuryDashboardOverview extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Metric extends StatelessWidget {
-  const _Metric({required this.value, required this.label, required this.icon});
-
-  final String value;
-  final String label;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.s),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppRadii.rLarge,
-        border: Border.all(color: colors.primary.withValues(alpha: 0.13)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 19, color: colors.primary),
-          const SizedBox(height: AppSpacing.s),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: _countable(
-              value,
-              theme.textTheme.titleLarge?.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Text(
-            label,
-            maxLines: 2,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: colors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Cifras enteras ("3", "40%") cuentan al aparecer; textos como "Cargando"
-/// se muestran tal cual.
-Widget _countable(String value, TextStyle? style) {
-  final match = RegExp(r'^(\d+)(%?)$').firstMatch(value);
-  if (match == null) return Text(value, style: style);
-  return CountUpText(
-    value: int.parse(match.group(1)!),
-    suffix: match.group(2)!,
-    style: style,
-  );
 }

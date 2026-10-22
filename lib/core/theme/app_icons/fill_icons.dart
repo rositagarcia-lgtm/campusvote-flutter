@@ -59,5 +59,9 @@ abstract final class PhosphorIconsFill {
       fontFamily: _fill, fontPackage: _package, matchTextDirection: true);
   static const userCircle = IconData(0xe4c4,
       fontFamily: _fill, fontPackage: _package, matchTextDirection: true);
+  static const crownSimple = IconData(0xe616,
+      fontFamily: _fill, fontPackage: _package, matchTextDirection: true);
+  static const sparkle = IconData(0xe6a2,
+      fontFamily: _fill, fontPackage: _package, matchTextDirection: true);
 }
 // dart format on

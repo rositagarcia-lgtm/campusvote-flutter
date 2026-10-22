@@ -9,6 +9,7 @@ import 'evaluate_state.dart';
 import 'evaluate_failure_messages.dart';
 import 'teaching_list_controller.dart';
 
+import '../../../../core/feedback/app_haptics.dart';
 import '../../../../core/analytics/app_analytics.dart';
 
 part 'evaluate_controller/evaluate_teacher_persistence.dart';
@@ -172,7 +173,10 @@ class EvaluateTeacherController extends StateNotifier<EvaluateState>
     }
 
     final failure = result.failureOrNull;
-    if (failure == null) AppAnalytics.event('teacher_evaluation_submitted');
+    if (failure == null) {
+      AppAnalytics.event('teacher_evaluation_submitted');
+      AppHaptics.success();
+    }
     if (failure == null || needsReconciliation(failure)) {
       state = state.copyWith(
         submitting: false,

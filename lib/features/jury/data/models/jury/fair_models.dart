@@ -1,4 +1,5 @@
 import 'common.dart';
+import 'jury_phase.dart';
 
 /// `GET /fairs/my-assignments` → item de `data[]`.
 class FairAssignmentModel {
@@ -14,7 +15,9 @@ class FairAssignmentModel {
     this.assignedAt,
     this.organizationName,
     this.siteName,
-  });
+    JuryPhase? phase,
+    this.reviewOpensAt,
+  }) : _phase = phase;
 
   final String fairId;
   final String organizationId;
@@ -27,6 +30,17 @@ class FairAssignmentModel {
   final DateTime? assignedAt;
   final String? organizationName;
   final String? siteName;
+  final JuryPhase? _phase;
+
+  /// Inicio de la feria: desde ahí se califica (vista previa → día de feria).
+  final DateTime? reviewOpensAt;
+
+  /// Fase que manda el servidor; si no llega, se deduce del estado.
+  JuryPhase get phase => _phase ?? fallbackJuryPhase(status, endsAt);
+
+  /// La feria se puede abrir: para estudiar (vista previa) o para evaluar.
+  bool get canOpen =>
+      phase == JuryPhase.preview || phase == JuryPhase.live || isOpen;
 
   bool get isOpen => status == FairStatus.open;
   bool get isClosed => status == FairStatus.closed;
@@ -47,6 +61,8 @@ class FairAssignmentModel {
       organizationName:
           parseText(fair['organization_name'] ?? fair['organizationName']),
       siteName: parseText(fair['site_name'] ?? fair['siteName']),
+      phase: parseJuryPhase(parseText(fair['phase'])),
+      reviewOpensAt: parseDate(fair['review_opens_at']),
     );
   }
 
@@ -63,6 +79,8 @@ class FairAssignmentModel {
           'image_url': imageUrl,
           'starts_at': startsAt?.toIso8601String(),
           'ends_at': endsAt?.toIso8601String(),
+          if (_phase != null) 'phase': juryPhaseCode(_phase),
+          'review_opens_at': reviewOpensAt?.toIso8601String(),
         },
       };
 }

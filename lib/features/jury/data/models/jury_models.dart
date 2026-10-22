@@ -7,6 +7,7 @@ library;
 
 export 'jury/common.dart';
 export 'jury/fair_models.dart';
+export 'jury/jury_phase.dart';
 export 'jury/rubric_models.dart';
 export 'jury/voting_models.dart';
 export 'jury/results_models.dart';

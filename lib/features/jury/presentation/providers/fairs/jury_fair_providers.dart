@@ -28,6 +28,19 @@ class JuryDashboardNotifier extends AsyncNotifier<List<FairAssignmentModel>> {
   }
 }
 
+/// Asignación (fase y fechas) de una feria, tomada de `my-assignments`.
+/// Nulo mientras carga: las pantallas no asumen vista previa sin saberlo.
+final juryFairAssignmentProvider =
+    Provider.family<FairAssignmentModel?, String>((ref, fairId) => ref
+        .watch(juryDashboardProvider)
+        .valueOrNull
+        ?.where((fair) => fair.fairId == fairId)
+        .firstOrNull);
+
+/// Vista previa: el jurado estudia, pero aún no evalúa, vota ni reseña.
+final juryFairInPreviewProvider = Provider.family<bool, String>((ref, fairId) =>
+    ref.watch(juryFairAssignmentProvider(fairId))?.phase == JuryPhase.preview);
+
 // ── Proyectos de la feria ───────────────────────────────────────────────────
 
 /// `GET /fairs/:fairId/projects` — NO se re-filtra en Flutter (regla 7).

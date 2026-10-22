@@ -70,7 +70,7 @@ class JuryDashboardPage extends ConsumerWidget {
 Future<void> _reload(WidgetRef ref) async {
   final current = ref.read(juryDashboardProvider).valueOrNull;
   for (final fair in current ?? const <FairAssignmentModel>[]) {
-    if (fair.isOpen) ref.invalidate(juryProgressProvider(fair.fairId));
+    if (fair.canOpen) ref.invalidate(juryProgressProvider(fair.fairId));
   }
   await ref.read(juryDashboardProvider.notifier).reload();
 }
@@ -114,8 +114,13 @@ class _FairsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(juryDashboardProgressProvider);
-    final open = fairs.where((f) => f.isOpen).toList(growable: false);
-    final others = fairs.where((f) => !f.isOpen).toList(growable: false);
+    // En curso = día de feria o vista previa; van primero porque son las
+    // que piden algo al jurado hoy.
+    bool active(FairAssignmentModel f) =>
+        f.phase == JuryPhase.live || f.phase == JuryPhase.preview;
+    final open = fairs.where(active).toList(growable: false)
+      ..sort((a, b) => a.phase.index.compareTo(b.phase.index) * -1);
+    final others = fairs.where((f) => !active(f)).toList(growable: false);
     return PageScrollBody(
       // Siempre desplazable para permitir actualizar con poco contenido.
       physics: const AlwaysScrollableScrollPhysics(),
@@ -128,18 +133,22 @@ class _FairsList extends ConsumerWidget {
               openCount: open.length,
               assignedCount: fairs.length,
               progress: progress,
+              firstName: ref.watch(
+                  authControllerProvider.select((s) => s.user?.firstName)),
             ),
           ),
           const SizedBox(height: AppSpacing.l),
-          const PublishedResultsSection(),
           if (open.isNotEmpty) ...[
             SectionHeader(
-              label: 'ACCESO DISPONIBLE',
-              title: 'Ferias abiertas',
+              label: 'TU AGENDA',
+              title: 'Ferias en curso',
               count: open.length,
             ),
             ..._cards(open),
+            const SizedBox(height: AppSpacing.l),
+            const PublishedResultsSection(),
           ] else ...[
+            const PublishedResultsSection(),
             const NoticeBanner(
               tone: AppTone.info,
               icon: PhosphorIconsRegular.calendarX,

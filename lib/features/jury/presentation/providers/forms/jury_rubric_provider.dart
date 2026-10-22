@@ -7,6 +7,7 @@ import '../data/jury_dependencies.dart';
 import '../fairs/jury_fair_providers.dart';
 import '../jury_state.dart';
 import '../progress/jury_progress_provider.dart';
+import '../../../../../core/feedback/app_haptics.dart';
 import '../../../../../core/analytics/app_analytics.dart';
 
 /// Checklist mutable: el toggle de un criterio no debe recargar la hoja.
@@ -92,6 +93,7 @@ class RubricFormController extends StateNotifier<RubricFormState> {
       if (finalize) _ref.invalidate(juryProgressProvider(args.fairId));
       if (finalize) _ref.invalidate(myEvaluationsProvider(args.fairId));
       AppAnalytics.event(finalize ? 'jury_rubric_finalized' : 'jury_rubric_draft_saved');
+      AppHaptics.success();
       return true;
     } catch (e) {
       state = state.copyWith(saving: false, errorMessage: describeJuryError(e));

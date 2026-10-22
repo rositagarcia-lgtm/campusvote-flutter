@@ -20,3 +20,4 @@ part 'published_results/published_results_overview.dart';
 part 'published_results/published_results_pending.dart';
 part 'published_results/published_results_categories.dart';
 part 'published_results/published_result_cards.dart';
+part 'published_results/published_podium.dart';

@@ -31,10 +31,10 @@ void main() {
 
       expect(tester.takeException(), isNull, reason: 'ancho $width');
       expect(find.text(fairName), findsOneWidget);
-      expect(find.text('Cerrada'), findsOneWidget);
+      expect(find.text('TERMINÓ'), findsOneWidget);
       expect(find.text('Abrir feria'), findsNothing);
-      expect(
-          find.text('La participación en esta feria terminó.'), findsOneWidget);
+      expect(find.text('La feria terminó. Tus evaluaciones quedan registradas.'),
+          findsOneWidget);
     }
   });
 
@@ -73,9 +73,15 @@ void main() {
     );
     addTearDown(router.dispose);
 
+    // El punto «en vivo» late sin fin; con animaciones reducidas queda quieto
+    // y pumpAndSettle puede terminar.
     await tester.pumpWidget(MaterialApp.router(
       theme: AppTheme.light(),
       routerConfig: router,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(disableAnimations: true),
+        child: child!,
+      ),
     ));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);

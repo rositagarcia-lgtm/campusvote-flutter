@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/widgets/app_status_chip.dart';
 import '../../data/models/jury_models.dart';
+import 'fair_phase_badge.dart';
 
 class FairCardHeader extends StatelessWidget {
-  const FairCardHeader({super.key, required this.fair, required this.status});
+  const FairCardHeader({super.key, required this.fair});
 
   final FairAssignmentModel fair;
-  final String status;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final imageUrl = fair.imageUrl;
-    final open = fair.isOpen;
+    final open = fair.phase == JuryPhase.live || fair.phase == JuryPhase.preview;
     if (imageUrl == null) {
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -28,7 +27,7 @@ class FairCardHeader extends StatelessWidget {
             scheme.primary.withValues(alpha: open ? 0.04 : 0.02),
           ]),
         ),
-        child: _StatusRow(status: status, open: open),
+        child: _StatusRow(phase: fair.phase, open: open),
       );
     }
 
@@ -63,7 +62,7 @@ class FairCardHeader extends StatelessWidget {
             left: AppSpacing.l,
             right: AppSpacing.l,
             bottom: AppSpacing.m,
-            child: _StatusRow(status: status, open: open, onImage: true),
+            child: _StatusRow(phase: fair.phase, open: open, onImage: true),
           ),
         ],
       ),
@@ -73,9 +72,9 @@ class FairCardHeader extends StatelessWidget {
 
 class _StatusRow extends StatelessWidget {
   const _StatusRow(
-      {required this.status, required this.open, this.onImage = false});
+      {required this.phase, required this.open, this.onImage = false});
 
-  final String status;
+  final JuryPhase phase;
   final bool open;
   final bool onImage;
 
@@ -108,13 +107,7 @@ class _StatusRow extends StatelessWidget {
                 letterSpacing: 0.7,
               )),
         ),
-        StatusChip(
-          label: status,
-          tone: open ? AppTone.primary : AppTone.neutral,
-          icon: open
-              ? PhosphorIconsFill.radioButton
-              : PhosphorIconsRegular.lockSimple,
-        ),
+        FairPhaseBadge(phase: phase, onImage: onImage),
       ],
     );
   }
