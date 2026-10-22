@@ -20,6 +20,9 @@ import '../../../student_projects/presentation/widgets/student_projects_shortcut
 import '../state/teaching_list_controller.dart';
 import '../../../../features/auth/presentation/widgets/account_avatar_button.dart';
 import '../widgets/assignment_card.dart';
+import '../widgets/evaluation_window_card.dart';
+import '../../../../core/utils/greeting.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 
 /// Inicio del estudiante: asignaciones docentes entregadas por el backend.
 class TeachingHomePage extends ConsumerWidget {
@@ -82,6 +85,8 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
         state.pending.where((item) => !item.canEvaluate).toList();
     final completed = state.done;
     final branding = ref.watch(brandingControllerProvider);
+    final firstName = firstNameOf(
+        ref.watch(authControllerProvider.select((s) => s.user?.firstName)));
 
     return RefreshIndicator.adaptive(
       onRefresh: onRefresh,
@@ -102,13 +107,22 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       showOrganizationHeader: false,
                       organizationName: branding.name,
                       organizationLogoUrl: branding.logoUrl,
-                      title: 'Tus docentes',
+                      contextLabel: timeGreeting(DateTime.now()).toUpperCase(),
+                      title: firstName == null ? 'Tus docentes' : 'Hola, $firstName',
                       subtitle:
                           'Consulta tus asignaciones y califica a cada docente.',
                       primaryValue: pending.length,
                       primaryLabel: 'pendientes',
                       secondaryValue: completed.length,
                       secondaryLabel: 'completadas',
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.m),
+                  AppMotion.reveal(
+                    1,
+                    EvaluationWindowCard(
+                      pending: state.pending,
+                      completed: completed,
                     ),
                   ),
                   const StudentProjectsShortcut(),

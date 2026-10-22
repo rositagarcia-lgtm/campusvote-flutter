@@ -187,5 +187,7 @@ abstract final class PhosphorIconsRegular {
       fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
   static const scan = IconData(0xebb6,
       fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
+  static const calendarBlank = IconData(0xe10a,
+      fontFamily: _regular, fontPackage: _package, matchTextDirection: true);
 }
 // dart format on

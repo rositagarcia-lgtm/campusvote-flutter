@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/utils/greeting.dart';
 import '../../../../core/widgets/app_motion.dart';
 import '../providers/jury_dashboard_progress.dart';
 import 'jury_overview_metric.dart';
@@ -24,19 +25,12 @@ class JuryDashboardOverview extends StatelessWidget {
   /// Nombre de pila para el saludo; sin él, el título genérico.
   final String? firstName;
 
-  /// Saludo según la hora del celular (sin inventar nada del usuario).
-  static String greeting(DateTime now) => now.hour < 12
-      ? 'Buenos días'
-      : now.hour < 19
-          ? 'Buenas tardes'
-          : 'Buenas noches';
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final accent = colors.primary;
-    final firstName = this.firstName?.trim().split(' ').first;
+    final firstName = firstNameOf(this.firstName);
     final isDark = theme.brightness == Brightness.dark;
     final data = progress.valueOrNull;
     final percentage =
@@ -70,7 +64,7 @@ class JuryDashboardOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            greeting(DateTime.now()).toUpperCase(),
+            timeGreeting(DateTime.now()).toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
               color: accent,
               fontWeight: FontWeight.w800,
@@ -81,7 +75,7 @@ class JuryDashboardOverview extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              firstName == null || firstName.isEmpty
+              firstName == null
                   ? 'Tus ferias asignadas'
                   : 'Hola, $firstName',
               style: theme.textTheme.headlineSmall?.copyWith(
