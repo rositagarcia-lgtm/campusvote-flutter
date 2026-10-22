@@ -42,6 +42,9 @@ class FairAssignmentModel {
   bool get canOpen =>
       phase == JuryPhase.preview || phase == JuryPhase.live || isOpen;
 
+  /// Terminada: se consulta la participación, ya no se evalúa.
+  bool get isFinished => phase == JuryPhase.ended;
+
   bool get isOpen => status == FairStatus.open;
   bool get isClosed => status == FairStatus.closed;
 

@@ -14,6 +14,7 @@ import '../../providers/jury_providers.dart';
 import '../../providers/jury_voting_status_provider.dart';
 import 'jury_fair_summary_card.dart';
 import 'jury_flow_timeline.dart';
+import 'jury_ended_recap.dart';
 import 'jury_progress_actions.dart';
 import 'jury_progress_notice.dart';
 
@@ -68,7 +69,10 @@ class JuryProgressView extends ConsumerWidget {
           const SizedBox(height: AppSpacing.m),
           JuryEvaluationProgressCard(progress: progress),
           const SizedBox(height: AppSpacing.l),
-          JuryProgressNotice(flow: flow),
+          if (_ended(ref, progress))
+            JuryEndedRecap(progress: progress)
+          else
+            JuryProgressNotice(flow: flow),
           const SizedBox(height: AppSpacing.xl),
           SectionHeader(
             label: text.t('FLUJO DEL JURADO'),
@@ -86,12 +90,19 @@ class JuryProgressView extends ConsumerWidget {
                   Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),
             ),
           ],
-          const SizedBox(height: AppSpacing.xl),
-          JuryProgressActions(flow: flow, onGoTo: (a) => _go(context, a)),
+          if (!_ended(ref, progress)) ...[
+            const SizedBox(height: AppSpacing.xl),
+            JuryProgressActions(flow: flow, onGoTo: (a) => _go(context, a)),
+          ],
         ],
       ),
     );
   }
+
+  /// Cerrada, o abierta con la fecha de fin ya pasada: solo resumen.
+  bool _ended(WidgetRef ref, JuryProgressModel progress) =>
+      progress.fairStatus == FairStatus.closed ||
+      _assignment(ref, fairId)?.phase == JuryPhase.ended;
 
   /// Asignación de esta feria, usada solo para sede y fechas reales. Si el
   /// tablero aún no cargó, la tarjeta omite esos datos.

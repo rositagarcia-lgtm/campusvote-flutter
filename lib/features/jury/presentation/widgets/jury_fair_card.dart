@@ -23,7 +23,7 @@ class FairCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
     final phase = fair.phase;
-    final open = fair.canOpen;
+    final open = fair.canOpen || fair.isFinished;
 
     return Semantics(
       container: true,
@@ -79,15 +79,20 @@ class FairCard extends StatelessWidget {
                     AppButton(
                       label: switch (phase) {
                         JuryPhase.preview => 'Estudiar proyectos',
-                        JuryPhase.ended => 'Ver feria',
+                        JuryPhase.ended => 'Ver mi participación',
                         _ => 'Abrir feria',
                       },
-                      icon: phase == JuryPhase.preview
-                          ? PhosphorIconsRegular.eye
-                          : PhosphorIconsRegular.arrowRight,
+                      icon: switch (phase) {
+                        JuryPhase.preview => PhosphorIconsRegular.eye,
+                        JuryPhase.ended => PhosphorIconsRegular.listChecks,
+                        _ => PhosphorIconsRegular.arrowRight,
+                      },
                       dense: true,
-                      onPressed: () =>
-                          context.push('/jury/fair/${fair.fairId}'),
+                      // Terminada: el resumen de lo que hizo, no la lista para
+                      // evaluar (que ya no admite acciones).
+                      onPressed: () => context.push(phase == JuryPhase.ended
+                          ? '/jury/fair/${fair.fairId}/progress'
+                          : '/jury/fair/${fair.fairId}'),
                     ),
                   ],
                 ],
