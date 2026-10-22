@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/branding/organization_branding.dart';
 import '../../../../core/branding/organization_branding_repository.dart';
+import '../../../../core/push/push_sync.dart';
 import '../../domain/entities/auth_role.dart';
 import '../../domain/entities/auth_user.dart';
 import 'auth_events.dart';
@@ -191,6 +192,7 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    await unregisterPushDevice(_ref);
     await _ref.read(logoutUseCaseProvider)();
     _resetBranding();
     state = const AuthState(initializing: false, authenticated: false);

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_notification_channel_id" translatable="false">campusvote_default</string>
+    <string name="default_notification_channel_name">Avisos de CampusVote</string>
+    <string name="default_notification_channel_description">Ferias, proyectos, reseñas y resultados.</string>
+</resources>

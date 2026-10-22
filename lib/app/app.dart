@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/branding/branding_controller.dart';
 import '../core/analytics/app_analytics.dart';
+import '../core/push/push_sync.dart';
 import '../core/routing/app_router.dart';
 import '../core/settings/app_preferences.dart';
 import '../core/settings/locale_sync.dart';
@@ -22,6 +23,7 @@ class CampusVoteApp extends ConsumerStatefulWidget {
 class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
   late final GoRouterRefreshNotifier _refreshNotifier;
   late final GoRouter _router;
+  final _messenger = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     // Analytics: una pantalla vista por cada cambio de ruta (sin IDs).
     _router.routerDelegate.addListener(_trackScreen);
     bindLocaleSync(ref);
+    bindPushSync(ref, _router, _messenger);
   }
 
   void _trackScreen() =>
@@ -54,6 +57,7 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     return MaterialApp.router(
       title: 'CampusVote',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: _messenger,
       theme: AppTheme.light(branding: branding),
       darkTheme: AppTheme.dark(branding: branding),
       themeMode: switch (preferences.darkMode) {
