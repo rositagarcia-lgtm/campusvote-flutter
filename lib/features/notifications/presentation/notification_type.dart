@@ -81,6 +81,18 @@ const Map<String, NotificationTypeDescriptor> _registry = {
     tone: AppTone.success,
     category: NotificationCategory.fair,
   ),
+  'PROJECT_REVIEWED': NotificationTypeDescriptor(
+    label: 'Revisión del proyecto',
+    icon: PhosphorIconsFill.sealCheck,
+    tone: AppTone.primary,
+    category: NotificationCategory.fair,
+  ),
+  'RESULTS_PUBLISHED': NotificationTypeDescriptor(
+    label: 'Resultados publicados',
+    icon: PhosphorIconsFill.trophy,
+    tone: AppTone.success,
+    category: NotificationCategory.fair,
+  ),
   'PROJECT_LIKED': NotificationTypeDescriptor(
     label: 'Me gusta',
     icon: PhosphorIconsFill.heart,

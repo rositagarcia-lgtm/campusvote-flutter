@@ -17,6 +17,13 @@ class NotificationItem {
   final DateTime? createdAt;
   final Map<String, dynamic> metadata;
 
+  /// Tipo para presentar el aviso: el backend manda algunos eventos de feria
+  /// como SYSTEM_ALERT con el evento concreto en `metadata.event`.
+  String get kind {
+    final event = metadata['event'];
+    return event is String && event.isNotEmpty ? event : type;
+  }
+
   /// Copia con los campos indicados sustituidos.
   ///
   /// Marcar como leída no reescribe el aviso a mano: si el contrato gana un

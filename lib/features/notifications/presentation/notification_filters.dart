@@ -25,7 +25,7 @@ enum NotificationFilter {
 /// La pertenencia sale de la misma tabla que el ícono y la etiqueta, así que no
 /// puede desincronizarse. Un tipo desconocido solo aparece en «Todas».
 bool matchesNotificationFilter(NotificationItem item, NotificationFilter filter) =>
-    filter.isAll || notificationType(item.type).category == filter.category;
+    filter.isAll || notificationType(item.kind).category == filter.category;
 
 /// Cuántos avisos hay en cada filtro.
 ///

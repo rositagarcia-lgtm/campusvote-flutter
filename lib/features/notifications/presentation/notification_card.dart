@@ -42,7 +42,7 @@ class NotificationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final type = notificationType(notification.type);
+    final type = notificationType(notification.kind);
     final tone = appToneColors(
       type.tone,
       isDark: isDark,
