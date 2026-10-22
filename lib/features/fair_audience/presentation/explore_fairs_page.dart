@@ -14,6 +14,7 @@ import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
+import '../../auth/presentation/widgets/account_avatar_button.dart';
 import '../../notifications/presentation/widgets/notifications_bell.dart';
 import '../../fair_results/presentation/published_results_section.dart';
 import '../data/fair_audience_repository.dart';
@@ -34,7 +35,7 @@ class ExploreFairsPage extends ConsumerWidget {
       appBar: OrganizationPanelAppBar(
         branding: branding,
         section: 'Explorar ferias',
-        actions: const [NotificationsBell()],
+        actions: const [NotificationsBell(), AccountAvatarButton()],
       ),
       body: RefreshIndicator.adaptive(
         onRefresh: reload,
@@ -135,13 +136,7 @@ class _FairCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                fair.isOpen
-                    ? PhosphorIconsFill.storefront
-                    : PhosphorIconsRegular.archive,
-                color: fair.isOpen ? scheme.primary : scheme.onSurfaceVariant,
-                size: 28,
-              ),
+              _FairThumb(fair: fair),
               const SizedBox(width: AppSpacing.m),
               Expanded(
                 child: Column(
@@ -165,6 +160,44 @@ class _FairCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Portada de la feria en miniatura; si no hay, el ícono de su estado.
+class _FairThumb extends StatelessWidget {
+  const _FairThumb({required this.fair});
+
+  final AudienceFair fair;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fallback = ColoredBox(
+      color: fair.isOpen ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+      child: Icon(
+        fair.isOpen ? PhosphorIconsFill.storefront : PhosphorIconsRegular.archive,
+        color: fair.isOpen ? scheme.primary : scheme.onSurfaceVariant,
+        size: 28,
+      ),
+    );
+    final url = fair.imageUrl;
+    return ClipRRect(
+      borderRadius: AppRadii.rMedium,
+      child: SizedBox(
+        width: 72,
+        height: 72,
+        child: url == null
+            ? fallback
+            : Image.network(
+                url,
+                fit: BoxFit.cover,
+                // Una feria cerrada se ve apagada; la abierta, a todo color.
+                color: fair.isOpen ? null : scheme.surface.withValues(alpha: 0.35),
+                colorBlendMode: fair.isOpen ? null : BlendMode.srcATop,
+                errorBuilder: (_, __, ___) => fallback,
+              ),
       ),
     );
   }
