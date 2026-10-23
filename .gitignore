@@ -47,3 +47,8 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 campusvote.ipa
+
+# Material local del agente y auditorías privadas
+/.agents/skills/
+/tecsup_skills_stage/
+/docs/auditoria/

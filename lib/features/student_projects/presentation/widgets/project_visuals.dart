@@ -16,3 +16,5 @@ part 'project_visuals/project_journey.dart';
 part 'project_visuals/project_logo.dart';
 part 'project_visuals/project_images.dart';
 part 'project_visuals/project_gallery_and_video.dart';
+part 'project_visuals/project_video_player.dart';
+part 'project_visuals/project_video_controls.dart';

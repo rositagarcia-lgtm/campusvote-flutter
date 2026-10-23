@@ -101,9 +101,10 @@ List<String> _bannerUrls(StudentProject project) {
 }
 
 class _ProjectVideoBlock extends StatelessWidget {
-  const _ProjectVideoBlock({required this.url});
+  const _ProjectVideoBlock({required this.url, this.posterUrl});
 
   final String? url;
+  final String? posterUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +202,7 @@ class _ProjectVideoBlock extends StatelessWidget {
                   AppSpacing.s,
                   AppSpacing.s,
                 ),
-                child: ProjectVideo(url: url!),
+                child: ProjectVideo(url: url!, posterUrl: posterUrl),
               ),
           ],
         ),

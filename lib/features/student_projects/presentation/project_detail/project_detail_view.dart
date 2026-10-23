@@ -186,7 +186,7 @@ class _ProjectDetailView extends StatelessWidget {
                 itemBuilder: (_, i) => AppMotion.reveal(i, sections[i]),
               ),
             ),
-            SliverToBoxAdapter(child: _ProjectVideoBlock(url: videoUrl)),
+            SliverToBoxAdapter(child: _ProjectVideoBlock(url: videoUrl, posterUrl: project.coverUrl)),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.l,
