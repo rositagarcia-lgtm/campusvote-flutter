@@ -32,4 +32,15 @@ void bindLocaleSync(WidgetRef ref) {
       if (prev != next) apply(next, persist: true);
     },
   );
+  // La preferencia pudo elegirse antes del login; envíala al obtener la sesión.
+  ref.listenManual(
+    authControllerProvider.select(
+      (auth) => auth.authenticated ? auth.user?.id : null,
+    ),
+    (previousId, userId) {
+      if (userId != null && previousId != userId) {
+        apply(ref.read(appPreferencesProvider).language, persist: true);
+      }
+    },
+  );
 }

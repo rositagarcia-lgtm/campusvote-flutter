@@ -7,6 +7,7 @@ import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/branding/organization_branding.dart';
 import '../../../../core/branding/organization_branding_repository.dart';
 import '../../../../core/push/push_sync.dart';
+import '../../../../core/session/clear_account_state.dart';
 import '../../domain/entities/auth_role.dart';
 import '../../domain/entities/auth_user.dart';
 import 'auth_events.dart';
@@ -24,6 +25,7 @@ class AuthController extends StateNotifier<AuthState> {
       if (next != null && prev != null && next.logoutCount > prev.logoutCount) {
         _resetBranding();
         state = const AuthState(initializing: false, authenticated: false);
+        clearAccountState(_ref);
       }
     });
   }
@@ -168,7 +170,10 @@ class AuthController extends StateNotifier<AuthState> {
     final res = await _ref
         .read(organizationBrandingRepositoryProvider)
         .fetch(organizationId);
-    if (res.isSuccess) _applyBranding(res.dataOrNull);
+    if (state.authenticated && state.user?.organizationId == organizationId &&
+        res.isSuccess) {
+      _applyBranding(res.dataOrNull);
+    }
   }
 
   /// Vuelve a la identidad de CampusVote.
@@ -182,10 +187,15 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<void> _hydrateProfile() async {
+    final expectedUserId = state.user?.id;
+    if (!state.authenticated || expectedUserId == null) return;
     final res = await _ref.read(getProfileUseCaseProvider)();
     res.when(
       success: (user) {
-        state = state.copyWith(user: user);
+        if (state.authenticated && state.user?.id == expectedUserId &&
+            user.id == expectedUserId) {
+          state = state.copyWith(user: user);
+        }
       },
       failure: (_) {},
     );
@@ -196,6 +206,7 @@ class AuthController extends StateNotifier<AuthState> {
     await _ref.read(logoutUseCaseProvider)();
     _resetBranding();
     state = const AuthState(initializing: false, authenticated: false);
+    clearAccountState(_ref);
   }
 }
 
