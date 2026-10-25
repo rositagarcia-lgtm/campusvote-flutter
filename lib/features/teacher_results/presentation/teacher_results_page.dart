@@ -91,15 +91,12 @@ class _Body extends StatelessWidget {
               'resultados parciales mientras los alumnos evalúan.',
         ));
       case TeacherResultsStatus.insufficient:
-        return scrollable(AppEmptyView(
+        return scrollable(const AppEmptyView(
           icon: PhosphorIconsRegular.shieldCheck,
-          overline: 'ANONIMATO PROTEGIDO',
-          title: 'Aún no hay suficientes evaluaciones',
-          message: 'Para proteger a tus alumnos, los resultados se muestran '
-              'desde ${results.minimumRequired} evaluaciones: llevas '
-              '${results.totalResponses} de ${results.minimumRequired}. Se suman '
-              'las de todos tus cursos y periodos, así que aunque tengas un solo '
-              'curso o vengas un día a la semana, se completan con el tiempo.',
+          overline: 'SIN RESPUESTAS',
+          title: 'Aún no hay evaluaciones enviadas',
+          message: 'Los resultados se muestran al cerrar la jornada y recibir '
+              'al menos una evaluación.',
         ));
       case TeacherResultsStatus.available:
         return _Results(results: results);

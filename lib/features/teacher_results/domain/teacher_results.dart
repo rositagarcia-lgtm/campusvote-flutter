@@ -3,7 +3,7 @@ enum TeacherResultsStatus {
   /// Hay resultados con el mínimo de respuestas.
   available,
 
-  /// Menos respuestas que el mínimo: se ocultan para proteger el anonimato.
+  /// Sin respuestas enviadas: todavía no hay resultados para mostrar.
   insufficient,
 
   /// La jornada sigue abierta: no se muestran resultados parciales.
@@ -52,8 +52,8 @@ class PeriodResult {
   });
 }
 
-/// Lo que el docente ve de su evaluación. Todo es agregado y anónimo: nunca
-/// se sabe qué alumno respondió qué.
+/// El docente solo ve agregados; la institución conoce la participación,
+/// pero no vincula alumnos con respuestas individuales.
 class TeacherResults {
   final TeacherResultsStatus status;
   final int totalResponses;

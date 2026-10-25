@@ -189,8 +189,8 @@ const teachingTranslations = <String, String>{
   'Aún no tienes docentes asignados en este periodo. Cuando tu organización asigne docentes a tu carrera y ciclo, aparecerán aquí.':
       'You have no teachers assigned this term. They will appear here when your institution assigns teachers to your program and term.',
   'Panel del estudiante': 'Student panel',
-  'Evalúa el desempeño de tus docentes de forma anónima':
-      'Evaluate your teachers anonymously',
+  'Evalúa el desempeño de tus docentes con respuestas confidenciales':
+      'Evaluate your teachers with confidential responses',
   'Todo evaluado este periodo': 'All evaluations completed this term',
   'Por evaluar': 'To evaluate',
   'Tu opinión suma a la mejora de la enseñanza':
@@ -200,8 +200,8 @@ const teachingTranslations = <String, String>{
       'These assignments are not active this term.',
   'Evaluados': 'Evaluated',
   'Gracias por tu participación': 'Thank you for participating',
-  'Las evaluaciones son anónimas. Toma las decisiones finales se basan en el promedio de todas las respuestas.':
-      'Evaluations are anonymous. Final decisions are based on the average of all responses.',
+  'La institución ve quién participó, pero no las respuestas individuales. Los resultados se muestran desde una evaluación.':
+      'The institution can see who participated, but not individual answers. Results appear after one evaluation.',
   'Selecciona una calificación de 1 a 5 estrellas':
       'Select a rating from 1 to 5 stars',
   'Evaluar docente': 'Evaluate teacher',
@@ -213,8 +213,8 @@ const teachingTranslations = <String, String>{
   'Enviar evaluación': 'Submit evaluation',
   'Evaluación enviada': 'Evaluation submitted',
   'Gracias por tu evaluación': 'Thank you for your evaluation',
-  'Tu respuesta fue registrada de forma anónima y no puede ser modificada. La institución la usará como insumo para mejorar la enseñanza.':
-      'Your response was recorded anonymously and cannot be changed. Your institution will use it to improve teaching.',
+  'Tu participación quedó registrada y tu respuesta no puede modificarse. La institución no ve tus respuestas individuales.':
+      'Your participation was recorded and your response cannot be changed. The institution cannot see your individual answers.',
   'Volver a mis docentes': 'Back to my teachers',
   'No puedes evaluar dos veces al mismo docente y curso.':
       'You cannot evaluate the same teacher and course twice.',

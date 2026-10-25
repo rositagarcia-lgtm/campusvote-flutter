@@ -29,7 +29,7 @@ Response<dynamic> _response(int status, Object? data) => Response(
 Response<dynamic> _ok(Object? data, {int total = 5}) => _response(200, {
       'success': true,
       'data': data,
-      'meta': {'total_responses': total, 'minimum_required': 3},
+      'meta': {'total_responses': total, 'minimum_required': 1},
     });
 
 const _available = TeacherResults(
@@ -72,12 +72,29 @@ void main() {
       expect(results.status, TeacherResultsStatus.locked);
     });
 
-    test('menos respuestas que el mínimo: no muestra datos', () async {
-      final api = _ApiClient({'summary': _ok(null, total: 2)});
+    test('sin respuestas: no muestra datos', () async {
+      final api = _ApiClient({'summary': _ok(null, total: 0)});
       final results = await TeacherResultsRepository(api).load('t-1');
       expect(results.status, TeacherResultsStatus.insufficient);
-      expect(results.totalResponses, 2);
-      expect(results.minimumRequired, 3);
+      expect(results.totalResponses, 0);
+      expect(results.minimumRequired, 1);
+    });
+
+    test('una respuesta publicada ya permite ver el promedio', () async {
+      final api = _ApiClient({
+        'summary': _ok(
+            {'overallAverage': 4.0, 'totalResponses': 1, 'byCourse': []},
+            total: 1),
+        'criteria': _ok({'byCriterion': []}, total: 1),
+        'distribution': _ok({'distribution': []}, total: 1),
+        'comments': _ok({'comments': []}, total: 1),
+        'evolution': _ok({'evolution': []}, total: 1),
+      });
+      final results = await TeacherResultsRepository(api).load('t-1');
+      expect(results.status, TeacherResultsStatus.available);
+      expect(results.totalResponses, 1);
+      expect(results.minimumRequired, 1);
+      expect(results.overallAverage, 4);
     });
 
     test('lee resumen, criterios, distribución, comentarios y evolución',
@@ -161,15 +178,16 @@ void main() {
           find.text('La jornada de evaluación sigue abierta'), findsOneWidget);
     });
 
-    testWidgets('pocas respuestas: protege el anonimato', (tester) async {
+    testWidgets('sin respuestas: explica cuándo habrá resultados',
+        (tester) async {
       await tester.pumpWidget(_page(const TeacherResults(
         status: TeacherResultsStatus.insufficient,
-        totalResponses: 2,
-        minimumRequired: 3,
+        totalResponses: 0,
+        minimumRequired: 1,
       )));
       await tester.pumpAndSettle();
-      expect(find.text('Aún no hay suficientes evaluaciones'), findsOneWidget);
-      expect(find.textContaining('llevas 2 de 3'), findsOneWidget);
+      expect(find.text('Aún no hay evaluaciones enviadas'), findsOneWidget);
+      expect(find.textContaining('al menos una evaluación'), findsOneWidget);
     });
   });
 }

@@ -17,7 +17,7 @@ Future<bool?> _showTeacherEvaluationConfirmation(BuildContext context,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Al enviarla ya no podrás cambiarla. Tu evaluación es anónima para el docente.',
+              'Al enviarla ya no podrás cambiarla. La institución verá que participaste, pero no tus respuestas individuales.',
             ),
             const SizedBox(height: AppSpacing.l),
             TeacherEvaluationReviewLine(label: 'Docente', value: teacher),
