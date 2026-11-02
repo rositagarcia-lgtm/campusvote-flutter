@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 import 'app_motion.dart';
 
 /// Panel de cuenta regresiva: título, cifras d·h·m·s que cambian cada segundo
@@ -67,7 +68,7 @@ class _AppCountdownState extends State<AppCountdown> {
       return CountdownShell(
         color: color,
         icon: widget.icon,
-        child: Text(widget.doneMessage,
+        child: Text(SettingsCopy.of(context).t(widget.doneMessage),
             style: theme.textTheme.bodySmall
                 ?.copyWith(fontWeight: FontWeight.w600, color: color)),
       );
@@ -77,9 +78,13 @@ class _AppCountdownState extends State<AppCountdown> {
         ? (_now.difference(start).inSeconds / target.difference(start).inSeconds)
             .clamp(0.0, 1.0)
         : null;
-    final spoken = '${widget.spokenPrefix ?? widget.title} '
-        '${remaining.inDays} días, ${remaining.inHours % 24} horas y '
-        '${remaining.inMinutes % 60} minutos';
+    final copy = SettingsCopy.of(context);
+    final title = copy.t(widget.spokenPrefix ?? widget.title);
+    final spoken = copy.isEnglish
+        ? '$title ${remaining.inDays} days, ${remaining.inHours % 24} hours and '
+            '${remaining.inMinutes % 60} minutes'
+        : '$title ${remaining.inDays} días, ${remaining.inHours % 24} horas y '
+            '${remaining.inMinutes % 60} minutos';
 
     return Semantics(
       label: spoken,
@@ -90,7 +95,7 @@ class _AppCountdownState extends State<AppCountdown> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.title,
+            Text(copy.t(widget.title),
                 style: theme.textTheme.labelMedium
                     ?.copyWith(color: color, fontWeight: FontWeight.w700)),
             const SizedBox(height: AppSpacing.xs),

@@ -20,8 +20,8 @@ class CampusVoteTheme extends StatelessWidget {
 
   final Widget child;
 
-  /// Color de la acción principal de la pantalla: verde para el estudiante,
-  /// dorado para el jurado.
+  /// Color de la acción principal de la pantalla: violeta para el estudiante,
+  /// coral para el jurado.
   final Color accent;
 
   @override

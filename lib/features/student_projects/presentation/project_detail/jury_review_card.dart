@@ -41,7 +41,7 @@ class _ReviewCard extends StatelessWidget {
                       ),
                       if (date != null)
                         Text(
-                          _reviewDate(date.toLocal()),
+                          _reviewDate(context, date.toLocal()),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
@@ -53,13 +53,18 @@ class _ReviewCard extends StatelessWidget {
                     _Stars(rating: voice.rating!.toDouble(), size: 16),
                   ],
                   const SizedBox(height: AppSpacing.s),
-                  Text(
-                    comment ?? text.t('Calificación sin comentario'),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      height: 1.4,
-                      color: comment == null ? scheme.onSurfaceVariant : null,
-                    ),
-                  ),
+                  comment == null
+                      ? Text(
+                          text.t('Calificación sin comentario'),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            height: 1.4,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        )
+                      : TranslatableText(
+                          comment,
+                          style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
+                        ),
                 ],
               ),
             ),
@@ -75,8 +80,18 @@ const _reviewMonths = [
   'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.',
 ];
 
-String _reviewDate(DateTime date) =>
-    '${date.day} ${_reviewMonths[date.month - 1]} ${date.year}';
+const _reviewMonthsEn = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+String _reviewDate(BuildContext context, DateTime date) {
+  final english = SettingsCopy.of(context).isEnglish;
+  final month = (english ? _reviewMonthsEn : _reviewMonths)[date.month - 1];
+  return english
+      ? '$month ${date.day}, ${date.year}'
+      : '${date.day} $month ${date.year}';
+}
 
 class _ReviewAvatar extends StatelessWidget {
   const _ReviewAvatar({

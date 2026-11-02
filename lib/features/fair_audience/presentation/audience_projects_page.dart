@@ -15,6 +15,7 @@ import '../../../core/widgets/app_status_chip.dart';
 import '../data/fair_audience_repository.dart';
 import '../domain/audience_models.dart';
 import 'audience_widgets.dart';
+import '../../settings/presentation/settings_copy.dart';
 import 'rate_project_sheet.dart';
 
 /// `/teaching/explore/:fairId` — proyectos aprobados de la feria. El alumno
@@ -89,7 +90,11 @@ class _BoardState extends ConsumerState<_Board> {
       ref.invalidate(audienceBoardProvider(fairId));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('¡Gracias! Tu opinión quedó guardada.')),
+          SnackBar(
+            content: Text(
+              SettingsCopy.of(context).t('¡Gracias! Tu opinión quedó guardada.'),
+            ),
+          ),
         );
       }
     }

@@ -15,6 +15,7 @@ import '../../../core/widgets/app_status_chip.dart';
 import '../data/published_results_repository.dart';
 import '../domain/published_results.dart';
 import '../../../core/config/constants.dart';
+import '../../settings/presentation/settings_copy.dart';
 
 part 'published_results/published_results_overview.dart';
 part 'published_results/published_results_pending.dart';

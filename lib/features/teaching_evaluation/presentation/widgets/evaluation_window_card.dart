@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_countdown.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../domain/entities/teaching_assignment.dart';
 
 /// Cuándo puede evaluar el alumno, con las fechas que publicó su sede:
@@ -30,6 +31,7 @@ class EvaluationWindowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final copy = SettingsCopy.of(context);
     final open = pending.where((a) => a.canEvaluate).toList();
     if (open.isNotEmpty) {
       final closes = open
@@ -45,7 +47,9 @@ class EvaluationWindowCard extends StatelessWidget {
         icon: PhosphorIconsRegular.timer,
         doneMessage: open.length == 1
             ? 'La jornada está abierta: tienes 1 docente por evaluar.'
-            : 'La jornada está abierta: tienes ${open.length} docentes por evaluar.',
+            : (copy.isEnglish
+                ? 'The period is open: you have ${open.length} teachers to evaluate.'
+                : 'La jornada está abierta: tienes ${open.length} docentes por evaluar.'),
       );
     }
     final next = pending
@@ -62,20 +66,23 @@ class EvaluationWindowCard extends StatelessWidget {
       );
     }
     if (pending.isEmpty && completed.isNotEmpty) {
-      return const CountdownShell(
+      return CountdownShell(
         color: _green,
         icon: PhosphorIconsFill.sealCheck,
-        child: Text('Evaluaste a todos tus docentes de este periodo. ¡Gracias!',
-            style: TextStyle(color: _green, fontWeight: FontWeight.w600)),
+        child: Text(
+            copy.t(
+                'Evaluaste a todos tus docentes de este periodo. ¡Gracias!'),
+            style: const TextStyle(color: _green, fontWeight: FontWeight.w600)),
       );
     }
-    return const CountdownShell(
+    return CountdownShell(
       color: _slate,
       icon: PhosphorIconsRegular.calendarBlank,
       child: Text(
-        'Tu sede aún no publica la próxima jornada de evaluación. '
-        'Cuando la publique, verás aquí su fecha y la cuenta regresiva.',
-        style: TextStyle(color: _slate, fontWeight: FontWeight.w600),
+        copy.t(
+          'Tu sede aún no publica la próxima jornada de evaluación. Cuando la publique, verás aquí su fecha y la cuenta regresiva.',
+        ),
+        style: const TextStyle(color: _slate, fontWeight: FontWeight.w600),
       ),
     );
   }

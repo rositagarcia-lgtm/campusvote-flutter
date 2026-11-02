@@ -54,15 +54,16 @@ class _FavoriteCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('FAVORITO DEL PÚBLICO',
+                Text(SettingsCopy.of(context).t('FAVORITO DEL PÚBLICO'),
                     style: theme.textTheme.labelSmall?.copyWith(
                         fontWeight: FontWeight.w800, letterSpacing: 1)),
                 Text(name,
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w800)),
                 Text(
-                    'El mejor calificado por los alumnos. No cambia el '
-                    'resultado del jurado.',
+                    SettingsCopy.of(context).t(
+                      'El mejor calificado por los alumnos. No cambia el resultado del jurado.',
+                    ),
                     style: theme.textTheme.bodySmall),
               ],
             ),

@@ -4,6 +4,7 @@ import '../theme/app_icons.dart';
 import '../branding/organization_branding.dart';
 import '../theme/app_dimensions.dart';
 import 'app_logo.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Barra para áreas autenticadas: muestra la organización activa del servidor.
 class OrganizationPanelAppBar extends StatelessWidget
@@ -104,7 +105,7 @@ class _IdentityText extends StatelessWidget {
           ),
         ),
         Text(
-          section,
+          SettingsCopy.of(context).t(section),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.labelSmall?.copyWith(

@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/state/auth_controller.dart';
+import '../../features/settings/presentation/settings_copy.dart';
+import '../settings/app_preferences.dart';
 import '../../features/notifications/notifications_controller.dart';
 import '../config/endpoints.dart';
 import '../di/core_providers.dart';
@@ -61,7 +63,10 @@ void bindPushSync(
       ..showSnackBar(SnackBar(
         content: Text(title),
         behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(label: 'Ver', onPressed: openInbox),
+        action: SnackBarAction(
+          label: SettingsCopy(ref.read(appPreferencesProvider).language).t('Ver'),
+          onPressed: openInbox,
+        ),
       ));
   });
 }

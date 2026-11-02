@@ -2,41 +2,53 @@ part of 'teacher_evaluation_page.dart';
 
 Future<bool?> _showTeacherEvaluationConfirmation(BuildContext context,
     TeachingAssignment assignment, EvaluateState state, String comment) {
+  final copy = SettingsCopy.of(context);
   final teacher = assignment.teacherFullName.trim().isEmpty
-      ? 'Docente no disponible'
+      ? copy.t('Docente no disponible')
       : assignment.teacherFullName;
   return showDialog<bool>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
+    builder: (dialogContext) {
+      final dialogCopy = SettingsCopy.of(dialogContext);
+      return AlertDialog(
       scrollable: true,
-      title: const Text('Revisa tu evaluación'),
+      title: Text(dialogCopy.t('Revisa tu evaluación')),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Al enviarla ya no podrás cambiarla. La institución verá que participaste, pero no tus respuestas individuales.',
+            Text(
+              dialogCopy.t(
+                'Al enviarla ya no podrás cambiarla. La institución verá que participaste, pero no tus respuestas individuales.',
+              ),
             ),
             const SizedBox(height: AppSpacing.l),
-            TeacherEvaluationReviewLine(label: 'Docente', value: teacher),
+            TeacherEvaluationReviewLine(
+                label: dialogCopy.t('Docente'), value: teacher),
             const SizedBox(height: AppSpacing.m),
             TeacherEvaluationReviewLine(
-                label: 'Curso', value: assignment.courseName),
+                label: dialogCopy.t('Curso'), value: assignment.courseName),
             const SizedBox(height: AppSpacing.m),
             TeacherEvaluationReviewLine(
-              label: 'Criterios',
-              value:
-                  '${state.answered} de ${state.criteria.length} calificados',
+              label: dialogCopy.t('Criterios'),
+              value: dialogCopy.isEnglish
+                  ? '${state.answered} of ${state.criteria.length} rated'
+                  : '${state.answered} de ${state.criteria.length} calificados',
             ),
             const SizedBox(height: AppSpacing.m),
             TeacherEvaluationReviewLine(
-                label: 'Calificación general', value: '${state.overall} de 5'),
+                label: dialogCopy.t('Calificación general'),
+                value: dialogCopy.isEnglish
+                    ? '${state.overall} out of 5'
+                    : '${state.overall} de 5'),
             const SizedBox(height: AppSpacing.m),
             TeacherEvaluationReviewLine(
-              label: 'Comentario',
-              value: comment.isEmpty ? 'Sin comentario' : comment,
+              label: dialogCopy.t('Comentario'),
+              value: comment.isEmpty
+                  ? dialogCopy.t('Sin comentario')
+                  : comment,
             ),
           ],
         ),
@@ -44,14 +56,15 @@ Future<bool?> _showTeacherEvaluationConfirmation(BuildContext context,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Seguir editando'),
+          child: Text(dialogCopy.t('Seguir editando')),
         ),
         FilledButton.icon(
           onPressed: () => Navigator.of(dialogContext).pop(true),
           icon: const Icon(PhosphorIconsRegular.paperPlaneTilt),
-          label: const Text('Enviar evaluación'),
+          label: Text(dialogCopy.t('Enviar evaluación')),
         ),
       ],
-    ),
+    );
+    },
   );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_icons.dart';
+import '../../../../core/widgets/translatable_text.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_palette.dart';
@@ -61,7 +62,7 @@ class FairCard extends StatelessWidget {
                   ],
                   if (fair.description.trim().isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.m),
-                    Text(
+                    TranslatableText(
                       fair.description.trim(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

@@ -8,6 +8,7 @@ import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_palette.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
+import '../../../../../core/widgets/translatable_text.dart';
 import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
 import '../../widgets/project_status_chip.dart';
@@ -65,7 +66,7 @@ class FairProjectCard extends StatelessWidget {
                       ),
                       if (project.description.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xs),
-                        Text(
+                        TranslatableText(
                           project.description,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,

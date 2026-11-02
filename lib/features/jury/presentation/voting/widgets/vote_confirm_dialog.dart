@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/translatable_text.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
 
 /// Confirmación del voto oficial.
@@ -17,23 +19,26 @@ Future<bool> confirmVoteDialog(
 }) async {
   final confirmed = await showDialog<bool>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
+    builder: (dialogContext) {
+      final copy = SettingsCopy.of(dialogContext);
+      return AlertDialog(
       scrollable: true,
-      title: const Text('Confirma tu voto oficial'),
+      title: Text(copy.t('Confirma tu voto oficial')),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Revisa la selección. Después de enviarlo, no podrás cambiar ni '
-              'repetir tu voto.',
+            Text(
+              copy.t(
+                'Revisa la selección. Después de enviarlo, no podrás cambiar ni repetir tu voto.',
+              ),
             ),
             if (fairName != null) ...[
               const SizedBox(height: AppSpacing.l),
               Text(
-                'Feria',
+                copy.t('Feria'),
                 style: Theme.of(dialogContext).textTheme.labelMedium,
               ),
               const SizedBox(height: AppSpacing.xs),
@@ -41,7 +46,7 @@ Future<bool> confirmVoteDialog(
             ],
             const SizedBox(height: AppSpacing.l),
             Text(
-              'Proyecto',
+              copy.t('Proyecto'),
               style: Theme.of(dialogContext).textTheme.labelMedium,
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -54,7 +59,7 @@ Future<bool> confirmVoteDialog(
             ),
             if (project.description.trim().isNotEmpty) ...[
               const SizedBox(height: AppSpacing.s),
-              Text(
+              TranslatableText(
                 project.description,
                 maxLines: 5,
                 overflow: TextOverflow.ellipsis,
@@ -65,9 +70,10 @@ Future<bool> confirmVoteDialog(
               Text(project.categoryName!),
             ],
             const SizedBox(height: AppSpacing.m),
-            const Text(
-              'El comprobante confirma tu participación; no revela tu '
-              'selección.',
+            Text(
+              copy.t(
+                'El comprobante confirma tu participación; no revela tu selección.',
+              ),
             ),
           ],
         ),
@@ -75,15 +81,16 @@ Future<bool> confirmVoteDialog(
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Volver'),
+          child: Text(copy.t('Volver')),
         ),
         FilledButton.icon(
           onPressed: () => Navigator.of(dialogContext).pop(true),
           icon: const Icon(PhosphorIconsRegular.lockSimple),
-          label: const Text('Confirmar voto'),
+          label: Text(copy.t('Confirmar voto')),
         ),
       ],
-    ),
+    );
+    },
   );
   return confirmed == true;
 }

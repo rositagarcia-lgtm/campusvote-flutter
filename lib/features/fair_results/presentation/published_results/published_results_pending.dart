@@ -80,9 +80,9 @@ class _PendingResults extends StatelessWidget {
               ),
               Expanded(
                 child: Text(
-                  'Gana el proyecto más votado por el jurado de cada '
-                  'categoría; un empate lo decide el puntaje de la rúbrica. '
-                  'Los votos son secretos.',
+                  SettingsCopy.of(context).t(
+                    'Gana el proyecto más votado por el jurado de cada categoría; un empate lo decide el puntaje de la rúbrica. Los votos son secretos.',
+                  ),
                   style: muted,
                 ),
               ),
@@ -93,14 +93,14 @@ class _PendingResults extends StatelessWidget {
         const _PendingArt(),
         const SizedBox(height: AppSpacing.l),
         Text(
-          'Los resultados aún no están',
+          SettingsCopy.of(context).t('Los resultados aún no están'),
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w800,
           ),
         ),
         Text(
-          'disponibles',
+          SettingsCopy.of(context).t('disponibles'),
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w800,
@@ -109,9 +109,9 @@ class _PendingResults extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.m),
         Text(
-          'Estamos en proceso de evaluación de los proyectos. '
-          'Los resultados se publicarán aquí una vez que el '
-          'jurado haya finalizado su revisión.',
+          SettingsCopy.of(context).t(
+            'Estamos en proceso de evaluación de los proyectos. Los resultados se publicarán aquí una vez que el jurado haya finalizado su revisión.',
+          ),
           textAlign: TextAlign.center,
           style: muted,
         ),

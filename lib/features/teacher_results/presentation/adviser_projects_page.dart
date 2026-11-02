@@ -11,6 +11,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../data/adviser_projects_repository.dart';
 
 /// `/teacher/projects` — proyectos que el docente asesora: estado, feria y
@@ -86,6 +87,7 @@ class _AdvisedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final (label, needsAction) = project.statusLabel;
     final tone = switch (project.status) {
       'APPROVED' => AppTone.success,
@@ -96,7 +98,7 @@ class _AdvisedCard extends StatelessWidget {
     final meta = [
       if (project.fairName != null) project.fairName!,
       if (project.category != null) project.category!,
-      if (project.stand != null) 'Stand ${project.stand}',
+      if (project.stand != null) '${copy.t('Stand')} ${project.stand}',
     ].join(' · ');
 
     return Material(

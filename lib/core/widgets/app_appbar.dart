@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// AppBar reutilizable para mantener consistencia.
 ///
@@ -14,7 +15,7 @@ PreferredSizeWidget buildCampusVoteAppBar(
 }) {
   return AppBar(
     title: Text(
-      title,
+      SettingsCopy.of(context).t(title),
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),

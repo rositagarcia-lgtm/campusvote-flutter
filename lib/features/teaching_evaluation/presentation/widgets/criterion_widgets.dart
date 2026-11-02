@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_motion.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../domain/entities/teacher_evaluation_form.dart';
 import 'teacher_rating_selector.dart';
 
@@ -11,9 +12,15 @@ const _months = [
   'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
 
+const _monthsEn = [
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', //
+  'August', 'September', 'October', 'November', 'December',
+];
+
 /// "15 de octubre" (la jornada de evaluación es un día de calendario).
-String evaluationDayLabel(DateTime day) =>
-    '${day.day} de ${_months[day.month - 1]}';
+String evaluationDayLabel(DateTime day, {bool english = false}) => english
+    ? '${_monthsEn[day.month - 1]} ${day.day}'
+    : '${day.day} de ${_months[day.month - 1]}';
 
 /// Avance de la rúbrica: cuántos criterios ya calificó el alumno.
 class EvaluationProgress extends StatelessWidget {
@@ -33,9 +40,15 @@ class EvaluationProgress extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final done = total > 0 && answered == total;
+    final copy = SettingsCopy.of(context);
+    final progressLabel = copy.isEnglish
+        ? '$answered of $total criteria'
+        : '$answered de $total criterios';
     return Semantics(
       liveRegion: true,
-      label: '$answered de $total criterios calificados',
+      label: copy.isEnglish
+          ? '$progressLabel rated'
+          : '$answered de $total criterios calificados',
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -52,7 +65,7 @@ class EvaluationProgress extends StatelessWidget {
               const SizedBox(width: AppSpacing.s),
               Expanded(
                 child: Text(
-                  '$answered de $total criterios',
+                  progressLabel,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),

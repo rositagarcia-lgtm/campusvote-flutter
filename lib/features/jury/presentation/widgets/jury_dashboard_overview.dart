@@ -5,6 +5,7 @@ import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/greeting.dart';
 import '../../../../core/widgets/app_motion.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../providers/jury_dashboard_progress.dart';
 import 'jury_overview_metric.dart';
 
@@ -133,7 +134,7 @@ class JuryDashboardOverview extends StatelessWidget {
                           size: 20, color: accent),
                       const SizedBox(width: AppSpacing.s),
                       Expanded(
-                        child: Text('Avance de rúbricas',
+                        child: Text(SettingsCopy.of(context).t('Avance de rúbricas'),
                             style: theme.textTheme.titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w700)),
                       ),

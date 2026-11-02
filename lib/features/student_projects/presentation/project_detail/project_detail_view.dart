@@ -94,6 +94,7 @@ class _ProjectDetailView extends StatelessWidget {
           tone: AppTone.danger,
           icon: PhosphorIconsRegular.warningCircle,
           message: project.reviewNotes!,
+          content: true,
         ),
       if (project.description != null)
         _Section(

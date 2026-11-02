@@ -60,7 +60,8 @@ class _ResultsBody extends StatelessWidget {
             style: theme.textTheme.headlineSmall
                 ?.copyWith(fontWeight: FontWeight.w800)),
         if (date != null)
-          Text('Resultados oficiales · ${date.day}/${date.month}/${date.year}',
+          Text(
+              '${SettingsCopy.of(context).t('Resultados oficiales')} · ${date.day}/${date.month}/${date.year}',
               style: theme.textTheme.bodySmall),
         const SizedBox(height: AppSpacing.l),
         for (final mine in results.myProjects) ...[
@@ -71,7 +72,7 @@ class _ResultsBody extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => context.push('/certificados'),
             icon: const Icon(PhosphorIconsRegular.certificate),
-            label: const Text('Ver mis certificados'),
+            label: Text(SettingsCopy.of(context).t('Ver mis certificados')),
           ),
           const SizedBox(height: AppSpacing.m),
         ],
@@ -83,8 +84,9 @@ class _ResultsBody extends StatelessWidget {
           AppMotion.reveal(i++, _FavoriteCard(name: results.audienceFavorite!)),
         const SizedBox(height: AppSpacing.l),
         Text(
-          'Gana el proyecto más votado por el jurado de cada categoría; un '
-          'empate lo decide el puntaje de la rúbrica. Los votos son secretos.',
+          SettingsCopy.of(context).t(
+            'Gana el proyecto más votado por el jurado de cada categoría; un empate lo decide el puntaje de la rúbrica. Los votos son secretos.',
+          ),
           style: theme.textTheme.bodySmall,
         ),
       ],

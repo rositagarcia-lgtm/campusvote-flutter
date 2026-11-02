@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_motion.dart';
+import '../../../../core/widgets/translatable_text.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Casilla de un criterio de la rúbrica.
 ///
@@ -80,7 +82,7 @@ class RubricCriterionTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      TranslatableText(
                         title,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w700,
@@ -89,7 +91,7 @@ class RubricCriterionTile extends StatelessWidget {
                       if (points != null) ...[
                         const SizedBox(height: AppSpacing.xs),
                         Text(
-                          '${points!.toStringAsFixed(points! % 1 == 0 ? 0 : 2)} puntos',
+                          '${points!.toStringAsFixed(points! % 1 == 0 ? 0 : 2)} ${SettingsCopy.of(context).t('puntos')}',
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: scheme.primary,
                             fontWeight: FontWeight.w700,
@@ -98,7 +100,7 @@ class RubricCriterionTile extends StatelessWidget {
                       ],
                       if (description != null && description!.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xs),
-                        Text(description!, style: theme.textTheme.bodySmall),
+                        TranslatableText(description!, style: theme.textTheme.bodySmall),
                       ],
                     ],
                   ),

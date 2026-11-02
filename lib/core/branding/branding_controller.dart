@@ -11,7 +11,7 @@ import 'organization_branding.dart';
 /// Antes de identificar la organización la app usa el fallback neutral
 /// `CampusVote`; apenas el backend resuelve el correo, `apply` pinta la
 /// identidad real (logo + colores). La última marca se recuerda en disco para
-/// que, al reabrir con sesión, el panel no arranque en teal y luego "salte" a
+/// que, al reabrir con sesión, el panel no arranque en violeta y luego "salte" a
 /// los colores de la organización cuando responde la API.
 final brandingControllerProvider =
     StateNotifierProvider<BrandingController, OrganizationBranding>((ref) {

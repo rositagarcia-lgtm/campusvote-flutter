@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../jury/data/models/jury_models.dart';
 
@@ -13,10 +14,17 @@ const _months = [
   'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
 
-String _day(DateTime? date) {
-  if (date == null) return 'próximamente';
+const _monthsEn = [
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', //
+  'August', 'September', 'October', 'November', 'December',
+];
+
+String _day(DateTime? date, {required bool english}) {
+  if (date == null) return english ? 'coming soon' : 'próximamente';
   final local = date.toLocal();
-  return 'el ${local.day} de ${_months[local.month - 1]}';
+  return english
+      ? 'on ${_monthsEn[local.month - 1]} ${local.day}'
+      : 'el ${local.day} de ${_months[local.month - 1]}';
 }
 
 /// Rol de jurado del docente según el momento de cada feria asignada.
@@ -35,6 +43,7 @@ class JuryModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final copy = SettingsCopy.of(context);
     final open = fairs.where((f) => f.isOpen).toList();
     final upcoming = fairs.where((f) => f.status == FairStatus.draft).toList();
     final closed = fairs.where((f) => f.isClosed).toList();
@@ -47,15 +56,21 @@ class JuryModeCard extends StatelessWidget {
         : upcoming.isNotEmpty
             ? (
                 'Serás jurado',
-                '${upcoming.first.name} · ${_day(upcoming.first.startsAt)}. '
-                    'El acceso se habilita cuando la feria abra.',
+                copy.isEnglish
+                    ? '${upcoming.first.name} · ${_day(upcoming.first.startsAt, english: true)}. '
+                        'Access opens when the fair starts.'
+                    : '${upcoming.first.name} · ${_day(upcoming.first.startsAt, english: false)}. '
+                        'El acceso se habilita cuando la feria abra.',
                 true,
               )
             : closed.isNotEmpty
                 ? (
                     'Historial de jurado',
-                    '${closed.length} feria${closed.length == 1 ? '' : 's'} '
-                        'terminada${closed.length == 1 ? '' : 's'}. Consulta lo que calificaste.',
+                    copy.isEnglish
+                        ? '${closed.length} finished fair${closed.length == 1 ? '' : 's'}. '
+                            'Review what you scored.'
+                        : '${closed.length} feria${closed.length == 1 ? '' : 's'} '
+                            'terminada${closed.length == 1 ? '' : 's'}. Consulta lo que calificaste.',
                     true,
                   )
                 : (
@@ -85,6 +100,7 @@ class _ActiveJury extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final single = fairs.length == 1;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.l),
@@ -103,7 +119,7 @@ class _ActiveJury extends StatelessWidget {
                   size: 16, color: AppColors.juryAccessInk),
               const SizedBox(width: AppSpacing.s),
               Text(
-                'HOY ERES JURADO',
+                copy.t('HOY ERES JURADO'),
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: AppColors.juryAccessInk,
                   fontWeight: FontWeight.w800,
@@ -114,14 +130,19 @@ class _ActiveJury extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            single ? fairs.first.name : '${fairs.length} ferias abiertas',
+            single
+                ? fairs.first.name
+                : (copy.isEnglish
+                    ? '${fairs.length} open fairs'
+                    : '${fairs.length} ferias abiertas'),
             style: theme.textTheme.titleMedium
                 ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Califica los proyectos de tus categorías y emite tu voto. No '
-            'verás los proyectos que asesoras.',
+            copy.t(
+              'Califica los proyectos de tus categorías y emite tu voto. No verás los proyectos que asesoras.',
+            ),
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.m),
@@ -159,7 +180,8 @@ class _QuietCard extends StatelessWidget {
     final enabled = onTap != null;
     return Semantics(
       button: enabled,
-      label: '$title. $subtitle',
+      label:
+          '${SettingsCopy.of(context).t(title)}. ${SettingsCopy.of(context).t(subtitle)}',
       excludeSemantics: true,
       child: Pressable(
         onTap: onTap,
@@ -179,11 +201,12 @@ class _QuietCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
+                    Text(SettingsCopy.of(context).t(title),
                         style: theme.textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 2),
-                    Text(subtitle, style: theme.textTheme.bodySmall),
+                    Text(SettingsCopy.of(context).t(subtitle),
+                        style: theme.textTheme.bodySmall),
                   ],
                 ),
               ),

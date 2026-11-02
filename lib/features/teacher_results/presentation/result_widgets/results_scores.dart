@@ -34,11 +34,15 @@ class ScoreBarRow extends StatelessWidget {
     required this.label,
     required this.average,
     this.caption,
+    this.translateContent = false,
   });
 
   final String label;
   final String? caption;
   final double average;
+
+  /// Descripción escrita por la institución: se traduce con el idioma.
+  final bool translateContent;
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +59,13 @@ class ScoreBarRow extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(label,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  child: translateContent
+                      ? TranslatableText(label,
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600))
+                      : Text(label,
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600)),
                 ),
                 Text(_score(average),
                     style: theme.textTheme.titleSmall
@@ -65,7 +73,10 @@ class ScoreBarRow extends StatelessWidget {
               ],
             ),
             if (caption != null)
-              Text(caption!, style: theme.textTheme.bodySmall),
+              translateContent
+                  ? TranslatableText(caption!,
+                      style: theme.textTheme.bodySmall)
+                  : Text(caption!, style: theme.textTheme.bodySmall),
             const SizedBox(height: AppSpacing.xs),
             ClipRRect(
               borderRadius: BorderRadius.circular(999),
@@ -163,7 +174,9 @@ class AnonymousComment extends StatelessWidget {
           Icon(PhosphorIconsFill.quotes,
               size: 18, color: theme.colorScheme.primary),
           const SizedBox(width: AppSpacing.s),
-          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
+          Expanded(
+            child: TranslatableText(text, style: theme.textTheme.bodyMedium),
+          ),
         ],
       ),
     );

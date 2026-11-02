@@ -8,27 +8,38 @@ class _MyProjectBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final position = result.position;
+    final projectName = result.projectName;
+    final categoryName = result.categoryName;
     final (icon, color, text) = switch (position) {
       1 => (
           PhosphorIconsFill.trophy,
           _gold,
-          '¡Tu proyecto «${result.projectName}» ganó la categoría ${result.categoryName}!'
+          copy.isEnglish
+              ? 'Your project “$projectName” won the $categoryName category!'
+              : '¡Tu proyecto «$projectName» ganó la categoría $categoryName!'
         ),
       int p when p <= 3 => (
           PhosphorIconsFill.medal,
           medalColor(p),
-          'Tu proyecto «${result.projectName}» quedó en el $p.° puesto de ${result.categoryName}.'
+          copy.isEnglish
+              ? 'Your project “$projectName” placed $p in $categoryName.'
+              : 'Tu proyecto «$projectName» quedó en el $p.° puesto de $categoryName.'
         ),
       int p => (
           PhosphorIconsRegular.medal,
           theme.colorScheme.primary,
-          'Tu proyecto «${result.projectName}» quedó en el $p.° puesto de ${result.categoryName}.'
+          copy.isEnglish
+              ? 'Your project “$projectName” placed $p in $categoryName.'
+              : 'Tu proyecto «$projectName» quedó en el $p.° puesto de $categoryName.'
         ),
       null => (
           PhosphorIconsRegular.handHeart,
           theme.colorScheme.primary,
-          '«${result.projectName}» no recibió votos del jurado esta vez. ¡Gracias por participar!'
+          copy.isEnglish
+              ? '“$projectName” received no jury votes this time. Thank you for taking part!'
+              : '«$projectName» no recibió votos del jurado esta vez. ¡Gracias por participar!'
         ),
     };
     return Container(
@@ -91,7 +102,9 @@ class _CategoryCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(
                   AppSpacing.m, 0, AppSpacing.m, AppSpacing.m),
-              child: Text('Esta categoría no recibió votos del jurado.',
+              child: Text(
+                  SettingsCopy.of(context)
+                      .t('Esta categoría no recibió votos del jurado.'),
                   style: theme.textTheme.bodyMedium),
             )
           else

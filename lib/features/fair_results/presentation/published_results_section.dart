@@ -8,6 +8,7 @@ import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_section_header.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../data/published_results_repository.dart';
 import '../domain/published_results.dart';
 
@@ -91,7 +92,8 @@ class _PublishedResultsSectionState
                             Text(fair.name,
                                 style: theme.textTheme.titleSmall
                                     ?.copyWith(fontWeight: FontWeight.w800)),
-                            Text('Mira el podio de cada categoría',
+                            Text(SettingsCopy.of(context)
+                                .t('Mira el podio de cada categoría'),
                                 style: theme.textTheme.bodySmall),
                           ],
                         ),

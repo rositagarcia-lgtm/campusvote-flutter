@@ -17,6 +17,7 @@ import '../data/teacher_results_repository.dart';
 import '../domain/teacher_results.dart';
 import '../../../features/auth/presentation/widgets/account_avatar_button.dart';
 import 'teacher_results_widgets.dart';
+import '../../settings/presentation/settings_copy.dart';
 
 /// `/teacher/evaluation` — cómo le fue al docente en la evaluación de sus
 /// alumnos. Solo agregados anónimos y solo cuando termina la jornada.
@@ -111,6 +112,7 @@ class _Results extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final copy = SettingsCopy.of(context);
     final strongest = results.strongest;
     final weakest = results.weakest;
     var step = 0;
@@ -145,7 +147,8 @@ class _Results extends StatelessWidget {
                       ScoreBarRow(
                           label: c.name,
                           caption: c.description,
-                          average: c.average),
+                          average: c.average,
+                          translateContent: true),
                   ]),
                 ],
                 if (results.byCourse.isNotEmpty) ...[
@@ -162,9 +165,11 @@ class _Results extends StatelessWidget {
                             c.courseName.isEmpty ? c.courseCode : c.courseName,
                         caption: [
                           if (c.courseCode.isNotEmpty) c.courseCode,
-                          if (c.cycle != null) 'Ciclo ${c.cycle}',
+                          if (c.cycle != null) copy.term(c.cycle!),
                           if (c.periodName != null) c.periodName!,
-                          '${c.responses} evaluaciones',
+                          copy.isEnglish
+                              ? '${c.responses} evaluations'
+                              : '${c.responses} evaluaciones',
                         ].join(' · '),
                         average: c.average,
                       ),
@@ -196,7 +201,9 @@ class _Results extends StatelessWidget {
                     for (final p in results.evolution)
                       ScoreBarRow(
                         label: p.periodName,
-                        caption: '${p.responses} evaluaciones',
+                        caption: copy.isEnglish
+                            ? '${p.responses} evaluations'
+                            : '${p.responses} evaluaciones',
                         average: p.average,
                       ),
                   ]),
@@ -208,7 +215,7 @@ class _Results extends StatelessWidget {
                   count: results.comments.length,
                 ),
                 if (results.comments.isEmpty)
-                  Text('Tus alumnos no dejaron comentarios.',
+                  Text(copy.t('Tus alumnos no dejaron comentarios.'),
                       style: Theme.of(context).textTheme.bodyMedium)
                 else
                   for (final comment in results.comments)

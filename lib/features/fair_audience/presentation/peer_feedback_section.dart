@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_dimensions.dart';
+import '../../../core/widgets/translatable_text.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../../../core/theme/app_icons.dart';
 import '../data/fair_audience_repository.dart';
 import 'audience_widgets.dart';
@@ -21,6 +23,7 @@ class PeerFeedbackSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final feedback =
         ref.watch(peerFeedbackProvider((fairId: fairId, projectId: projectId)));
 
@@ -30,7 +33,7 @@ class PeerFeedbackSection extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (_, __) => Text(
-        'No pudimos cargar la opinión de tus compañeros. Desliza para reintentar.',
+        copy.t('No pudimos cargar la opinión de tus compañeros. Desliza para reintentar.'),
         style: theme.textTheme.bodyMedium,
       ),
       data: (data) {
@@ -51,8 +54,12 @@ class PeerFeedbackSection extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       MiniStars(value: average, size: 18),
-                      Text('${data.votes} votos de compañeros',
-                          style: theme.textTheme.bodySmall),
+                      Text(
+                        copy.isEnglish
+                            ? '${data.votes} classmate vote${data.votes == 1 ? '' : 's'}'
+                            : '${data.votes} votos de compañeros',
+                        style: theme.textTheme.bodySmall,
+                      ),
                     ],
                   ),
                 ],
@@ -60,14 +67,17 @@ class PeerFeedbackSection extends ConsumerWidget {
             else
               Text(
                 data.votes == 0
-                    ? 'Aún nadie calificó tu proyecto.'
-                    : 'El promedio aparece desde ${data.minVotes} votos '
-                        '(llevas ${data.votes}).',
+                    ? copy.t('Aún nadie calificó tu proyecto.')
+                    : copy.isEnglish
+                        ? 'The average appears from ${data.minVotes} votes '
+                            '(you have ${data.votes}).'
+                        : 'El promedio aparece desde ${data.minVotes} votos '
+                            '(llevas ${data.votes}).',
                 style: theme.textTheme.bodyMedium,
               ),
             const SizedBox(height: AppSpacing.m),
             if (data.comments.isEmpty)
-              Text('Aún no hay comentarios de mejora.',
+              Text(copy.t('Aún no hay comentarios de mejora.'),
                   style: theme.textTheme.bodySmall)
             else
               for (final comment in data.comments)
@@ -88,7 +98,8 @@ class PeerFeedbackSection extends ConsumerWidget {
                       const SizedBox(width: AppSpacing.s),
                       Expanded(
                           child:
-                              Text(comment, style: theme.textTheme.bodyMedium)),
+                              TranslatableText(comment,
+                                  style: theme.textTheme.bodyMedium)),
                     ],
                   ),
                 ),

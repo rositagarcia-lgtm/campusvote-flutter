@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_motion.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../domain/entities/teaching_assignment.dart';
 import 'criterion_widgets.dart';
 
@@ -29,15 +30,16 @@ class AssignmentCard extends StatelessWidget {
             ? scheme.primary
             : scheme.onSurfaceVariant;
 
+    final copy = SettingsCopy.of(context);
     final courseName = assignment.courseName.trim().isEmpty
-        ? 'Curso sin nombre'
+        ? copy.t('Curso sin nombre')
         : assignment.courseName;
     final teacherName = assignment.teacherFullName.trim().isEmpty
-        ? 'Docente por confirmar'
+        ? copy.t('Docente por confirmar')
         : assignment.teacherFullName;
     final meta = [
       if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
-      if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
+      if (assignment.cycle > 0) copy.term(assignment.cycle),
     ].join(' · ');
     final opensAt = assignment.opensAt;
     final closesAt = assignment.closesAt;
@@ -46,12 +48,15 @@ class AssignmentCard extends StatelessWidget {
         : !assignment.isActive
             ? 'No disponible'
             : assignment.opensLater && opensAt != null
-                ? 'Abre el ${evaluationDayLabel(opensAt)}'
+                ? (copy.isEnglish
+                    ? 'Opens on ${evaluationDayLabel(opensAt, english: true)}'
+                    : 'Abre el ${evaluationDayLabel(opensAt)}')
                 : !assignment.evaluationOpen
                     ? 'Jornada cerrada'
                     : closesAt != null
-                        // Jornada de varios días: el alumno ve hasta cuándo.
-                        ? 'Pendiente · hasta el ${evaluationDayLabel(closesAt)}'
+                        ? (copy.isEnglish
+                            ? 'Pending · until ${evaluationDayLabel(closesAt, english: true)}'
+                            : 'Pendiente · hasta el ${evaluationDayLabel(closesAt)}')
                         : 'Pendiente';
 
     void open() => context.go('/teaching/evaluate/${assignment.id}');
@@ -196,7 +201,7 @@ class _Trailing extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        child: const Text('Evaluar'),
+        child: Text(SettingsCopy.of(context).t('Evaluar')),
       );
     }
     return Column(
@@ -211,7 +216,7 @@ class _Trailing extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Text(
-          label,
+          SettingsCopy.of(context).t(label),
           style: theme.textTheme.labelSmall?.copyWith(
             color: color,
             fontWeight: FontWeight.w700,

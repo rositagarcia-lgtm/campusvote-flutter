@@ -8,6 +8,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_bottom_nav.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../../auth/presentation/state/auth_controller.dart';
 import '../../jury/presentation/providers/jury_providers.dart';
 import '../../notifications/presentation/widgets/notifications_bell.dart';
@@ -41,13 +42,15 @@ class TeacherHomePage extends ConsumerWidget {
       await ref.read(juryDashboardProvider.notifier).reload();
     }
 
+    final copy = SettingsCopy.of(context);
     final evaluationSubtitle = results.when(
       loading: () => 'Consultando tus resultados…',
       error: (_, __) =>
           'No pudimos cargar tus resultados. Desliza para reintentar.',
       data: (r) => switch (r.status) {
-        TeacherResultsStatus.available =>
-          'Promedio ${r.overallAverage.toStringAsFixed(1)} de 5 · ${r.totalResponses} evaluaciones',
+        TeacherResultsStatus.available => copy.isEnglish
+            ? 'Average ${r.overallAverage.toStringAsFixed(1)} out of 5 · ${r.totalResponses} evaluations'
+            : 'Promedio ${r.overallAverage.toStringAsFixed(1)} de 5 · ${r.totalResponses} evaluaciones',
         TeacherResultsStatus.locked =>
           'Se publica cuando termine la jornada de evaluación.',
         TeacherResultsStatus.insufficient =>
@@ -67,8 +70,11 @@ class TeacherHomePage extends ConsumerWidget {
             ? 'No pudimos consultar tus proyectos.'
             : advisedList.isEmpty
                 ? 'Aún no asesoras proyectos en ferias.'
-                : '${advisedList.length} proyecto${advisedList.length == 1 ? '' : 's'}'
-                    '${pendingAdvice > 0 ? ' · $pendingAdvice por atender' : ''}';
+                : copy.isEnglish
+                    ? '${advisedList.length} project${advisedList.length == 1 ? '' : 's'}'
+                        '${pendingAdvice > 0 ? ' · $pendingAdvice to follow up' : ''}'
+                    : '${advisedList.length} proyecto${advisedList.length == 1 ? '' : 's'}'
+                        '${pendingAdvice > 0 ? ' · $pendingAdvice por atender' : ''}';
 
     return Scaffold(
       appBar: OrganizationPanelAppBar(
@@ -88,7 +94,7 @@ class TeacherHomePage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text('PANEL DOCENTE',
+                    Text(copy.t('PANEL DOCENTE'),
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.primary,
                           fontWeight: FontWeight.w800,
@@ -98,15 +104,20 @@ class TeacherHomePage extends ConsumerWidget {
                     AppMotion.reveal(
                       0,
                       Text(
-                        name.trim().isEmpty ? 'Hola' : 'Hola, ${name.trim()}',
+                        name.trim().isEmpty
+                            ? copy.t('Hola')
+                            : (copy.isEnglish
+                                ? 'Hello, ${name.trim()}'
+                                : 'Hola, ${name.trim()}'),
                         style: theme.textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Revisa cómo te evaluaron tus alumnos, los proyectos que '
-                      'asesoras y, si te asignaron, tus ferias como jurado.',
+                      copy.t(
+                        'Revisa cómo te evaluaron tus alumnos, los proyectos que asesoras y, si te asignaron, tus ferias como jurado.',
+                      ),
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.xl),
@@ -172,7 +183,8 @@ class _HomeCard extends StatelessWidget {
     final enabled = onTap != null;
     return Semantics(
       button: enabled,
-      label: '$title. $subtitle',
+      label:
+          '${SettingsCopy.of(context).t(title)}. ${SettingsCopy.of(context).t(subtitle)}',
       excludeSemantics: true,
       child: Pressable(
         onTap: onTap,
@@ -200,11 +212,12 @@ class _HomeCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
+                    Text(SettingsCopy.of(context).t(title),
                         style: theme.textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 2),
-                    Text(subtitle, style: theme.textTheme.bodySmall),
+                    Text(SettingsCopy.of(context).t(subtitle),
+                        style: theme.textTheme.bodySmall),
                   ],
                 ),
               ),

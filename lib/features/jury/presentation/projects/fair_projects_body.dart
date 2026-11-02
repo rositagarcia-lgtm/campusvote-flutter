@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_notice.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_chip.dart';
@@ -194,7 +195,7 @@ class _FiltersSlot extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(PhosphorIconsRegular.arrowClockwise),
-            label: const Text('Reintentar estados'),
+            label: Text(SettingsCopy.of(context).t('Reintentar estados')),
           ),
         ],
       );

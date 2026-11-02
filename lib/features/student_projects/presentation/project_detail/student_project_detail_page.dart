@@ -158,7 +158,7 @@ Future<void> _rateStand(
   ref.invalidate(audienceBoardProvider(fairId));
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('¡Gracias! Tu opinión quedó guardada.')),
+      SnackBar(content: Text(SettingsCopy.of(context).t('¡Gracias! Tu opinión quedó guardada.'))),
     );
   }
 }

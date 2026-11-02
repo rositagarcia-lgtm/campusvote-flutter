@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import 'app_status_chip.dart';
 import '../../features/settings/presentation/settings_copy.dart';
+import 'translatable_text.dart';
 
 /// Aviso inline con franja lateral de color: errores, advertencias, avisos
 /// informativos y confirmaciones.
@@ -19,6 +20,7 @@ class NoticeBanner extends StatelessWidget {
     this.tone = AppTone.danger,
     this.icon,
     this.liveRegion = false,
+    this.content = false,
   });
 
   final String message;
@@ -29,6 +31,9 @@ class NoticeBanner extends StatelessWidget {
 
   /// Marca el aviso como región viva para lectores de pantalla.
   final bool liveRegion;
+
+  /// El mensaje lo escribió una persona (observación, nota). Se traduce con el idioma.
+  final bool content;
 
   @override
   Widget build(BuildContext context) {
@@ -65,15 +70,23 @@ class NoticeBanner extends StatelessWidget {
                       Icon(glyph, color: fg, size: AppDimensions.iconMedium),
                       const SizedBox(width: AppSpacing.s),
                       Expanded(
-                        child: Text(
-                          this.tone == AppTone.danger
-                              ? SettingsCopy.of(context).error(message)
-                              : SettingsCopy.of(context).t(message),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: fg,
-                            height: 1.4,
-                          ),
-                        ),
+                        child: content
+                            ? TranslatableText(
+                                message,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: fg,
+                                  height: 1.4,
+                                ),
+                              )
+                            : Text(
+                                this.tone == AppTone.danger
+                                    ? SettingsCopy.of(context).error(message)
+                                    : SettingsCopy.of(context).t(message),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: fg,
+                                  height: 1.4,
+                                ),
+                              ),
                       ),
                     ],
                   ),

@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 const _acceptNew = '/api/fair-jury-invitations/accept/new';
 const _acceptExisting = '/api/fair-jury-invitations/accept';
@@ -165,7 +166,7 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
                         onPressed: _busy ? null : _acceptWithSession,
                       )
                     else ...[
-                      Text('Soy nuevo en CampusVote',
+                      Text(SettingsCopy.of(context).t('Soy nuevo en CampusVote'),
                           style: theme.textTheme.titleSmall
                               ?.copyWith(fontWeight: FontWeight.w800)),
                       const SizedBox(height: AppSpacing.s),

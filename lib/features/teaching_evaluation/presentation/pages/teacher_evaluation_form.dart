@@ -91,7 +91,7 @@ class TeacherEvaluationForm extends StatelessWidget {
                     Semantics(
                       header: true,
                       child: Text(
-                        'Para terminar',
+                        SettingsCopy.of(context).t('Para terminar'),
                         style: theme.textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
