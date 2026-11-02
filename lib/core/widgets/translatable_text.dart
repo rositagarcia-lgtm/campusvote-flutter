@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,22 +25,77 @@ Future<String> _translateChunked(dynamic client, String text, String target) asy
   return buffer.toString();
 }
 
-Future<String> _translateOne(dynamic client, String text, String target) async {
-  final res = await client.post(
-    ApiEndpoints.translate,
-    body: {
-      'texts': [text],
-      'target': target,
-    },
-  );
-  final body = res.data;
-  final list = body is Map && body['data'] is Map
-      ? (body['data'] as Map)['translations']
-      : null;
-  if ((res.statusCode ?? 500) >= 400 || list is! List || list.isEmpty) {
-    throw StateError('translation unavailable');
+bool _useful(String? value, String source) {
+  if (value == null) return false;
+  final text = value.trim();
+  if (text.isEmpty || text.toUpperCase().startsWith('MYMEMORY WARNING')) {
+    return false;
   }
-  return list.first.toString();
+  return text.toLowerCase() != source.trim().toLowerCase();
+}
+
+String? _pickMyMemory(Map body, String source) {
+  final data = body['responseData'];
+  final top = data is Map ? data['translatedText']?.toString() : null;
+  if (_useful(top, source)) return top;
+  final matches = body['matches'];
+  if (matches is! List) return null;
+  String? best;
+  var bestScore = -1.0;
+  for (final item in matches) {
+    if (item is! Map) continue;
+    final value = item['translation']?.toString();
+    if (!_useful(value, source)) continue;
+    final score =
+        item['match'] is num ? (item['match'] as num).toDouble() : 0.0;
+    if (score > bestScore) {
+      bestScore = score;
+      best = value;
+    }
+  }
+  return best;
+}
+
+/// El servidor traduce con la sesión. Si no responde, o devuelve el mismo
+/// texto, se consulta el mismo servicio desde el teléfono.
+Future<String> _translateOne(dynamic client, String text, String target) async {
+  try {
+    final res = await client.post(
+      ApiEndpoints.translate,
+      body: {
+        'texts': [text],
+        'target': target,
+      },
+    );
+    final body = res.data;
+    final list = body is Map && body['data'] is Map
+        ? (body['data'] as Map)['translations']
+        : null;
+    final value = list is List && list.isNotEmpty ? list.first.toString() : null;
+    if ((res.statusCode ?? 500) < 400 && _useful(value, text)) return value!;
+  } catch (_) {}
+  return _translateOnDevice(text, target);
+}
+
+Future<String> _translateOnDevice(String text, String target) async {
+  final pair = target == 'en' ? 'es|en' : 'en|es';
+  try {
+    final res = await Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 12),
+        receiveTimeout: const Duration(seconds: 12),
+      ),
+    ).get<dynamic>(
+      'https://api.mymemory.translated.net/get',
+      queryParameters: {'q': text, 'langpair': pair},
+    );
+    final body = res.data;
+    if (body is Map) {
+      final picked = _pickMyMemory(body, text);
+      if (picked != null) return picked;
+    }
+  } catch (_) {}
+  return text;
 }
 
 /// Texto que cambia en cada feria: descripción, comentario, criterio u observación.
