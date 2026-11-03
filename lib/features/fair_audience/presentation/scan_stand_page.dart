@@ -6,6 +6,7 @@ import '../../../core/routing/deep_links.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_appbar.dart';
+import '../../settings/presentation/settings_copy.dart';
 
 /// `/scan` — escanea el QR impreso en el stand y abre ese proyecto: el
 /// alumno para opinar, el jurado para su rúbrica (lo decide la ruta del QR).
@@ -50,6 +51,7 @@ class _ScanStandPageState extends State<ScanStandPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Escanear QR del stand'),
       body: Stack(
@@ -63,8 +65,9 @@ class _ScanStandPageState extends State<ScanStandPage> {
                 padding: const EdgeInsets.all(AppSpacing.l),
                 child: Text(
                   error.errorCode == MobileScannerErrorCode.permissionDenied
-                      ? 'Permite el uso de la cámara para escanear el QR del stand.'
-                      : 'No pudimos abrir la cámara.',
+                      ? copy.t(
+                          'Permite el uso de la cámara para escanear el QR del stand.')
+                      : copy.t('No pudimos abrir la cámara.'),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -97,8 +100,8 @@ class _ScanStandPageState extends State<ScanStandPage> {
                   const SizedBox(width: AppSpacing.s),
                   Expanded(
                     child: Text(
-                      _hint ??
-                          'Apunta al código QR impreso en el stand del proyecto.',
+                      copy.t(_hint ??
+                          'Apunta al código QR impreso en el stand del proyecto.'),
                       style: theme.textTheme.bodyMedium
                           ?.copyWith(color: Colors.white),
                     ),

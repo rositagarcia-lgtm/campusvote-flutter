@@ -56,9 +56,11 @@ class _ResultsBody extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.l),
       children: [
-        Text(results.fair.name,
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w800)),
+        TranslatableText(
+          results.fair.name,
+          style: theme.textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.w800),
+        ),
         if (date != null)
           Text(
               '${SettingsCopy.of(context).t('Resultados oficiales')} · ${date.day}/${date.month}/${date.year}',

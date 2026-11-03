@@ -23,12 +23,13 @@ class AdviserProjectDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projects = ref.watch(adviserProjectsProvider);
+    final copy = SettingsCopy.of(context);
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
         title: 'Proyecto',
         leading: IconButton(
-          tooltip: 'Volver a mis proyectos',
+          tooltip: copy.t('Volver a mis proyectos'),
           icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teacher/projects'),
         ),
@@ -105,7 +106,8 @@ class _Detail extends StatelessWidget {
                       style: theme.textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w800)),
                   if (project.fairName != null)
-                    Text(project.fairName!, style: theme.textTheme.bodyMedium),
+                    TranslatableText(project.fairName!,
+                        style: theme.textTheme.bodyMedium),
                   if (project.stand != null)
                     Text('${copy.t('Stand')} ${project.stand}',
                         style: theme.textTheme.bodyMedium),

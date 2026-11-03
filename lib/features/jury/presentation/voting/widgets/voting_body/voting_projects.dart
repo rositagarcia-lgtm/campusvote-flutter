@@ -9,14 +9,15 @@ Widget _buildVotingProjects(BuildContext context, ThemeData theme,
           Icon(PhosphorIconsRegular.archive, color: theme.colorScheme.primary),
           const SizedBox(height: AppSpacing.s),
           Text(
-            'No hay proyectos disponibles',
+            SettingsCopy.of(context).t('No hay proyectos disponibles'),
             style: theme.textTheme.titleSmall
                 ?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Text(
-            'No encontramos proyectos aprobados para tu asignación. Puedes '
-            'volver a consultar más tarde.',
+          Text(
+            SettingsCopy.of(context).t(
+              'No encontramos proyectos aprobados para tu asignación. Puedes volver a consultar más tarde.',
+            ),
             textAlign: TextAlign.center,
           ),
         ],

@@ -177,7 +177,7 @@ class CriteriaGroupTitle extends StatelessWidget {
       child: Semantics(
         header: true,
         child: Text(
-          title.toUpperCase(),
+          SettingsCopy.of(context).t(title).toUpperCase(),
           style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.primary,
             fontWeight: FontWeight.w800,

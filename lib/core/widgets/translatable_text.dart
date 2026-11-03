@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/endpoints.dart';
 import '../di/core_providers.dart';
 import '../settings/app_preferences.dart';
+import 'app_skeleton.dart';
 
 /// Traduce un texto escrito por usuarios con `POST /api/translate`.
 /// El backend guarda cada traducción en caché.
@@ -98,10 +99,12 @@ Future<String> _translateOnDevice(String text, String target) async {
   return text;
 }
 
-/// Texto que cambia en cada feria: descripción, comentario, criterio u observación.
+/// Texto que cambia en cada feria: nombre de la feria, descripción, comentario,
+/// criterio u observación.
 ///
-/// En español se muestra tal como se escribió. En inglés se traduce solo al
-/// elegir el idioma. Los nombres de personas, ferias y proyectos no pasan por aquí.
+/// En español se muestra tal como se escribió. En inglés se muestra un bloque
+/// de carga hasta que llega la traducción: no aparece primero en español.
+/// Los nombres de personas, sedes y proyectos no pasan por aquí.
 class TranslatableText extends ConsumerWidget {
   const TranslatableText(
     this.text, {
@@ -134,12 +137,32 @@ class TranslatableText extends ConsumerWidget {
     final translated = ref.watch(
       contentTranslationProvider((text: text, target: language.code)),
     );
-    return Text(
-      translated.valueOrNull ?? text,
-      style: style,
-      maxLines: maxLines,
-      overflow: overflow,
-      textAlign: textAlign,
+    if (translated.hasError || translated.hasValue) {
+      return Text(
+        translated.valueOrNull ?? text,
+        style: style,
+        maxLines: maxLines,
+        overflow: overflow,
+        textAlign: textAlign,
+      );
+    }
+    return ExcludeSemantics(
+      child: Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          Opacity(
+            opacity: 0,
+            child: Text(
+              text,
+              style: style,
+              maxLines: maxLines,
+              overflow: overflow,
+              textAlign: textAlign,
+            ),
+          ),
+          const Positioned.fill(child: AppSkeleton()),
+        ],
+      ),
     );
   }
 }

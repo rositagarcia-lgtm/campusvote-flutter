@@ -42,11 +42,15 @@ class JuryProjectDetailPage extends ConsumerWidget {
                   onRetry: () => ref.invalidate(fairProjectsProvider(fairId)),
                 )
               : project == null
-                  ? const Center(
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.l),
+                        padding: const EdgeInsets.all(AppSpacing.l),
                         child: Text(
-                            'Este proyecto no está asignado a tus categorías.'),
+                          SettingsCopy.of(context).t(
+                            'Este proyecto no está asignado a tus categorías.',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     )
                   : _ProjectContent(fairId: fairId, project: project),

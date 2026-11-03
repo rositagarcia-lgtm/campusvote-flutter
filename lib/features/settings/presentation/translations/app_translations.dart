@@ -2,6 +2,7 @@
 
 import 'account_translations.dart';
 import 'auth_translations.dart';
+import 'gap_translations.dart';
 import 'panel_translations.dart';
 import 'student_projects_translations.dart';
 
@@ -316,4 +317,5 @@ const appTranslations = <String, String>{
   ...teachingTranslations,
   ...studentProjectsTranslations,
   ...accountTranslations,
+  ...gapTranslations,
 };

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../notification_item.dart';
 import '../notification_filters.dart';
@@ -111,7 +112,7 @@ class _FilterPill extends StatelessWidget {
                     const SizedBox(width: AppSpacing.s),
                   ],
                   Text(
-                    label,
+                    SettingsCopy.of(context).t(label),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: selected ? theme.colorScheme.onPrimary : null,
                       fontWeight: FontWeight.w700,

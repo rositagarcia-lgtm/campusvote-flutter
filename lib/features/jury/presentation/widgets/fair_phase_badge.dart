@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_motion.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../data/models/jury_models.dart';
 
 /// Etiqueta de la fase de la feria para el jurado.
@@ -26,7 +27,9 @@ class FairPhaseBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, icon, color) = describe(phase);
+    final (rawLabel, icon, color) = describe(phase);
+    final copy = SettingsCopy.of(context);
+    final label = copy.t(rawLabel);
     final theme = Theme.of(context);
     final fg = onImage ? Colors.white : color;
     final content = Row(
@@ -52,7 +55,7 @@ class FairPhaseBadge extends StatelessWidget {
       child: content,
     );
     return Semantics(
-      label: 'Fase de la feria: $label',
+      label: '${copy.t('Fase de la feria')}: $label',
       excludeSemantics: true,
       child: onImage
           ? ClipRRect(

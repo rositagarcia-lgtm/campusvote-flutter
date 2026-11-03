@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/widgets/app_notice.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
 import '../../../data/models/jury_models.dart';
 
@@ -28,17 +29,27 @@ class JuryEndedRecap extends StatelessWidget {
       );
     }
     final done = progress.completedProjects;
-    final evaluated = done == total
-        ? 'Evaluaste los $total proyectos de tu categoría'
-        : 'Evaluaste $done de $total proyectos de tu categoría';
-    final vote = progress.hasVoted
-        ? ' y registraste tu voto oficial.'
-        : ' y no registraste voto oficial.';
+    final english = SettingsCopy.of(context).isEnglish;
+    final evaluated = english
+        ? (done == total
+            ? 'You evaluated all $total projects in your category'
+            : 'You evaluated $done of $total projects in your category')
+        : (done == total
+            ? 'Evaluaste los $total proyectos de tu categoría'
+            : 'Evaluaste $done de $total proyectos de tu categoría');
+    final vote = english
+        ? (progress.hasVoted
+            ? ' and recorded your official vote.'
+            : ' and did not record an official vote.')
+        : (progress.hasVoted
+            ? ' y registraste tu voto oficial.'
+            : ' y no registraste voto oficial.');
+    final ended = english ? 'The fair ended. ' : 'La feria terminó. ';
     final complete = done == total && progress.hasVoted;
     return NoticeBanner(
       tone: complete ? AppTone.success : AppTone.neutral,
       icon: complete ? PhosphorIconsFill.sealCheck : PhosphorIconsRegular.flagCheckered,
-      message: 'La feria terminó. $evaluated$vote',
+      message: '$ended$evaluated$vote',
     );
   }
 }

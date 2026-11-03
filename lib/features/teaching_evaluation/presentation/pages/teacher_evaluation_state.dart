@@ -71,7 +71,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
         context,
         title: 'Evaluar docente',
         leading: IconButton(
-          tooltip: 'Volver a mis docentes',
+          tooltip: SettingsCopy.of(context).t('Volver a mis docentes'),
           icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teaching'),
         ),

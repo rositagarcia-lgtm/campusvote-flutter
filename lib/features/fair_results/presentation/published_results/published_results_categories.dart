@@ -11,7 +11,9 @@ class _MyProjectBanner extends StatelessWidget {
     final copy = SettingsCopy.of(context);
     final position = result.position;
     final projectName = result.projectName;
-    final categoryName = result.categoryName;
+    final categoryName = result.categoryName == 'Sin categoría'
+        ? copy.t(result.categoryName)
+        : result.categoryName;
     final (icon, color, text) = switch (position) {
       1 => (
           PhosphorIconsFill.trophy,
@@ -94,7 +96,11 @@ class _CategoryCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(
                 AppSpacing.m, AppSpacing.m, AppSpacing.m, AppSpacing.s),
-            child: Text(category.name.toUpperCase(),
+            child: Text(
+                (category.name == 'Sin categoría'
+                        ? SettingsCopy.of(context).t(category.name)
+                        : category.name)
+                    .toUpperCase(),
                 style: theme.textTheme.labelMedium?.copyWith(
                     letterSpacing: 1.2, fontWeight: FontWeight.w800)),
           ),

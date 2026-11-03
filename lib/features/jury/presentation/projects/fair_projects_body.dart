@@ -10,6 +10,7 @@ import '../../../settings/presentation/settings_copy.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../../core/widgets/translatable_text.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import 'fair_project_filter.dart';
@@ -88,7 +89,7 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'FERIA ASIGNADA',
+            SettingsCopy.of(context).t('FERIA ASIGNADA'),
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w800,
@@ -98,11 +99,17 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
           const SizedBox(height: AppSpacing.xs),
           Semantics(
             header: true,
-            child: Text(
-              fairName ?? 'Proyectos de tu categoría',
-              style: theme.textTheme.headlineMedium
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
+            child: fairName == null
+                ? Text(
+                    SettingsCopy.of(context).t('Proyectos de tu categoría'),
+                    style: theme.textTheme.headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  )
+                : TranslatableText(
+                    fairName,
+                    style: theme.textTheme.headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.w800),
+                  ),
           ),
           const SizedBox(height: AppSpacing.xl),
           if (needsDeclaration) ...[

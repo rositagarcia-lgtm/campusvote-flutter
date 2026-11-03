@@ -11,6 +11,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
+import '../../../core/widgets/translatable_text.dart';
 import '../../settings/presentation/settings_copy.dart';
 import '../data/adviser_projects_repository.dart';
 
@@ -29,7 +30,7 @@ class AdviserProjectsPage extends ConsumerWidget {
         context,
         title: 'Proyectos que asesoro',
         leading: IconButton(
-          tooltip: 'Volver al inicio',
+          tooltip: SettingsCopy.of(context).t('Volver al inicio'),
           icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teacher'),
         ),
@@ -95,8 +96,8 @@ class _AdvisedCard extends StatelessWidget {
       'SUBMITTED' => AppTone.info,
       _ => AppTone.warning,
     };
+    final fairName = project.fairName;
     final meta = [
-      if (project.fairName != null) project.fairName!,
       if (project.category != null) project.category!,
       if (project.stand != null) '${copy.t('Stand')} ${project.stand}',
     ].join(' · ');
@@ -122,6 +123,8 @@ class _AdvisedCard extends StatelessWidget {
               Text(project.name,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w800)),
+              if (fairName != null)
+                TranslatableText(fairName, style: theme.textTheme.bodySmall),
               if (meta.isNotEmpty) Text(meta, style: theme.textTheme.bodySmall),
               const SizedBox(height: AppSpacing.s),
               StatusChip(label: label, tone: tone),

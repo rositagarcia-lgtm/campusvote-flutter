@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_dimensions.dart';
 import '../../features/settings/presentation/settings_copy.dart';
+import 'translatable_text.dart';
 
 /// AppBar reutilizable para mantener consistencia.
 ///
@@ -12,14 +13,20 @@ PreferredSizeWidget buildCampusVoteAppBar(
   required String title,
   List<Widget>? actions,
   Widget? leading,
+  bool content = false,
 }) {
+  final style = Theme.of(context).textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.w700,
+      );
   return AppBar(
-    title: Text(
-      SettingsCopy.of(context).t(title),
-      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-    ),
+    title: content
+        ? TranslatableText(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
+          )
+        : Text(SettingsCopy.of(context).t(title), style: style),
     centerTitle: false,
     surfaceTintColor: Colors.transparent,
     scrolledUnderElevation: 0,

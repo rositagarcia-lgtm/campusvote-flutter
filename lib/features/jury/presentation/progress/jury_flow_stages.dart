@@ -10,19 +10,21 @@ abstract final class JuryFlowStages {
   static List<JuryFlowStage> of(
     JuryProgressModel progress, {
     DateTime? votedAt,
+    bool english = false,
   }) =>
       [
         _fair(progress),
-        _projects(progress),
-        _evaluation(progress),
+        _projects(progress, english),
+        _evaluation(progress, english),
         _voting(progress, votedAt),
         _declaration(progress),
         _closing(progress),
       ];
 
   /// Texto con el conteo de proyectos en singular o plural.
-  static String projects(int count) =>
-      '$count proyecto${count == 1 ? '' : 's'}';
+  static String projects(int count, {bool english = false}) => english
+      ? '$count project${count == 1 ? '' : 's'}'
+      : '$count proyecto${count == 1 ? '' : 's'}';
 
   static JuryFlowStage _fair(JuryProgressModel progress) {
     return JuryFlowStage(
@@ -43,7 +45,7 @@ abstract final class JuryFlowStages {
     );
   }
 
-  static JuryFlowStage _projects(JuryProgressModel progress) {
+  static JuryFlowStage _projects(JuryProgressModel progress, bool english) {
     final total = progress.totalProjects;
     final hasProjects = total > 0;
     return JuryFlowStage(
@@ -51,15 +53,17 @@ abstract final class JuryFlowStages {
       icon: PhosphorIconsRegular.folders,
       title: 'Proyectos asignados',
       description: hasProjects
-          ? 'La organización publicó ${projects(total)}'
-              ' aprobado${total == 1 ? '' : 's'} para tu categoría.'
+          ? (english
+              ? 'The organization published ${projects(total, english: true)} approved for your category.'
+              : 'La organización publicó ${projects(total)}'
+                  ' aprobado${total == 1 ? '' : 's'} para tu categoría.')
           : 'Todavía no hay proyectos aprobados para tu categoría.',
       status: hasProjects ? JuryStageStatus.done : JuryStageStatus.pending,
       action: hasProjects ? JuryStageAction.projects : null,
     );
   }
 
-  static JuryFlowStage _evaluation(JuryProgressModel progress) {
+  static JuryFlowStage _evaluation(JuryProgressModel progress, bool english) {
     final total = progress.totalProjects;
     final pending = progress.pendingProjects;
     final hasProjects = total > 0;
@@ -71,11 +75,15 @@ abstract final class JuryFlowStages {
       description = 'No hay proyectos que calificar en esta feria.';
     } else if (done) {
       status = JuryStageStatus.done;
-      description = 'Finalizaste la rúbrica de ${projects(total)} asignados.';
+      description = english
+          ? 'You finished the rubric for ${projects(total, english: true)} assigned.'
+          : 'Finalizaste la rúbrica de ${projects(total)} asignados.';
     } else if (progress.completedProjects > 0) {
       status = JuryStageStatus.active;
-      description = '${projects(pending)} pendiente${pending == 1 ? '' : 's'} '
-          'de rúbrica. Calificar por criterio no registra tu voto.';
+      description = english
+          ? '${projects(pending, english: true)} still need a rubric. Scoring by criterion does not record your vote.'
+          : '${projects(pending)} pendiente${pending == 1 ? '' : 's'} '
+              'de rúbrica. Calificar por criterio no registra tu voto.';
     } else {
       status = JuryStageStatus.pending;
       description = 'Abre un proyecto y califica los criterios de su rúbrica.';

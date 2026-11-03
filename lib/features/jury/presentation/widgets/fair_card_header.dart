@@ -40,7 +40,9 @@ class FairCardHeader extends StatelessWidget {
           Image.network(
             imageUrl,
             fit: BoxFit.cover,
-            semanticLabel: 'Portada de ${fair.name}',
+            semanticLabel: SettingsCopy.of(context).isEnglish
+                ? 'Cover of ${fair.name}'
+                : 'Portada de ${fair.name}',
             errorBuilder: (_, __, ___) => ColoredBox(
               color: scheme.primaryContainer,
               child: Icon(PhosphorIconsRegular.imageBroken,

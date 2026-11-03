@@ -12,6 +12,8 @@ import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../../core/widgets/translatable_text.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../../student_projects/presentation/widgets/project_visuals.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
@@ -51,7 +53,7 @@ class RubricEvaluationPage extends ConsumerWidget {
         title: 'Rúbrica',
         actions: [
           IconButton(
-            tooltip: 'Votar en esta feria',
+            tooltip: SettingsCopy.of(context).t('Votar en esta feria'),
             icon: const Icon(PhosphorIconsFill.checkSquareOffset),
             onPressed: () => context.push('/jury/fair/$fairId/vote'),
           ),
@@ -103,7 +105,7 @@ class _RubricForm extends StatelessWidget {
                   children: [
                     if (evaluation.projectName != null) ...[
                       Text(
-                        'EVALUACIÓN DEL PROYECTO',
+                        SettingsCopy.of(context).t('EVALUACIÓN DEL PROYECTO'),
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w700,
@@ -136,7 +138,7 @@ class _RubricForm extends StatelessWidget {
                     ],
                     if (project != null && project!.imageUrls.isNotEmpty) ...[
                       Text(
-                        'FOTOS',
+                        SettingsCopy.of(context).t('FOTOS'),
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w700,
@@ -149,7 +151,7 @@ class _RubricForm extends StatelessWidget {
                     ],
                     if (project?.videoUrl != null) ...[
                       Text(
-                        'VIDEO',
+                        SettingsCopy.of(context).t('VIDEO'),
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: 1.2,
                           fontWeight: FontWeight.w700,
@@ -184,13 +186,17 @@ class _RubricForm extends StatelessWidget {
                         liveRegion: true,
                       ),
                     ],
-                    Text(
-                      evaluation.rubric.name.isEmpty
-                          ? 'Criterios de evaluación'
-                          : evaluation.rubric.name,
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
+                    evaluation.rubric.name.isEmpty
+                        ? Text(
+                            SettingsCopy.of(context).t('Criterios de evaluación'),
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          )
+                        : TranslatableText(
+                            evaluation.rubric.name,
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
                     const SizedBox(height: AppSpacing.m),
                     for (var i = 0; i < criteria.length; i++)
                       AppMotion.reveal(

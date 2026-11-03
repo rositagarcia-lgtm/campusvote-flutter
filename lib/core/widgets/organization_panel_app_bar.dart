@@ -29,7 +29,10 @@ class OrganizationPanelAppBar extends StatelessWidget
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final name = branding.name.trim().isEmpty ? 'Organización' : branding.name;
+    final copy = SettingsCopy.of(context);
+    final name = branding.name.trim().isEmpty
+        ? copy.t('Organización')
+        : branding.name;
     return AppBar(
       toolbarHeight: 68,
       backgroundColor: colors.surface,
@@ -43,7 +46,7 @@ class OrganizationPanelAppBar extends StatelessWidget
               child: Center(
                 child: Semantics(
                   image: true,
-                  label: 'Logo de $name',
+                  label: copy.logoLabel(name),
                   child: AppLogo.organization(
                     logoUrl: branding.logoUrl,
                     organizationCode: name,
@@ -53,7 +56,7 @@ class OrganizationPanelAppBar extends StatelessWidget
               ),
             )
           : IconButton(
-              tooltip: 'Volver',
+              tooltip: copy.t('Volver'),
               onPressed: onBack,
               icon: const Icon(PhosphorIconsRegular.arrowLeft),
             ),

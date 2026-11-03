@@ -6,6 +6,7 @@ import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/brand_colors.dart';
 import '../../../core/widgets/app_motion.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../domain/audience_models.dart';
 
 /// Portada o inicial del proyecto, con el degradado de la organización.
@@ -92,18 +93,21 @@ class AudienceProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final meta = [
       if (project.category != null) project.category!,
-      if (project.stand != null) 'Stand ${project.stand}',
+      if (project.stand != null) '${copy.t('Stand')} ${project.stand}',
     ].join(' · ');
     final average = project.average;
     final status = project.isMine
-        ? 'Tu proyecto'
+        ? copy.t('Tu proyecto')
         : project.myScore != null
-            ? 'Tu voto: ${project.myScore} ★'
+            ? (copy.isEnglish
+                ? 'Your vote: ${project.myScore} ★'
+                : 'Tu voto: ${project.myScore} ★')
             : canRate
-                ? 'Calificar'
-                : 'Sin voto';
+                ? copy.t('Calificar')
+                : copy.t('Sin voto');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.s),
@@ -147,7 +151,7 @@ class AudienceProjectCard extends StatelessWidget {
                           children: [
                             MiniStars(value: average),
                             Text(
-                              '${average.toStringAsFixed(1)} · ${project.votes} votos',
+                              '${average.toStringAsFixed(1)} · ${copy.votes(project.votes)}',
                               style: theme.textTheme.labelSmall,
                             ),
                           ],
@@ -155,8 +159,10 @@ class AudienceProjectCard extends StatelessWidget {
                       else
                         Text(
                           project.votes == 0
-                              ? 'Aún sin votos'
-                              : 'Promedio desde $minVotes votos',
+                              ? copy.t('Aún sin votos')
+                              : (copy.isEnglish
+                                  ? 'Average from $minVotes votes'
+                                  : 'Promedio desde $minVotes votos'),
                           style: theme.textTheme.labelSmall
                               ?.copyWith(color: scheme.onSurfaceVariant),
                         ),
@@ -210,7 +216,7 @@ class FavoriteBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'FAVORITO DEL PÚBLICO',
+                  SettingsCopy.of(context).t('FAVORITO DEL PÚBLICO'),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: AppColors.ink,
                     fontWeight: FontWeight.w800,
@@ -225,7 +231,9 @@ class FavoriteBanner extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Elegido por los alumnos. No reemplaza el resultado del jurado.',
+                  SettingsCopy.of(context).t(
+                    'Elegido por los alumnos. No reemplaza el resultado del jurado.',
+                  ),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: AppColors.inkMuted),
                 ),

@@ -1,10 +1,13 @@
 part of '../student_project_detail_page.dart';
 
 class _MetaLine extends StatelessWidget {
-  const _MetaLine({required this.icon, required this.text});
+  const _MetaLine({required this.icon, required this.text, this.content = false});
 
   final IconData icon;
   final String text;
+
+  /// El nombre de la feria se traduce. Categoría y stand se quedan como están.
+  final bool content;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +19,12 @@ class _MetaLine extends StatelessWidget {
           Icon(icon, size: AppDimensions.iconSmall, color: muted),
           const SizedBox(width: AppSpacing.s),
           Expanded(
-            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+            child: content
+                ? TranslatableText(
+                    text,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  )
+                : Text(text, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),

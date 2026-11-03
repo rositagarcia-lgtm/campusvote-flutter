@@ -33,12 +33,15 @@ class AudienceProjectsPage extends ConsumerWidget {
     final board = ref.watch(audienceBoardProvider(fairId));
     Future<void> reload() => ref.refresh(audienceBoardProvider(fairId).future);
 
+    final fairName = board.valueOrNull?.fair.name;
+    final copy = SettingsCopy.of(context);
     return Scaffold(
       appBar: buildCampusVoteAppBar(
         context,
-        title: board.valueOrNull?.fair.name ?? 'Proyectos de la feria',
+        title: fairName ?? 'Proyectos de la feria',
+        content: fairName != null,
         leading: IconButton(
-          tooltip: 'Volver a las ferias',
+          tooltip: copy.t('Volver a las ferias'),
           icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teaching/explore'),
         ),
@@ -106,6 +109,7 @@ class _BoardState extends ConsumerState<_Board> {
     final rated = board.projects.where((p) => p.myScore != null).length;
     final rateable = board.projects.where((p) => !p.isMine).length;
 
+    final copy = SettingsCopy.of(context);
     if (board.projects.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -134,7 +138,9 @@ class _BoardState extends ConsumerState<_Board> {
               ? PhosphorIconsRegular.star
               : PhosphorIconsRegular.lockSimple,
           message: board.fair.isOpen
-              ? 'Calificaste $rated de $rateable proyectos. El equipo del proyecto ve tu nombre. Tu voto no cuenta para la nota del jurado.'
+              ? (copy.isEnglish
+                  ? 'You rated $rated of $rateable projects. The project team sees your name. Your vote does not count toward the jury score.'
+                  : 'Calificaste $rated de $rateable proyectos. El equipo del proyecto ve tu nombre. Tu voto no cuenta para la nota del jurado.')
               : 'La feria cerró: las opiniones quedaron congeladas.',
         ),
         const SizedBox(height: AppSpacing.l),

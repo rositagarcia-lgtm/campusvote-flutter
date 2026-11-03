@@ -12,6 +12,7 @@ import '../../../core/widgets/app_icon_tile.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
+import '../../../core/widgets/translatable_text.dart';
 import '../data/published_results_repository.dart';
 import '../domain/published_results.dart';
 import '../../../core/config/constants.dart';

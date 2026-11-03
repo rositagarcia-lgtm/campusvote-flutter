@@ -45,7 +45,7 @@ class _ScoreBar extends StatelessWidget {
     final scheme = theme.colorScheme;
     if (score == null) {
       return Text(
-        'Sin evaluar',
+        SettingsCopy.of(context).t('Sin evaluar'),
         style: theme.textTheme.labelSmall
             ?.copyWith(color: scheme.onSurfaceVariant),
       );

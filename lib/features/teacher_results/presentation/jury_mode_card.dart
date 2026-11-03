@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/translatable_text.dart';
 import '../../settings/presentation/settings_copy.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../jury/data/models/jury_models.dart';
@@ -56,11 +57,8 @@ class JuryModeCard extends StatelessWidget {
         : upcoming.isNotEmpty
             ? (
                 'Serás jurado',
-                copy.isEnglish
-                    ? '${upcoming.first.name} · ${_day(upcoming.first.startsAt, english: true)}. '
-                        'Access opens when the fair starts.'
-                    : '${upcoming.first.name} · ${_day(upcoming.first.startsAt, english: false)}. '
-                        'El acceso se habilita cuando la feria abra.',
+                '${upcoming.first.name} · ${_day(upcoming.first.startsAt, english: false)}. '
+                    'El acceso se habilita cuando la feria abra.',
                 true,
               )
             : closed.isNotEmpty
@@ -85,6 +83,7 @@ class JuryModeCard extends StatelessWidget {
           : PhosphorIconsRegular.gavel,
       title: title,
       subtitle: subtitle,
+      content: upcoming.isNotEmpty && !loading,
       onTap: enabled ? () => context.go('/jury') : null,
     );
   }
@@ -129,15 +128,19 @@ class _ActiveJury extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.s),
-          Text(
-            single
-                ? fairs.first.name
-                : (copy.isEnglish
-                    ? '${fairs.length} open fairs'
-                    : '${fairs.length} ferias abiertas'),
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w800),
-          ),
+          single
+              ? TranslatableText(
+                  fairs.first.name,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                )
+              : Text(
+                  copy.isEnglish
+                      ? '${fairs.length} open fairs'
+                      : '${fairs.length} ferias abiertas',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             copy.t(
@@ -165,24 +168,28 @@ class _QuietCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.content = false,
     this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+
+  /// El subtítulo incluye el nombre de la feria y se traduce completo.
+  final bool content;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final enabled = onTap != null;
     return Semantics(
       button: enabled,
-      label:
-          '${SettingsCopy.of(context).t(title)}. ${SettingsCopy.of(context).t(subtitle)}',
-      excludeSemantics: true,
+      label: content ? null : '${copy.t(title)}. ${copy.t(subtitle)}',
+      excludeSemantics: !content,
       child: Pressable(
         onTap: onTap,
         child: Container(
@@ -201,12 +208,15 @@ class _QuietCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(SettingsCopy.of(context).t(title),
+                    Text(copy.t(title),
                         style: theme.textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 2),
-                    Text(SettingsCopy.of(context).t(subtitle),
-                        style: theme.textTheme.bodySmall),
+                    content
+                        ? TranslatableText(subtitle,
+                            style: theme.textTheme.bodySmall)
+                        : Text(copy.t(subtitle),
+                            style: theme.textTheme.bodySmall),
                   ],
                 ),
               ),

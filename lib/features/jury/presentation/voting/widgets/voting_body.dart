@@ -10,6 +10,7 @@ import '../../../../../core/widgets/app_motion.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_notice.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 import '../../providers/forms/jury_voting_provider.dart';
 import '../../providers/jury_state.dart';
 import '../../widgets/voting_widgets.dart';
@@ -122,7 +123,9 @@ class VotingBody extends StatelessWidget {
               ] else if (state.activeCategory != null) ...[
                 const SizedBox(height: AppSpacing.m),
                 StatusChip(
-                  label: 'Tu categoría: ${state.activeCategory!.name}',
+                  label: SettingsCopy.of(context).isEnglish
+                      ? 'Your category: ${state.activeCategory!.name}'
+                      : 'Tu categoría: ${state.activeCategory!.name}',
                   tone: AppTone.primary,
                   icon: PhosphorIconsRegular.squaresFour,
                 ),
@@ -139,8 +142,9 @@ class VotingBody extends StatelessWidget {
                 NoticeBanner(
                   message: status.startsAt == null
                       ? 'La votación empieza cuando inicia la feria.'
-                      : 'La votación abre el ${_when(context, status.startsAt!)}. '
-                          'Puedes revisar los proyectos mientras tanto.',
+                      : (SettingsCopy.of(context).isEnglish
+                          ? 'Voting opens on ${_when(context, status.startsAt!)}. You can review the projects in the meantime.'
+                          : 'La votación abre el ${_when(context, status.startsAt!)}. Puedes revisar los proyectos mientras tanto.'),
                   tone: AppTone.info,
                   icon: PhosphorIconsRegular.clock,
                 )

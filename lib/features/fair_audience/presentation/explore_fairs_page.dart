@@ -14,6 +14,8 @@ import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../../core/widgets/app_status_chip.dart';
 import '../../../core/widgets/organization_panel_app_bar.dart';
+import '../../../core/widgets/translatable_text.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../../auth/presentation/widgets/account_avatar_button.dart';
 import '../../notifications/presentation/widgets/notifications_bell.dart';
 import '../../fair_results/presentation/published_results_section.dart';
@@ -79,13 +81,15 @@ class _FairList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.l),
       children: [
         Text(
-          'Conoce los proyectos de tus compañeros, califícalos y déjales '
-          'ideas para mejorar. Tu voto no cuenta para la nota del jurado.',
+          copy.t(
+            'Conoce los proyectos de tus compañeros, califícalos y déjales ideas para mejorar. Tu voto no cuenta para la nota del jurado.',
+          ),
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: AppSpacing.m),
@@ -142,9 +146,11 @@ class _FairCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(fair.name,
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    TranslatableText(
+                      fair.name,
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                     if (meta.isNotEmpty)
                       Text(meta, style: theme.textTheme.bodySmall),
                     const SizedBox(height: AppSpacing.xs),

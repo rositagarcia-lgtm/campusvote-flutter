@@ -107,8 +107,12 @@ class _TeachingAssignmentsBody extends ConsumerWidget {
                       showOrganizationHeader: false,
                       organizationName: branding.name,
                       organizationLogoUrl: branding.logoUrl,
-                      contextLabel: timeGreeting(DateTime.now()).toUpperCase(),
-                      title: firstName == null ? 'Tus docentes' : 'Hola, $firstName',
+                      contextLabel: timeGreeting(DateTime.now()),
+                      title: firstName == null
+                          ? 'Tus docentes'
+                          : (SettingsCopy.of(context).isEnglish
+                              ? 'Hello, $firstName'
+                              : 'Hola, $firstName'),
                       subtitle:
                           'Consulta tus asignaciones y califica a cada docente.',
                       primaryValue: pending.length,

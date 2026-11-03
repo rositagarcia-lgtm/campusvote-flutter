@@ -24,14 +24,17 @@ class RankedProjectOption extends StatelessWidget {
     final scheme = theme.colorScheme;
     final duration =
         AppMotion.reduced(context) ? Duration.zero : AppMotion.medium;
+    final copy = SettingsCopy.of(context);
     final label = [
-      if (rank != null) 'Puesto $rank',
+      if (rank != null) copy.rank(rank, false),
       project.name,
       if (score != null)
-        '${score!.toStringAsFixed(1)} de 20'
+        copy.isEnglish
+            ? '${score!.toStringAsFixed(1)} out of 20'
+            : '${score!.toStringAsFixed(1)} de 20'
       else
-        'Sin evaluar',
-      selected ? 'Seleccionado' : 'No seleccionado',
+        copy.t('Sin evaluar'),
+      copy.t(selected ? 'Seleccionado' : 'No seleccionado'),
     ].join('. ');
 
     return Semantics(

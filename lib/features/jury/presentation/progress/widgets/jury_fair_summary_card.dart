@@ -4,6 +4,7 @@ import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_palette.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
+import '../../../../../core/widgets/translatable_text.dart';
 import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
 import '../../widgets/jury_progress_bar.dart';
@@ -58,13 +59,21 @@ class JuryFairSummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.m),
-          Text(
-            name == null || name.isEmpty ? text.t('Feria asignada') : name,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-              height: 1.25,
-            ),
-          ),
+          name == null || name.isEmpty
+              ? Text(
+                  text.t('Feria asignada'),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 1.25,
+                  ),
+                )
+              : TranslatableText(
+                  name,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 1.25,
+                  ),
+                ),
           if (site != null && site.trim().isNotEmpty) ...[
             const SizedBox(height: AppSpacing.s),
             JuryMetaRow(

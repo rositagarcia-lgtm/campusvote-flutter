@@ -2,6 +2,7 @@
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/widgets/app_notice.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
 import '../jury_flow.dart';
 
@@ -23,7 +24,7 @@ class JuryProgressNotice extends StatelessWidget {
         message: 'Completaste la evaluación, el voto oficial y tu declaración.',
       );
     }
-    final hint = flow.hint;
+    final hint = flow.hint(english: SettingsCopy.of(context).isEnglish);
     if (hint == null) {
       return const NoticeBanner(
         tone: AppTone.neutral,

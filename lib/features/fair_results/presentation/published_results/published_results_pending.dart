@@ -35,7 +35,7 @@ class _PendingResults extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    TranslatableText(
                       results.fair.name,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
@@ -50,7 +50,7 @@ class _PendingResults extends StatelessWidget {
                           const SizedBox(width: AppSpacing.xs),
                           Expanded(
                             child: Text(
-                              'Resultados oficiales · ${_dmy(date)}',
+                              '${SettingsCopy.of(context).t('Resultados oficiales')} · ${_dmy(date)}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: scheme.onSurfaceVariant,
                               ),

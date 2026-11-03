@@ -68,6 +68,7 @@ class _ProjectDetailView extends StatelessWidget {
                   _MetaLine(
                     icon: PhosphorIconsRegular.calendarDots,
                     text: project.fair!.name,
+                    content: true,
                   ),
                 ],
                 if (project.category != null)
@@ -122,7 +123,7 @@ class _ProjectDetailView extends StatelessWidget {
           : Padding(
               padding: const EdgeInsets.only(bottom: 72),
               child: FloatingActionButton(
-                tooltip: rateTooltip,
+                tooltip: text.t(rateTooltip),
                 onPressed: onRate,
                 child: const Icon(PhosphorIconsFill.star),
               ),

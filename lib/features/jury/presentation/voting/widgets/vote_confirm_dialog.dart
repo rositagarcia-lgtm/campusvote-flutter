@@ -42,7 +42,11 @@ Future<bool> confirmVoteDialog(
                 style: Theme.of(dialogContext).textTheme.labelMedium,
               ),
               const SizedBox(height: AppSpacing.xs),
-              Text(fairName, maxLines: 2, overflow: TextOverflow.ellipsis),
+              TranslatableText(
+                fairName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
             const SizedBox(height: AppSpacing.l),
             Text(

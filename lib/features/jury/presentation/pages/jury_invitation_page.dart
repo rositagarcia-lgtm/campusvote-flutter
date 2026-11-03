@@ -128,15 +128,16 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
                         size: 44, color: theme.colorScheme.primary),
                     const SizedBox(height: AppSpacing.m),
                     Text(
-                      'Te invitaron a ser jurado',
+                      SettingsCopy.of(context).t('Te invitaron a ser jurado'),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: AppSpacing.s),
                     Text(
-                      'Acepta la invitación para ver la feria, firmar tu '
-                      'declaración y calificar los proyectos asignados.',
+                      SettingsCopy.of(context).t(
+                        'Acepta la invitación para ver la feria, firmar tu declaración y calificar los proyectos asignados.',
+                      ),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium,
                     ),

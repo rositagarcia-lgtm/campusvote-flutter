@@ -48,7 +48,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         actions: [
           if (state.unreadCount > 0)
             IconButton(
-              tooltip: 'Marcar todas como leídas',
+              tooltip: SettingsCopy.of(context).t('Marcar todas como leídas'),
               onPressed:
                   state.updatingId != 'all' ? controller.markAllRead : null,
               icon: const Icon(PhosphorIconsRegular.checks),

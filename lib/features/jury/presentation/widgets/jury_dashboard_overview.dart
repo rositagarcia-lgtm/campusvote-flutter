@@ -29,6 +29,7 @@ class JuryDashboardOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final colors = theme.colorScheme;
     final accent = colors.primary;
     final firstName = firstNameOf(this.firstName);
@@ -49,7 +50,9 @@ class JuryDashboardOverview extends StatelessWidget {
             ? 'No se pudo consultar el avance. Desliza para reintentar.'
             : data == null || data.total == 0
                 ? 'Aún no hay proyectos evaluables en tus ferias abiertas.'
-                : '${data.completed} de ${data.total} proyectos evaluados en ferias abiertas';
+                : (copy.isEnglish
+                    ? '${data.completed} of ${data.total} projects evaluated in open fairs'
+                    : '${data.completed} de ${data.total} proyectos evaluados en ferias abiertas');
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -65,7 +68,7 @@ class JuryDashboardOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            timeGreeting(DateTime.now()).toUpperCase(),
+            copy.t(timeGreeting(DateTime.now())).toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
               color: accent,
               fontWeight: FontWeight.w800,
@@ -77,8 +80,8 @@ class JuryDashboardOverview extends StatelessWidget {
             header: true,
             child: Text(
               firstName == null
-                  ? 'Tus ferias asignadas'
-                  : 'Hola, $firstName',
+                  ? copy.t('Tus ferias asignadas')
+                  : (copy.isEnglish ? 'Hello, $firstName' : 'Hola, $firstName'),
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.4,
@@ -88,10 +91,14 @@ class JuryDashboardOverview extends StatelessWidget {
           const SizedBox(height: AppSpacing.s),
           Text(
             openCount == 0
-                ? 'Aquí verás tus ferias cuando cierre la inscripción o empiecen.'
+                ? copy.t(
+                    'Aquí verás tus ferias cuando cierre la inscripción o empiecen.')
                 : openCount == 1
-                    ? 'Tienes 1 feria en curso. Todo lo que necesitas está abajo.'
-                    : 'Tienes $openCount ferias en curso. Todo lo que necesitas está abajo.',
+                    ? copy.t(
+                        'Tienes 1 feria en curso. Todo lo que necesitas está abajo.')
+                    : (copy.isEnglish
+                        ? 'You have $openCount fairs in progress. Everything you need is below.'
+                        : 'Tienes $openCount ferias en curso. Todo lo que necesitas está abajo.'),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colors.onSurfaceVariant,
               height: 1.4,
@@ -139,7 +146,7 @@ class JuryDashboardOverview extends StatelessWidget {
                                 ?.copyWith(fontWeight: FontWeight.w700)),
                       ),
                       const SizedBox(width: AppSpacing.s),
-                      Text(progressLabel,
+                      Text(copy.t(progressLabel),
                           style: (percentage == null
                                   ? theme.textTheme.labelLarge
                                   : theme.textTheme.titleLarge)
@@ -178,7 +185,7 @@ class JuryDashboardOverview extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: AppSpacing.s),
-                  Text(detail,
+                  Text(copy.t(detail),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       )),

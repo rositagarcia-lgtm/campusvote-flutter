@@ -8,6 +8,8 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
+import '../../../settings/presentation/settings_copy.dart';
+import '../../../../core/widgets/translatable_text.dart';
 import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -63,6 +65,7 @@ class _BodyState extends State<_Body> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final state = widget.state;
     final controller = widget.controller;
@@ -80,20 +83,20 @@ class _BodyState extends State<_Body> {
             ),
             const SizedBox(height: AppSpacing.l),
             Text(
-              'Tu declaración',
+              copy.t('Tu declaración'),
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: AppSpacing.m),
-            Text(
+            TranslatableText(
               declaration.statement,
               style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
             ),
             if (declaration.signedAt != null) ...[
               const SizedBox(height: AppSpacing.m),
               Text(
-                'Registrada el ${declaration.signedAt!.toLocal()}',
+                copy.recordedOn(declaration.signedAt!),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: appMuted(isDark),
                 ),
@@ -116,7 +119,7 @@ class _BodyState extends State<_Body> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'DECLARACIÓN DEL JURADO',
+                      copy.t('DECLARACIÓN DEL JURADO'),
                       style: theme.textTheme.labelSmall?.copyWith(
                         letterSpacing: 1.2,
                         fontWeight: FontWeight.w700,
@@ -125,15 +128,16 @@ class _BodyState extends State<_Body> {
                     ),
                     const SizedBox(height: AppSpacing.s),
                     Text(
-                      'Imparcialidad y compromiso',
+                      copy.t('Imparcialidad y compromiso'),
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.m),
                     Text(
-                      'Declara tu imparcialidad antes de evaluar los proyectos de esta '
-                      'feria. Queda registrada con tu usuario y la fecha.',
+                      copy.t(
+                        'Declara tu imparcialidad antes de evaluar los proyectos de esta feria. Queda registrada con tu usuario y la fecha.',
+                      ),
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: AppSpacing.l),

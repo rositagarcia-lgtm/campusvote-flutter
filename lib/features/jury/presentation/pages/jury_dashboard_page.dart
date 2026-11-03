@@ -26,6 +26,7 @@ import '../providers/jury_providers.dart';
 import '../widgets/jury_dashboard_overview.dart';
 import '../../../../features/auth/presentation/widgets/account_avatar_button.dart';
 import '../widgets/jury_fair_card.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// `/jury` — dashboard de ferias asignadas (`GET /fairs/my-assignments`).
 class JuryDashboardPage extends ConsumerWidget {
@@ -50,7 +51,7 @@ class JuryDashboardPage extends ConsumerWidget {
         actions: [
           if (isTeacher)
             IconButton(
-              tooltip: 'Volver a mi panel docente',
+              tooltip: SettingsCopy.of(context).t('Volver a mi panel docente'),
               icon: const Icon(PhosphorIconsRegular.house),
               onPressed: () => context.go('/teacher'),
             ),

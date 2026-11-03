@@ -14,16 +14,25 @@ class VotingHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final name = fairName;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          fairName ?? 'Votación de la feria',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            height: 1.2,
-          ),
-        ),
+        name == null
+            ? Text(
+                SettingsCopy.of(context).t('Votación de la feria'),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
+              )
+            : TranslatableText(
+                name,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
+              ),
         const SizedBox(height: AppSpacing.s),
         Row(
           children: [
@@ -32,7 +41,8 @@ class VotingHero extends StatelessWidget {
             const SizedBox(width: AppSpacing.xs + 2),
             Expanded(
               child: Text(
-                'Un voto por jurado · anónimo · no se puede cambiar',
+                SettingsCopy.of(context)
+                    .t('Un voto por jurado · anónimo · no se puede cambiar'),
                 style: theme.textTheme.bodySmall,
               ),
             ),
@@ -58,6 +68,7 @@ class VotingRankingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -68,16 +79,18 @@ class VotingRankingHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Tu ranking por rúbrica',
+                copy.t('Tu ranking por rúbrica'),
                 style: theme.textTheme.titleSmall
                     ?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 2),
               Text(
                 scored == 0
-                    ? 'Aún no finalizas rúbricas en esta feria. Puedes votar igual.'
-                    : 'Ordenado de mayor a menor según las $scored de $total rúbricas '
-                        'que finalizaste. Solo tú lo ves.',
+                    ? copy.t(
+                        'Aún no finalizas rúbricas en esta feria. Puedes votar igual.')
+                    : (copy.isEnglish
+                        ? 'Sorted from highest to lowest using the $scored of $total rubrics you finished. Only you can see it.'
+                        : 'Ordenado de mayor a menor según las $scored de $total rúbricas que finalizaste. Solo tú lo ves.'),
                 style: theme.textTheme.bodySmall,
               ),
             ],

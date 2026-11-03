@@ -7,6 +7,7 @@ import '../../../../../core/widgets/app_notice.dart';
 import '../../../../../core/widgets/app_page_layout.dart';
 import '../../../../../core/widgets/app_section_header.dart';
 import '../../../../../core/widgets/app_status_chip.dart';
+import '../../../../../core/widgets/translatable_text.dart';
 import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
 import '../jury_flow.dart';
@@ -43,6 +44,7 @@ class JuryProgressView extends ConsumerWidget {
     final flow = JuryFlow.fromProgress(
       progress,
       votedAt: voting.valueOrNull?.votedAt,
+      english: text.isEnglish,
     );
 
     return PageScrollBody(
@@ -84,7 +86,7 @@ class JuryProgressView extends ConsumerWidget {
             const SizedBox(height: AppSpacing.xl),
             SectionHeader(label: text.t('DECLARACIÓN REGISTRADA')),
             const SizedBox(height: AppSpacing.s),
-            Text(
+            TranslatableText(
               statement,
               style:
                   Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.5),

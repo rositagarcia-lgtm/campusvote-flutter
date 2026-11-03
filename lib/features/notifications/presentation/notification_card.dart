@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_dimensions.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_icon_tile.dart';
 import '../../../core/widgets/app_palette.dart';
@@ -49,12 +50,15 @@ class NotificationCard extends StatelessWidget {
       primary: theme.colorScheme.primary,
     );
     final read = notification.isRead;
+    final copy = SettingsCopy.of(context);
+    final typeLabel = copy.t(type.label);
+    final title = copy.t(notification.title);
 
     return Semantics(
       button: true,
       enabled: !loading,
-      label: '${type.label}. ${notification.title}. '
-          '${read ? 'Leída' : 'No leída'}',
+      label: '$typeLabel. $title. '
+          '${read ? copy.t('Leída') : copy.t('No leída')}',
       excludeSemantics: true,
       child: AppCard(
         borderColor: read ? appBorder(isDark) : tone.fg.withValues(alpha: 0.35),
@@ -82,7 +86,7 @@ class NotificationCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              type.label.toUpperCase(),
+                              typeLabel.toUpperCase(),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.labelSmall?.copyWith(
@@ -109,7 +113,7 @@ class NotificationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        notification.title,
+                        title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleSmall?.copyWith(
