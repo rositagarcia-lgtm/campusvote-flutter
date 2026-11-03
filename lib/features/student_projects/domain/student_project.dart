@@ -84,6 +84,7 @@ class StudentProjectFair {
     this.imageUrl,
     this.startsAt,
     this.endsAt,
+    this.reviewsOpenFromServer,
   });
 
   final String id;
@@ -95,11 +96,16 @@ class StudentProjectFair {
   final DateTime? startsAt;
   final DateTime? endsAt;
 
+  /// Lo calcula el servidor: abierto, o 7 días desde el cierre.
+  final bool? reviewsOpenFromServer;
+
   bool get isOpen => status == 'OPEN';
   bool get isClosed => status == 'CLOSED';
 
   /// Compañeros: con la feria abierta se ven al instante. Al cerrar, 7 días más.
   bool get reviewsOpen {
+    final fromServer = reviewsOpenFromServer;
+    if (fromServer != null) return fromServer;
     if (isOpen) return true;
     if (!isClosed) return false;
     final end = endsAt;
@@ -115,6 +121,9 @@ class StudentProjectFair {
         imageUrl: _text(json['image_url']),
         startsAt: DateTime.tryParse('${json['starts_at']}')?.toLocal(),
         endsAt: DateTime.tryParse('${json['ends_at']}')?.toLocal(),
+        reviewsOpenFromServer: json['reviews_open'] is bool
+            ? json['reviews_open'] as bool
+            : null,
       );
 }
 
@@ -190,9 +199,14 @@ class ProjectFeedback {
 }
 
 class ProjectReview {
-  const ProjectReview({required this.rating, this.comment, this.createdAt});
+  const ProjectReview({
+    required this.rating,
+    this.comment,
+    this.createdAt,
+    this.author,
+  });
 
-  /// `GET /engagement` → comentario del jurado, sin estrellas.
+  /// `GET /engagement` → comentario del jurado. El nombre llega al cerrar la feria.
   static ProjectReview? juryComment(Map<String, dynamic> json) {
     final text = _text(json['comment']);
     if (text == null) return null;
@@ -200,6 +214,7 @@ class ProjectReview {
       rating: 0,
       comment: text,
       createdAt: DateTime.tryParse('${json['created_at']}')?.toLocal(),
+      author: _personName(json['author']),
     );
   }
 
@@ -207,14 +222,26 @@ class ProjectReview {
   final String? comment;
   final DateTime? createdAt;
 
+  /// Nombre del jurado. Null mientras la feria está abierta.
+  final String? author;
+
   factory ProjectReview.fromJson(Map<String, dynamic> json) {
     final rating = json['rating'];
     return ProjectReview(
       rating: rating is num ? rating.toInt() : 0,
       comment: _text(json['comment']),
       createdAt: DateTime.tryParse('${json['created_at']}')?.toLocal(),
+      author: _personName(json['author']),
     );
   }
+}
+
+String? _personName(Object? author) {
+  if (author is! Map) return null;
+  final first = '${author['first_name'] ?? ''}'.trim();
+  final last = '${author['last_name'] ?? ''}'.trim();
+  final name = [first, last].where((part) => part.isNotEmpty).join(' ');
+  return name.isEmpty ? null : name;
 }
 
 String? _text(Object? value) {

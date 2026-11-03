@@ -13,9 +13,9 @@ class _ReviewCard extends StatelessWidget {
     final date = voice.date;
     final comment = voice.comment;
     final scheme = theme.colorScheme;
-    final jury = voice.who == 'Jurado';
-    final named = !jury && voice.who != 'Compañero';
-    final label = named ? voice.who : text.t(voice.who);
+    final jury = voice.jury;
+    final anonymous = voice.who == 'Jurado' || voice.who == 'Compañero';
+    final label = anonymous ? text.t(voice.who) : voice.who;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
       child: AppCard(
@@ -48,6 +48,14 @@ class _ReviewCard extends StatelessWidget {
                         ),
                     ],
                   ),
+                  if (jury && !anonymous)
+                    Text(
+                      text.t('Jurado'),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   if (voice.rating != null) ...[
                     const SizedBox(height: AppSpacing.xs),
                     _Stars(rating: voice.rating!.toDouble(), size: 16),

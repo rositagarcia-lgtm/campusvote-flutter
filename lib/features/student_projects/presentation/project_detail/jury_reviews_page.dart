@@ -57,13 +57,19 @@ class JuryReviewsPage extends ConsumerWidget {
       if (juryData.published)
         for (final review in juryData.reviews)
           _Voice(
-            who: 'Jurado',
+            who: review.author ?? 'Jurado',
+            jury: true,
             rating: review.rating,
             comment: review.comment,
             date: review.createdAt,
           ),
       for (final note in juryData.comments)
-        _Voice(who: 'Jurado', comment: note.comment, date: note.createdAt),
+        _Voice(
+          who: note.author ?? 'Jurado',
+          jury: true,
+          comment: note.comment,
+          date: note.createdAt,
+        ),
     ];
 
     if (voices.isEmpty && !(project.fair?.reviewsOpen ?? false) && !juryData.published) {
@@ -148,6 +154,7 @@ class _ReviewsMessage extends StatelessWidget {
 class _Voice {
   const _Voice({
     required this.who,
+    this.jury = false,
     this.rating,
     this.comment,
     this.date,
@@ -155,6 +162,7 @@ class _Voice {
   });
 
   final String who;
+  final bool jury;
   final int? rating;
   final String? comment;
   final DateTime? date;
