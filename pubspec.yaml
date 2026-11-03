@@ -1,6 +1,6 @@
 name: campusvote_flutter
 publish_to: "none"
-version: 1.0.14+2015
+version: 1.0.14+2016
 
 description: >
   Cliente móvil Flutter del sistema académico de votación CampusVote.
