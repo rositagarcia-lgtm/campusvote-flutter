@@ -56,6 +56,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
     final studentColor = AppColors.studentAccess;
+    final teacherColor = AppColors.teacherAccess;
     final juryColor = AppColors.juryAccess;
 
     return Scaffold(
@@ -111,7 +112,8 @@ class _SplashPageState extends ConsumerState<SplashPage> {
                     AccessCard(
                       icon: PhosphorIconsRegular.chalkboardTeacher,
                       actionIcon: PhosphorIconsRegular.envelopeSimple,
-                      accent: studentColor,
+                      accent: teacherColor,
+                      accentForeground: AppColors.teacherAccessInk,
                       eyebrow: text.t('DOCENTES'),
                       title: text.t('Soy docente'),
                       subtitle: text.t(
