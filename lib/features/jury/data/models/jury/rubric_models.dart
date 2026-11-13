@@ -1,7 +1,11 @@
 import 'common.dart';
 
-/// Criterio de la rúbrica (checklist). `isActive=false` no admite respuestas:
-/// el backend responde 409 (`normalizeChecklistResponses`).
+num _toNum(dynamic value) {
+  if (value is num) return value;
+  if (value is String) return num.tryParse(value) ?? 0;
+  return 0;
+}
+
 class RubricCriterionModel {
   const RubricCriterionModel({
     required this.id,
@@ -24,7 +28,7 @@ class RubricCriterionModel {
         id: parseText(json['id']) ?? '',
         name: parseText(json['name']) ?? '',
         position: (json['position'] as num?)?.toInt() ?? 0,
-        points: (json['points'] as num?)?.toDouble() ?? 0,
+        points: _toNum(json['points']).toDouble(),
         description: parseText(json['description']),
         isActive: (json['is_active'] ?? json['isActive'] ?? true) == true,
       );
@@ -39,7 +43,6 @@ class RubricCriterionModel {
       };
 }
 
-/// Rúbrica resuelta por el backend para la categoría del proyecto.
 class RubricModel {
   const RubricModel({
     required this.id,
@@ -53,21 +56,20 @@ class RubricModel {
   final String name;
   final String? description;
   final String? categoryId;
-
-  /// Ya viene filtrada a criterios ACTIVOS en `getMyChecklist`.
   final List<RubricCriterionModel> criteria;
 
   factory RubricModel.fromJson(Map<String, dynamic> json) {
-    final list = asMapList(json['criteria'])
+    final criteriaList = asMapList(json['criteria'])
         .map(RubricCriterionModel.fromJson)
         .toList()
       ..sort((a, b) => a.position.compareTo(b.position));
+
     return RubricModel(
       id: parseText(json['id']) ?? '',
       name: parseText(json['name']) ?? '',
       description: parseText(json['description']),
       categoryId: parseText(json['category_id'] ?? json['categoryId']),
-      criteria: list,
+      criteria: criteriaList,
     );
   }
 
@@ -80,7 +82,6 @@ class RubricModel {
       };
 }
 
-/// Una respuesta marcada del jurado.
 class RubricResponseModel {
   const RubricResponseModel({
     required this.criterionId,
@@ -102,20 +103,16 @@ class RubricResponseModel {
         criterionName:
             parseText(json['criterion_name'] ?? json['criterionName']),
         criterionPosition:
-            (json['criterion_position'] ?? json['criterionPosition']) as int?,
+            ((json['criterion_position'] ?? json['criterionPosition']) as num?)
+                ?.toInt(),
       );
 
-  /// El PUT es `.strict()`: SOLO admite `criterion_id` y `checked`.
   Map<String, dynamic> toJson() => {
         'criterion_id': criterionId,
         'checked': checked,
       };
 }
 
-/// Hoja de evaluación del jurado para un proyecto.
-///
-/// `GET /fairs/:fairId/projects/:projectId/rubric` devuelve esta misma forma
-/// (`mapEvaluation` + `rubric`), con `submitted` en false si aún no existe.
 class RubricEvaluationModel {
   const RubricEvaluationModel({
     required this.fairId,
@@ -142,8 +139,6 @@ class RubricEvaluationModel {
   final DateTime? submittedAt;
   final int? checkedCount;
   final int? criteriaCount;
-
-  /// 0.0 – 20.0, calculado por el backend.
   final double? score;
   final List<RubricResponseModel> responses;
 
@@ -152,6 +147,7 @@ class RubricEvaluationModel {
   factory RubricEvaluationModel.fromJson(Map<String, dynamic> json) {
     final project = asMap(json['project']);
     final rubricJson = json['rubric'];
+
     return RubricEvaluationModel(
       fairId: parseText(json['fair_id'] ?? json['fairId']) ?? '',
       projectId: parseText(json['project_id'] ?? json['projectId']) ?? '',
@@ -163,9 +159,11 @@ class RubricEvaluationModel {
           : const RubricModel(id: '', name: '', criteria: []),
       submitted: (json['submitted'] ?? false) == true,
       submittedAt: parseDate(json['submitted_at'] ?? json['submittedAt']),
-      checkedCount: (json['checked_count'] ?? json['checkedCount']) as int?,
-      criteriaCount: (json['criteria_count'] ?? json['criteriaCount']) as int?,
-      score: (json['score'] as num?)?.toDouble(),
+      checkedCount:
+          ((json['checked_count'] ?? json['checkedCount']) as num?)?.toInt(),
+      criteriaCount:
+          ((json['criteria_count'] ?? json['criteriaCount']) as num?)?.toInt(),
+      score: json['score'] == null ? null : _toNum(json['score']).toDouble(),
       responses: asMapList(json['responses'])
           .map(RubricResponseModel.fromJson)
           .toList(),
