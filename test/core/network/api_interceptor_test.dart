@@ -8,10 +8,12 @@ class _Refresher implements AuthRefresher {
   int refreshes = 0;
   int logouts = 0;
 
+  RefreshOutcome outcome = RefreshOutcome.invalid;
+
   @override
-  Future<bool> tryRefresh() async {
+  Future<RefreshOutcome> tryRefresh() async {
     refreshes++;
-    return false;
+    return outcome;
   }
 
   @override
@@ -60,6 +62,13 @@ void main() {
   test('el 401 del propio logout no provoca otro logout (sin bucle)', () async {
     await _respond401(interceptor, '/api/auth/logout');
     expect(refresher.refreshes, 0);
+    expect(refresher.logouts, 0);
+  });
+
+  test('un fallo de red al renovar no cierra la sesión', () async {
+    refresher.outcome = RefreshOutcome.unavailable;
+    await _respond401(interceptor, '/api/fairs/my-assignments');
+    expect(refresher.refreshes, 1);
     expect(refresher.logouts, 0);
   });
 }

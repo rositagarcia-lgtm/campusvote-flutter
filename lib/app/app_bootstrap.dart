@@ -56,7 +56,7 @@ class _ForcedLogoutAdapter implements AuthRefresher {
   final AuthEventsController _events;
 
   @override
-  Future<bool> tryRefresh() => _inner().tryRefresh();
+  Future<RefreshOutcome> tryRefresh() => _inner().tryRefresh();
 
   @override
   Future<void> logout() async {

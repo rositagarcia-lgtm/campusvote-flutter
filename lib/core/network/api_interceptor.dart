@@ -6,10 +6,21 @@ import 'api_client.dart';
 
 /// Firma mínima que el interceptor necesita del repositorio de auth
 /// para evitar dependencia circular.
+/// Resultado de intentar renovar la sesión.
+enum RefreshOutcome {
+  /// Hay una pareja nueva de tokens guardada.
+  refreshed,
+
+  /// El servidor rechazó el refresh. La sesión ya no sirve.
+  invalid,
+
+  /// Red, cupo o una renovación que todavía no terminó. La sesión se conserva.
+  unavailable,
+}
+
 abstract class AuthRefresher {
   /// Intenta refrescar la sesión con el refresh token almacenado.
-  /// Devuelve `true` si el refresh fue exitoso y `false` si no.
-  Future<bool> tryRefresh();
+  Future<RefreshOutcome> tryRefresh();
   Future<void> logout();
 }
 
@@ -30,7 +41,7 @@ class AuthInterceptor extends Interceptor {
   final OnUnauthorized? _onUnauthorized;
 
   bool _refreshing = false;
-  final List<Completer<bool>> _waiters = [];
+  final List<Completer<RefreshOutcome>> _waiters = [];
 
   @override
   Future<void> onRequest(
@@ -39,7 +50,8 @@ class AuthInterceptor extends Interceptor {
   ) async {
     // Respeta un Authorization preestablecido por la capa de datos (por
     // ejemplo, un tempToken de TOTP durante login-verify).
-    if (options.headers.containsKey('Authorization')) {
+    if (options.path.contains('/auth/refresh') ||
+        options.headers.containsKey('Authorization')) {
       return handler.next(options);
     }
     final token = await _client.storage.readAccessToken();
@@ -68,8 +80,8 @@ class AuthInterceptor extends Interceptor {
         !alreadyRetried &&
         !isAuthCall &&
         hadSession) {
-      final ok = await _refreshTokenSafely();
-      if (ok) {
+      final outcome = await _refreshTokenSafely();
+      if (outcome == RefreshOutcome.refreshed) {
         final retryOptions = options..extra['retry'] = true;
         final newToken = await _client.storage.readAccessToken();
         if (newToken != null) {
@@ -81,7 +93,7 @@ class AuthInterceptor extends Interceptor {
         } catch (_) {
           // Fall-through.
         }
-      } else {
+      } else if (outcome == RefreshOutcome.invalid) {
         await _refresher.logout();
         _onUnauthorized?.call();
       }
@@ -89,23 +101,23 @@ class AuthInterceptor extends Interceptor {
     handler.next(response);
   }
 
-  Future<bool> _refreshTokenSafely() async {
+  Future<RefreshOutcome> _refreshTokenSafely() async {
     if (_refreshing) {
-      final c = Completer<bool>();
+      final c = Completer<RefreshOutcome>();
       _waiters.add(c);
       return c.future;
     }
     _refreshing = true;
-    bool success;
+    RefreshOutcome outcome;
     try {
-      success = await _refresher.tryRefresh();
+      outcome = await _refresher.tryRefresh();
     } finally {
       _refreshing = false;
     }
     for (final w in _waiters) {
-      w.complete(success);
+      w.complete(outcome);
     }
     _waiters.clear();
-    return success;
+    return outcome;
   }
 }

@@ -37,7 +37,7 @@ final apiClientProvider = Provider<ApiClient>((ref) {
 
 class _NoopRefresher implements AuthRefresher {
   @override
-  Future<bool> tryRefresh() async => false;
+  Future<RefreshOutcome> tryRefresh() async => RefreshOutcome.invalid;
 
   @override
   Future<void> logout() async {}
