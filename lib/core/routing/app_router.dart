@@ -114,22 +114,12 @@ GoRouter buildAppRouter(
       if (auth.authenticated &&
           auth.forcesPasswordChange &&
           loc != '/security/password') {
-        if (loc == '/splash' && !SplashPage.introCompleted) return null;
-        if (loc == '/splash') {
-          debugPrint('[SplashIntro ${DateTime.now().toIso8601String()}] '
-              'navigation.router destination=/security/password');
-        }
         return '/security/password';
       }
       // Para usuarios autenticados, mandamos a la pantalla principal según
       // su rol. La autoridad es `user.role` del backend, no el panel que el
       // usuario tocó en el splash.
       if (auth.authenticated && publicRoutes.contains(loc)) {
-        if (loc == '/splash' &&
-            !SplashPage.introCompleted &&
-            !PendingDeepLink.hasAny) {
-          return null;
-        }
         // Tras iniciar sesión se retoma el enlace que abrió la app.
         final pending = PendingDeepLink.take();
         if (pending != null) return pending;

@@ -188,7 +188,7 @@ void main() {
     await tester.pump();
   });
 
-  testWidgets('sesión restaurada espera el video antes de abrir la cuenta',
+  testWidgets('sesión restaurada abre la cuenta sin pasar por el video',
       (tester) async {
     final previous = VideoPlayerPlatform.instance;
     final video = _FakeVideoPlatform();
@@ -206,19 +206,9 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(video.asset, 'assets/video-campusvote.mp4');
-    expect(find.byType(SplashIntroVideo), findsOneWidget);
-    expect(find.byType(AccountPage), findsNothing);
-
-    video.initialized(const Duration(seconds: 4));
-    await tester.pump();
-    await tester.pump();
-    expect(video.playCalls, 1);
-    expect(find.byType(SplashIntroVideo), findsOneWidget);
-
-    video.completed();
-    await tester.pump();
-    await tester.pumpAndSettle();
+    expect(video.asset, isNull);
+    expect(video.playCalls, 0);
+    expect(find.byType(SplashIntroVideo), findsNothing);
     expect(find.byType(AccountPage), findsOneWidget);
     expect(tester.takeException(), isNull);
 

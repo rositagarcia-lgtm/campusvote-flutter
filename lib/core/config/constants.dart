@@ -33,4 +33,5 @@ class AppConstants {
   static const String prefsOrganizationId = 'cv.organization_id';
   static const String prefsLastElectionId = 'cv.last_election_id';
   static const String prefsOnboardingDone = 'cv.onboarding_done';
+  static const String prefsIntroSeen = 'cv.intro_seen';
 }

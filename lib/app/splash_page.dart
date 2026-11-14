@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/config/constants.dart';
+import '../core/di/core_providers.dart';
 import '../core/theme/app_icons.dart';
 import '../core/routing/role_landing.dart';
 import '../core/theme/app_colors.dart';
@@ -17,19 +21,16 @@ import 'welcome_language_selector.dart';
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
-  static bool get introCompleted => _SplashPageState._introCompleted;
-
   @override
   ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
-  static bool _introCompleted = false;
-  bool _showWelcome = _introCompleted;
+  bool _showWelcome = false;
 
   void _showWelcomePage() {
     if (mounted && !_showWelcome) {
-      _introCompleted = true;
+      unawaited(ref.read(localStorageProvider).setBool(AppConstants.prefsIntroSeen, true));
       final auth = ref.read(authControllerProvider);
       if (!auth.initializing && auth.authenticated) {
         final destination = auth.forcesPasswordChange
@@ -48,7 +49,13 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_showWelcome) {
+    final auth = ref.watch(authControllerProvider);
+    if (auth.initializing || auth.authenticated) {
+      return const Scaffold(body: SizedBox.expand());
+    }
+    final introSeen = _showWelcome ||
+        ref.read(localStorageProvider).getBool(AppConstants.prefsIntroSeen);
+    if (!introSeen) {
       return SplashIntroVideo(onFinished: _showWelcomePage);
     }
 
