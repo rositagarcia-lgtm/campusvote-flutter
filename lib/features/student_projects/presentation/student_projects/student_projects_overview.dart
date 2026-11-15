@@ -31,7 +31,7 @@ class StudentProjectsPage extends ConsumerWidget {
                     'Cuando tu docente te inscriba en un proyecto, lo verás aquí.'),
               )
             : RefreshIndicator.adaptive(
-                onRefresh: reload,
+                onRefresh: () => refreshPull(ref, reload),
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(

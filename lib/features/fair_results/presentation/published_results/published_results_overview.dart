@@ -25,7 +25,7 @@ class PublishedResultsPage extends ConsumerWidget {
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Resultados'),
       body: RefreshIndicator.adaptive(
-        onRefresh: reload,
+        onRefresh: () => refreshPull(ref, reload),
         child: results.when(
           loading: () => const AppLoader(),
           error: (error, _) => AppErrorView(

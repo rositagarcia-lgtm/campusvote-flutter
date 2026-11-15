@@ -179,6 +179,9 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  /// Vuelve a pedir los colores de la institución. Lo usa el jalón para actualizar.
+  Future<void> refreshBranding() => _loadBranding(state.user?.organizationId);
+
   /// Vuelve a la identidad de CampusVote.
   ///
   /// Sin esto los colores y el nombre de la organización de la sesión anterior

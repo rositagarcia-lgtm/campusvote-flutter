@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/branding/branding_controller.dart';
+import '../features/auth/presentation/state/auth_controller.dart';
 import '../core/analytics/app_analytics.dart';
 import '../core/push/push_sync.dart';
 import '../core/routing/app_router.dart';
@@ -24,6 +27,7 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
   late final GoRouterRefreshNotifier _refreshNotifier;
   late final GoRouter _router;
   final _messenger = GlobalKey<ScaffoldMessengerState>();
+  Timer? _brandPoll;
 
   @override
   void initState() {
@@ -37,6 +41,9 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     _router.routerDelegate.addListener(_trackScreen);
     bindLocaleSync(ref);
     bindPushSync(ref, _router, _messenger);
+    _brandPoll = Timer.periodic(const Duration(seconds: 5), (_) {
+      ref.read(authControllerProvider.notifier).refreshBranding();
+    });
   }
 
   void _trackScreen() =>
@@ -44,6 +51,7 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
 
   @override
   void dispose() {
+    _brandPoll?.cancel();
     _router.routerDelegate.removeListener(_trackScreen);
     _router.dispose();
     _refreshNotifier.dispose();

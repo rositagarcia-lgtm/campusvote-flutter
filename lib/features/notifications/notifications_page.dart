@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/branding/refresh_pull.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/routing/role_landing.dart';
 import '../../core/branding/branding_controller.dart';
@@ -95,7 +96,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     final copy = SettingsCopy.of(context);
 
     return RefreshIndicator.adaptive(
-      onRefresh: controller.load,
+      onRefresh: () => refreshPull(ref, controller.load),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(

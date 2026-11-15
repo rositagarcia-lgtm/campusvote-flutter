@@ -69,6 +69,7 @@ class JuryDashboardPage extends ConsumerWidget {
 }
 
 Future<void> _reload(WidgetRef ref) async {
+  await ref.read(authControllerProvider.notifier).refreshBranding();
   final current = ref.read(juryDashboardProvider).valueOrNull;
   for (final fair in current ?? const <FairAssignmentModel>[]) {
     if (fair.canOpen) ref.invalidate(juryProgressProvider(fair.fairId));

@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../data/models/jury_models.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 import '../providers/jury_providers.dart';
 import '../projects/fair_projects_body.dart';
 
@@ -27,6 +28,7 @@ class FairProjectsPage extends ConsumerWidget {
     final projects = ref.watch(fairProjectsProvider(fairId));
     final branding = ref.watch(brandingControllerProvider);
     Future<void> reload() async {
+      await ref.read(authControllerProvider.notifier).refreshBranding();
       ref.invalidate(fairProjectsProvider(fairId));
       ref.invalidate(myEvaluationsProvider(fairId));
       ref.invalidate(juryProgressProvider(fairId));

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/branding/refresh_pull.dart';
 import '../../../core/branding/branding_controller.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
@@ -83,7 +84,7 @@ class TeacherHomePage extends ConsumerWidget {
         actions: const [NotificationsBell()],
       ),
       body: RefreshIndicator.adaptive(
-        onRefresh: reload,
+        onRefresh: () => refreshPull(ref, reload),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(AppSpacing.l),

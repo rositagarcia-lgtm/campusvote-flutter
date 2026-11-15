@@ -62,6 +62,7 @@ class StudentProjectDetailPage extends ConsumerWidget {
             )
           : null,
       onRefresh: () async {
+        await ref.read(authControllerProvider.notifier).refreshBranding();
         ref.invalidate(projectFeedbackProvider(project));
         if (fair != null) {
           ref.invalidate(
@@ -120,6 +121,7 @@ class _StandProjectDetail extends ConsumerWidget {
           onRate: data.canRate ? () => _rateStand(context, ref, fairId, data) : null,
           rateTooltip: data.myScore == null ? 'Calificar' : 'Editar tu opinión',
           onRefresh: () async {
+            await ref.read(authControllerProvider.notifier).refreshBranding();
             ref.invalidate(audienceProjectProvider(
                 (fairId: fairId, projectId: projectId)));
           },

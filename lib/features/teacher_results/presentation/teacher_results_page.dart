@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'evaluation_progress_card.dart';
 
+import '../../../core/branding/refresh_pull.dart';
 import '../../../core/branding/branding_controller.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -40,7 +41,7 @@ class TeacherResultsPage extends ConsumerWidget {
         actions: const [AccountAvatarButton()],
       ),
       body: RefreshIndicator.adaptive(
-        onRefresh: reload,
+        onRefresh: () => refreshPull(ref, reload),
         child: results.when(
           loading: () => const AppLoader(),
           error: (error, _) => AppErrorView(

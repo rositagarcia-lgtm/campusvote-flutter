@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/branding/refresh_pull.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
@@ -30,7 +31,7 @@ class MyCertificatesPage extends ConsumerWidget {
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Mis certificados'),
       body: RefreshIndicator.adaptive(
-        onRefresh: reload,
+        onRefresh: () => refreshPull(ref, reload),
         child: certificates.when(
           loading: () => const AppLoader(),
           error: (error, _) => AppErrorView(

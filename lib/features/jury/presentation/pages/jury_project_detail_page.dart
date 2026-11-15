@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/app_env.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_appbar.dart';
@@ -86,6 +87,7 @@ class _ProjectContent extends ConsumerWidget {
 
     return RefreshIndicator.adaptive(
       onRefresh: () async {
+        await ref.read(authControllerProvider.notifier).refreshBranding();
         ref.invalidate(fairProjectsProvider(fairId));
         ref.invalidate(myEvaluationsProvider(fairId));
         ref.invalidate(juryProgressProvider(fairId));

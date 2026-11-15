@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/organization_panel_app_bar.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 import '../../../settings/presentation/settings_copy.dart';
 import '../../data/models/jury_models.dart';
 import '../progress/widgets/jury_progress_skeleton.dart';
@@ -67,6 +68,7 @@ Future<void> reloadJuryProgress(
 ) async {
   final before = ref.read(juryProgressProvider(fairId)).valueOrNull;
   try {
+    await ref.read(authControllerProvider.notifier).refreshBranding();
     ref.invalidate(juryVotingStatusProvider(fairId));
     await ref.read(juryProgressProvider(fairId).notifier).reload();
   } catch (_) {

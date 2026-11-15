@@ -37,6 +37,13 @@ class AccountPage extends ConsumerStatefulWidget {
 }
 
 class _AccountPageState extends ConsumerState<AccountPage> {
+  int _avatarTicket = 0;
+
+  @override
+  void dispose() {
+    _avatarTicket++;
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
@@ -76,7 +83,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         ),
         body: SafeArea(
           top: false,
-          child: PageScrollBody(
+          child: RefreshIndicator.adaptive(
+            onRefresh: () =>
+                ref.read(authControllerProvider.notifier).refreshBranding(),
+            child: PageScrollBody(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(AppSpacing.l),
             maxWidth: kFormMaxWidth,
             child: Column(
@@ -135,9 +146,14 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                 AppButton.danger(
                   label: text.t('Cerrar sesión'),
                   icon: PhosphorIconsRegular.signOut,
-                  onPressed: () => confirmAndLogout(context, ref),
+                  onPressed: () {
+                    _avatarTicket++;
+                    ref.read(pendingAvatarProvider.notifier).state = null;
+                    confirmAndLogout(context, ref);
+                  },
                 ),
               ],
+            ),
             ),
           ),
         ),
@@ -193,21 +209,36 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     }
     if (picked == null) return;
 
-    final ok = await ref
-        .read(authControllerProvider.notifier)
-        .changeAvatar(File(picked.path));
-    if (!mounted) return;
-    final copy = SettingsCopy.of(context);
-    if (ok) {
-      _toast(copy.t('Foto de perfil actualizada'));
-      return;
+    final file = File(picked.path);
+    ref.read(pendingAvatarProvider.notifier).state = file;
+    final ticket = ++_avatarTicket;
+    await _keepUploading(file, ticket);
+  }
+
+  /// Reintenta en silencio hasta que el perfil confirma la foto.
+  Future<void> _keepUploading(File file, int ticket) async {
+    var wait = const Duration(seconds: 2);
+    while (mounted && ticket == _avatarTicket) {
+      final reason = await ref
+          .read(authControllerProvider.notifier)
+          .changeAvatar(file, quiet: true);
+      if (!mounted || ticket != _avatarTicket) return;
+      if (reason == null) {
+        ref.read(pendingAvatarProvider.notifier).state = null;
+        return;
+      }
+      if (reason.contains('Formato no soportado')) {
+        ref.read(pendingAvatarProvider.notifier).state = null;
+        _toast(
+            '${SettingsCopy.of(context).t('No se pudo actualizar la foto')}: ${SettingsCopy.of(context).error(reason)}');
+        return;
+      }
+      await Future.delayed(wait);
+      final doubled = wait * 2;
+      wait = doubled > const Duration(seconds: 30)
+          ? const Duration(seconds: 30)
+          : doubled;
     }
-    // El motivo real del servidor (formato, tamaño, URL rechazada) ayuda más
-    // que un "no se pudo" genérico.
-    final reason = ref.read(authControllerProvider).errorMessage;
-    _toast(reason == null
-        ? copy.t('No se pudo actualizar la foto')
-        : '${copy.t('No se pudo actualizar la foto')}: ${copy.error(reason)}');
   }
 
   void _toast(String message) {

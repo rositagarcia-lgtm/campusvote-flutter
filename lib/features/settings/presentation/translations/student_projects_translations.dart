@@ -48,6 +48,8 @@ const studentProjectsTranslations = <String, String>{
       'We could not play the project video.',
   'Reproducir video': 'Play video',
   'Pausar video': 'Pause video',
+  'Agrandar video': 'Expand video',
+  'Achicar video': 'Shrink video',
   'Equipo': 'Team',
   'Calificación por estrellas': 'Star rating',
   'Votos del jurado': 'Jury votes',

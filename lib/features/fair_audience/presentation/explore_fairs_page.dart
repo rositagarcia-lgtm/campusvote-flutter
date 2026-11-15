@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/branding/refresh_pull.dart';
 import '../../../core/branding/branding_controller.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/theme/app_dimensions.dart';
@@ -40,7 +41,7 @@ class ExploreFairsPage extends ConsumerWidget {
         actions: const [NotificationsBell(), AccountAvatarButton()],
       ),
       body: RefreshIndicator.adaptive(
-        onRefresh: reload,
+        onRefresh: () => refreshPull(ref, reload),
         child: fairs.when(
           loading: () => const AppLoader(),
           error: (error, _) => AppErrorView(
