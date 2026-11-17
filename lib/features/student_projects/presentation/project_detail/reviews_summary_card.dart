@@ -19,7 +19,7 @@ class _ReviewsSummaryCard extends ConsumerWidget {
     if (!project.hasFeedback) {
       return Text(
         text.t(
-          'Las reseñas del jurado y de tus compañeros se ven en cuanto se envían, durante la feria y 7 días después del cierre.',
+          'Las reseñas del jurado se quedan en tu proyecto en cuanto se envían. Las de tus compañeros se ven durante la feria y 7 días después del cierre.',
         ),
         style: muted,
       );

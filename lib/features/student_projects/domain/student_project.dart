@@ -42,10 +42,10 @@ class StudentProject {
   bool get isApproved => status == 'APPROVED';
   bool get isRejected => status == 'REJECTED';
 
-  /// Las reseñas y comentarios del jurado se ven en cuanto se envían: con la
-  /// feria abierta y 7 días después del cierre. El conteo de votos llega
-  /// solo cuando se publican los resultados (voto secreto).
-  bool get hasFeedback => isApproved && (fair?.reviewsOpen ?? false);
+  /// Las reseñas del jurado se quedan en cuanto se envían, con la feria abierta
+  /// y después del cierre. El conteo de votos llega solo al publicar resultados.
+  bool get hasFeedback =>
+      isApproved && (fair?.isOpen == true || fair?.isClosed == true);
 
   factory StudentProject.fromJson(Map<String, dynamic> json) {
     final fair = json['fair'];
@@ -206,7 +206,7 @@ class ProjectReview {
     this.author,
   });
 
-  /// `GET /engagement` → comentario del jurado. El nombre llega al cerrar la feria.
+  /// `GET /engagement` → comentario del jurado. El nombre llega con la reseña.
   static ProjectReview? juryComment(Map<String, dynamic> json) {
     final text = _text(json['comment']);
     if (text == null) return null;
@@ -222,7 +222,7 @@ class ProjectReview {
   final String? comment;
   final DateTime? createdAt;
 
-  /// Nombre del jurado. Null mientras la feria está abierta.
+  /// Nombre del jurado. Null si el servidor todavía no lo manda.
   final String? author;
 
   factory ProjectReview.fromJson(Map<String, dynamic> json) {

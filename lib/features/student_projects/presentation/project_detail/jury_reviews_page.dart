@@ -77,7 +77,7 @@ class JuryReviewsPage extends ConsumerWidget {
         icon: PhosphorIconsRegular.star,
         title: text.t('Reseñas no disponibles'),
         message: text.t(
-          'Las de tus compañeros y las del jurado se ven en cuanto se envían, durante la feria y 7 días después del cierre.',
+          'Las del jurado se quedan en cuanto se envían. Las de tus compañeros se ven durante la feria y 7 días después del cierre.',
         ),
       );
     }
