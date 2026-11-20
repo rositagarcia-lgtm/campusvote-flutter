@@ -132,7 +132,7 @@ class _ProjectImageViewerState extends State<ProjectImageViewer> {
           ),
           SafeArea(
             child: Align(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.topRight,
               child: IconButton(
                 tooltip: SettingsCopy.of(context).t('Cerrar'),
                 onPressed: () => Navigator.of(context).pop(),

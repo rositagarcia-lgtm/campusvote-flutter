@@ -86,6 +86,20 @@ class _ProjectVideoState extends State<ProjectVideo> {
     if (mounted) setState(() => _fullscreen = false);
   }
 
+  Widget _fittedVideo(VideoPlayerController controller) {
+    final ratio = controller.value.aspectRatio > 0
+        ? controller.value.aspectRatio
+        : 16 / 9;
+    return FittedBox(
+      fit: BoxFit.contain,
+      child: SizedBox(
+        width: ratio,
+        height: 1,
+        child: VideoPlayer(controller),
+      ),
+    );
+  }
+
   void _toggle() {
     final controller = _controller;
     if (controller == null) {
@@ -116,13 +130,12 @@ class _ProjectVideoState extends State<ProjectVideo> {
     final text = SettingsCopy.of(context);
     final controller = _controller;
     final ready = controller != null && controller.value.isInitialized;
-    final ratio = ready && controller.value.aspectRatio > 0
-        ? controller.value.aspectRatio
-        : 16 / 9;
     return ClipRRect(
       borderRadius: widget.borderRadius,
       child: AspectRatio(
-        aspectRatio: ratio,
+        // El recuadro se queda en 16:9. El video se acomoda adentro;
+        // agrandar abre otra pantalla y no cambia esta ficha.
+        aspectRatio: 16 / 9,
         child: ColoredBox(
           color: Colors.black,
           child: Stack(
@@ -130,7 +143,7 @@ class _ProjectVideoState extends State<ProjectVideo> {
             alignment: Alignment.center,
             children: [
               if (ready && !_fullscreen)
-                GestureDetector(onTap: _toggle, child: VideoPlayer(controller))
+                GestureDetector(onTap: _toggle, child: _fittedVideo(controller))
               else if (!_fullscreen)
                 _VideoPoster(url: widget.posterUrl)
               else
@@ -218,7 +231,7 @@ class _FullscreenVideoState extends State<_FullscreenVideo> {
           ),
           SafeArea(
             child: Align(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.topRight,
               child: IconButton(
                 tooltip: SettingsCopy.of(context).t('Cerrar'),
                 onPressed: () => Navigator.of(context).pop(),
