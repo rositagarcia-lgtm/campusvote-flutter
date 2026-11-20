@@ -21,6 +21,24 @@ final juryRepositoryProvider = Provider<JuryRepository>((ref) {
 /// códigos ni detalles internos del servidor.
 String describeJuryError(Object error) {
   if (error is JuryApiException) {
+    final transportCode = error.code?.toLowerCase() ?? '';
+    if (error.statusCode == null) {
+      return switch (transportCode) {
+        'connectiontimeout' ||
+        'sendtimeout' ||
+        'receivetimeout' =>
+          'La solicitud tardó demasiado. Comprueba tu conexión e inténtalo de nuevo.',
+        'connectionerror' || 'badcertificate' =>
+          'No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.',
+        _ => 'No se pudo completar la operación. Inténtalo de nuevo.',
+      };
+    }
+    // El backend es la autoridad de esta regla: su mensaje ya indica cuántas
+    // rúbricas faltan. Los demás 409 permanecen generalizados para no exponer
+    // detalles internos.
+    if (transportCode == 'rubrics_incomplete' && error.message.isNotEmpty) {
+      return error.message;
+    }
     return switch (error.statusCode) {
       400 =>
         'No pudimos validar la información. Revísala e inténtalo de nuevo.',
@@ -31,7 +49,6 @@ String describeJuryError(Object error) {
         'El estado cambió o esta acción ya se registró. Actualiza la información.',
       int status when status >= 500 =>
         'El servicio no está disponible por el momento. Inténtalo más tarde.',
-      null => 'No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.',
       _ => 'No se pudo completar la operación. Inténtalo de nuevo.',
     };
   }

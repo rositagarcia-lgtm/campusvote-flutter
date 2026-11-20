@@ -177,7 +177,9 @@ class JuryRemoteDataSource {
       throw JuryApiException(
         message ?? _fallbackMessage(status, error.type),
         statusCode: status,
-        code: code,
+        // Sin respuesta HTTP guardamos el tipo de fallo de transporte para
+        // que la UI distinga timeout de "no se pudo conectar".
+        code: code ?? (status == null ? error.type.name : null),
       );
     }
     throw JuryApiException(error.toString());

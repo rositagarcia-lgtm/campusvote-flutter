@@ -8,5 +8,5 @@ export 'data/jury_dependencies.dart';
 export 'fairs/jury_fair_providers.dart';
 export 'forms/jury_declaration_provider.dart';
 export 'forms/jury_rubric_provider.dart';
-export 'forms/jury_voting_provider.dart';
+export 'forms/voting/voting_provider.dart';
 export 'progress/jury_progress_provider.dart';

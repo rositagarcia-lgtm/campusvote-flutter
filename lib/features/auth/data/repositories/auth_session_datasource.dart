@@ -30,6 +30,12 @@ class AuthSessionDataSource {
   Failure _failureFromApi(ApiResponse<dynamic> r) {
     final err = r.error;
     final message = err?.message ?? r.message ?? 'Error desconocido';
+    // El backend responde 401 con `code: INVALID_TOKEN` en el envelope, sin
+    // pasar por DioException. Si se deja como UnknownFailure el refresh no
+    // cierra la sesión y la app sigue disparando peticiones con un token muerto.
+    if (err != null && isInvalidSessionCode(err.code)) {
+      return UnauthorizedFailure(message: message, code: err.code);
+    }
     return UnknownFailure(message: message, code: err?.code);
   }
 

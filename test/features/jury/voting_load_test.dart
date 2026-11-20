@@ -1,17 +1,18 @@
 import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart';
 import 'package:campusvote_flutter/features/jury/domain/repositories/jury_repository.dart';
 import 'package:campusvote_flutter/features/jury/presentation/providers/data/jury_dependencies.dart';
-import 'package:campusvote_flutter/features/jury/presentation/providers/forms/jury_voting_provider.dart';
+import 'package:campusvote_flutter/features/jury/presentation/providers/forms/voting/voting_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-FairProjectModel _project(String id, String status) =>
+FairProjectModel _project(String id, String status, {String? categoryId}) =>
     FairProjectModel.fromJson({
       'id': id,
       'fair_id': 'f-1',
       'name': 'Proyecto $id',
       'description': '',
       'status': status,
+      if (categoryId != null) 'category': {'id': categoryId, 'name': categoryId},
     });
 
 /// Repositorio con 2 páginas de proyectos (limit 2, total 3).
@@ -23,6 +24,7 @@ class _Repo implements JuryRepository {
         'fair_status': 'OPEN',
         'has_voted': false,
         'voting_window': 'OPEN',
+        // No categories for legacy backend compatibility
       });
 
   @override
@@ -34,17 +36,53 @@ class _Repo implements JuryRepository {
   }) async =>
       page == 1
           ? PaginatedResult(
-              items: [_project('a', 'APPROVED'), _project('b', 'SUBMITTED')],
+              items: [
+                _project('a', 'APPROVED', categoryId: 'default'),
+                _project('b', 'SUBMITTED', categoryId: 'default'),
+              ],
               total: 3,
               page: 1,
               limit: 2,
             )
           : PaginatedResult(
-              items: [_project('c', 'APPROVED')],
+              items: [_project('c', 'APPROVED', categoryId: 'default')],
               total: 3,
               page: 2,
               limit: 2,
             );
+
+  @override
+  Future<PaginatedResult<JuryEvaluationSummaryModel>> getMyEvaluations({
+    int page = 1,
+    int limit = 50,
+    String? fairId,
+  }) async {
+    final items = <JuryEvaluationSummaryModel>[
+      JuryEvaluationSummaryModel(
+        id: 'eval-1',
+        fairId: 'f-1',
+        projectId: 'a',
+        submitted: true,
+      ),
+      JuryEvaluationSummaryModel(
+        id: 'eval-2',
+        fairId: 'f-1',
+        projectId: 'c',
+        submitted: true,
+      ),
+    ];
+    final totalPages = (items.length + limit - 1) ~/ limit;
+    final start = (page - 1) * limit;
+    final end = start + limit;
+    final pageItems = items.getRange(start, end.clamp(0, items.length)).toList();
+    
+    return PaginatedResult(
+      items: pageItems,
+      total: items.length,
+      page: page,
+      limit: limit,
+    );
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

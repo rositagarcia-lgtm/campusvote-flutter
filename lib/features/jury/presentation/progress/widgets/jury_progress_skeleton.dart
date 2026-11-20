@@ -18,17 +18,17 @@ class JuryProgressSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SkeletonPanel(height: 132),
+          _SkeletonPanel(minHeight: 132),
           SizedBox(height: AppSpacing.l),
-          _SkeletonPanel(height: 196),
+          _SkeletonPanel(minHeight: 196),
           SizedBox(height: AppSpacing.xl),
-          AppSkeleton(height: AppSpacing.m, width: 168),
+          _SkeletonLine(maxWidth: 168),
           SizedBox(height: AppSpacing.m),
-          _SkeletonPanel(height: 148),
+          _SkeletonPanel(minHeight: 148),
           SizedBox(height: AppSpacing.m),
-          _SkeletonPanel(height: 148),
+          _SkeletonPanel(minHeight: 148),
           SizedBox(height: AppSpacing.m),
-          _SkeletonPanel(height: 148),
+          _SkeletonPanel(minHeight: 148),
         ],
       ),
     );
@@ -36,26 +36,44 @@ class JuryProgressSkeleton extends StatelessWidget {
 }
 
 class _SkeletonPanel extends StatelessWidget {
-  const _SkeletonPanel({required this.height});
+  const _SkeletonPanel({required this.minHeight});
 
-  final double height;
+  /// Altura mínima que conserva el ritmo visual aprobado. No es una altura
+  /// fija: el contenido (padding, borde y bloques internos) manda y puede
+  /// crecer, así ninguna tarjeta recorta su último bloque.
+  final double minHeight;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: minHeight),
       child: const JuryPanel(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppSkeleton(height: AppSpacing.m, width: 148),
+            _SkeletonLine(maxWidth: 148),
             SizedBox(height: AppSpacing.l),
             AppSkeleton(height: AppSpacing.l),
             SizedBox(height: AppSpacing.m),
-            AppSkeleton(height: 64, width: double.infinity),
+            AppSkeleton(height: 64),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Línea de carga que no supera el ancho disponible en pantallas estrechas.
+class _SkeletonLine extends StatelessWidget {
+  const _SkeletonLine({this.maxWidth});
+
+  final double? maxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth ?? double.infinity),
+      child: const AppSkeleton(height: AppSpacing.m),
     );
   }
 }

@@ -16,7 +16,7 @@ import '../providers/jury_providers.dart';
 import 'fair_project_filter.dart';
 import 'widgets/declaration_gate.dart';
 import 'widgets/fair_actions_bar.dart';
-import 'widgets/fair_progress_banner.dart';
+import 'widgets/banners/fair_progress_banner.dart';
 import 'widgets/fair_project_card.dart';
 import 'widgets/fair_project_filter_bar.dart';
 import '../widgets/fair_phase_countdown.dart';
@@ -122,7 +122,7 @@ class _FairProjectsBodyState extends ConsumerState<FairProjectsBody> {
             const SizedBox(height: AppSpacing.l),
           ] else ...[
             if (progress.hasValue) ...[
-              FairProgressBanner(progress: progress.requireValue),
+              FairProgressBanner(fairId: widget.fairId),
               const SizedBox(height: AppSpacing.l),
             ],
             FairActionsBar(fairId: widget.fairId, locked: needsDeclaration),

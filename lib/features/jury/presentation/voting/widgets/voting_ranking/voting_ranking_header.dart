@@ -1,66 +1,21 @@
-part of '../voting_ranking.dart';
+// voting_ranking_header.dart
 
-/// Encabezado de la votación.
-///
-/// La barra superior ya muestra logo, organización y "Votación oficial"; aquí
-/// solo va lo que falta: qué feria se vota, la regla del voto y el tiempo.
-class VotingHero extends StatelessWidget {
-  const VotingHero({super.key, required this.fairName, required this.status});
+import 'package:flutter/material.dart';
 
-  final String? fairName;
-  final VotingStatusModel status;
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
+import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
+import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
+import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart'
+    show VotingStatusModel;
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final name = fairName;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        name == null
-            ? Text(
-                SettingsCopy.of(context).t('Votación de la feria'),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  height: 1.2,
-                ),
-              )
-            : TranslatableText(
-                name,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  height: 1.2,
-                ),
-              ),
-        const SizedBox(height: AppSpacing.s),
-        Row(
-          children: [
-            Icon(PhosphorIconsRegular.lockSimple,
-                size: 16, color: scheme.onSurfaceVariant),
-            const SizedBox(width: AppSpacing.xs + 2),
-            Expanded(
-              child: Text(
-                SettingsCopy.of(context)
-                    .t('Un voto por jurado · anónimo · no se puede cambiar'),
-                style: theme.textTheme.bodySmall,
-              ),
-            ),
-          ],
-        ),
-        if (status.endsAt != null || status.startsAt != null) ...[
-          const SizedBox(height: AppSpacing.m),
-          VotingCountdown(endsAt: status.endsAt, startsAt: status.startsAt),
-        ],
-      ],
-    );
-  }
-}
-
-/// Explica el orden: es el propio criterio del jurado, no el ranking oficial.
+/// Encabezado del ranking de votación: muestra cuántas rúbricas se han finalizado
+/// y cómo se ordenan los proyectos según el criterio propio del jurado.
 class VotingRankingHeader extends StatelessWidget {
-  const VotingRankingHeader(
-      {super.key, required this.scored, required this.total});
+  const VotingRankingHeader({
+    super.key,
+    required this.scored,
+    required this.total,
+  });
 
   final int scored;
   final int total;
@@ -100,5 +55,3 @@ class VotingRankingHeader extends StatelessWidget {
     );
   }
 }
-
-/// Tarjeta de proyecto votable con posición, portada y puntaje propio.

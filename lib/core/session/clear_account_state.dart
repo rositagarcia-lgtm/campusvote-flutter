@@ -6,7 +6,7 @@ import '../../features/certificates/data/certificates_repository.dart';
 import '../../features/jury/presentation/providers/fairs/jury_fair_providers.dart';
 import '../../features/jury/presentation/providers/forms/jury_declaration_provider.dart';
 import '../../features/jury/presentation/providers/forms/jury_rubric_provider.dart';
-import '../../features/jury/presentation/providers/forms/jury_voting_provider.dart';
+import '../../features/jury/presentation/providers/forms/voting/voting_provider.dart';
 import '../../features/jury/presentation/providers/jury_dashboard_progress.dart';
 import '../../features/jury/presentation/providers/jury_voting_status_provider.dart';
 import '../../features/jury/presentation/providers/progress/jury_progress_provider.dart';

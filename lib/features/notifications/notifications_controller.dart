@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/endpoints.dart';
 import '../../core/di/core_providers.dart';
+import '../../core/errors/error_mapper.dart';
+import '../../core/errors/result.dart';
 import 'notification_item.dart';
 import 'notifications_state.dart';
 
@@ -201,17 +203,38 @@ class NotificationsController extends StateNotifier<NotificationsState> {
     if (error is _NotificationRequestFailure) {
       final statusCode = error.statusCode;
       if (statusCode == null) {
-        return action ?? 'No se pudo completar la solicitud.';
+        return action ?? 'No se pudo completar la operación. Inténtalo de nuevo.';
       }
       return switch (statusCode) {
-        401 => 'Tu sesión expiró. Inicia sesión de nuevo.',
+        401 => 'Tu sesión venció. Inicia sesión nuevamente.',
         403 => 'Tu cuenta no tiene permiso para consultar estos avisos.',
-        >= 500 => 'El servidor no está disponible. Inténtalo más tarde.',
-        _ => action ?? 'No se pudo cargar la bandeja de notificaciones.',
+        >= 500 =>
+          'El servicio no está disponible por el momento. Inténtalo más tarde.',
+        _ => action ?? 'No se pudo completar la operación. Inténtalo de nuevo.',
       };
     }
+
+    // Antes cualquier excepción caía aquí y se culpaba a la conexión, incluso
+    // si era un 401, un timeout o una respuesta inesperada. El mapper ya
+    // distingue esos casos: solo decimos "revisa tu conexión" cuando de
+    // verdad hubo un fallo de transporte.
+    final failure = mapExceptionToFailure(error);
+    final specific = switch (failure) {
+      UnauthorizedFailure() => 'Tu sesión venció. Inicia sesión nuevamente.',
+      ForbiddenFailure() =>
+        'Tu cuenta no tiene permiso para consultar estos avisos.',
+      TimeoutFailure() =>
+        'La solicitud tardó demasiado. Comprueba tu conexión e inténtalo de nuevo.',
+      NetworkFailure() =>
+        'No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.',
+      ServerFailure() =>
+        'El servicio no está disponible por el momento. Inténtalo más tarde.',
+      RateLimitFailure() => failure.message,
+      _ => null,
+    };
+    if (specific != null) return specific;
     return action == null
-        ? 'No se pudieron cargar tus notificaciones. Revisa tu conexión e inténtalo de nuevo.'
+        ? 'No se pudo completar la operación. Inténtalo de nuevo.'
         : '$action Inténtalo de nuevo.';
   }
 }

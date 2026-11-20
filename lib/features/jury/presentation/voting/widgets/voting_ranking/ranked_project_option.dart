@@ -1,5 +1,17 @@
-part of '../voting_ranking.dart';
+// ranked_project_option.dart
 
+import 'package:flutter/material.dart';
+
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
+import 'package:campusvote_flutter/core/theme/app_dimensions.dart'
+    show AppRadii, AppSpacing;
+import 'package:campusvote_flutter/core/widgets/app_motion.dart'
+    show AppMotion;
+import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
+import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart'
+    show FairProjectModel;
+
+/// Opción de proyecto en el ranking de votación.
 class RankedProjectOption extends StatelessWidget {
   const RankedProjectOption({
     super.key,
@@ -25,6 +37,7 @@ class RankedProjectOption extends StatelessWidget {
     final duration =
         AppMotion.reduced(context) ? Duration.zero : AppMotion.medium;
     final copy = SettingsCopy.of(context);
+
     final label = [
       if (rank != null) copy.rank(rank, false),
       project.name,
@@ -45,8 +58,9 @@ class RankedProjectOption extends StatelessWidget {
       onTap: enabled ? onTap : null,
       label: label,
       excludeSemantics: true,
-      child: Pressable(
+      child: InkWell(
         onTap: enabled ? onTap : null,
+        borderRadius: AppRadii.rLarge,
         child: AnimatedContainer(
           duration: duration,
           curve: AppMotion.emphasized,
@@ -145,6 +159,91 @@ class _RankBadge extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Thumb extends StatelessWidget {
+  const _Thumb({required this.url, required this.name});
+
+  final String? url;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final trimmed = name.trim();
+    final initial = trimmed.isNotEmpty ? trimmed[0].toUpperCase() : '?';
+    final placeholder = Center(
+      child: Text(
+        initial,
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.colorScheme.primary,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+    final src = url;
+
+    return Container(
+      width: 48,
+      height: 48,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: AppRadii.rMedium,
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: (src == null || src.isEmpty)
+          ? placeholder
+          : Image.network(
+              src,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => placeholder,
+            ),
+    );
+  }
+}
+
+class _ScoreBar extends StatelessWidget {
+  const _ScoreBar({required this.score});
+
+  final double? score;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
+
+    if (score == null) {
+      return Text(
+        copy.t('Sin evaluar'),
+        style: theme.textTheme.labelSmall
+            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      );
+    }
+
+    final value = (score! / 20).clamp(0.0, 1.0);
+    return Row(
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: value,
+              minHeight: 6,
+              color: theme.colorScheme.primary,
+              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.s),
+        Text(
+          '${score!.toStringAsFixed(1)}/20',
+          style: theme.textTheme.labelMedium
+              ?.copyWith(fontWeight: FontWeight.w800),
+        ),
+      ],
     );
   }
 }

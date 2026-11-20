@@ -10,6 +10,17 @@ FairProjectModel _project(String id, String category) =>
       'category': {'id': category, 'name': category},
     });
 
+CategoryRubricProgress _progress(String categoryId, {int total = 1, int completed = 1}) =>
+    CategoryRubricProgress(
+      categoryId: categoryId,
+      totalProjects: total,
+      completedRubrics: completed,
+      pendingRubricProjectIds: completed == total ? [] : ['pending'],
+    );
+
+Map<String, CategoryRubricProgress> _progressMap(String categoryId, {int total = 1, int completed = 1}) =>
+    {categoryId: _progress(categoryId, total: total, completed: completed)};
+
 void main() {
   final status = VotingStatusModel.fromJson({
     'fair_id': 'f1',
@@ -27,6 +38,8 @@ void main() {
       status: status,
       activeCategoryId: 'tec',
       projects: [_project('a', 'tec'), _project('b', 'cien')],
+      evaluationsLoading: false,
+      categoryProgress: _progressMap('tec'),
     );
     expect(state.visibleProjects.map((p) => p.id), ['a']);
     expect(state.canVote, isTrue);
@@ -39,6 +52,8 @@ void main() {
       loading: false,
       status: voted,
       activeCategoryId: 'tec',
+      evaluationsLoading: false,
+      categoryProgress: _progressMap('tec'),
     );
     expect(voted.hasVoted, isTrue);
     expect(state.hasVoted, isTrue);
@@ -65,6 +80,7 @@ void main() {
       ],
     });
     final afterFirst = two.withCategoryVoted('tec');
+
     final state = VotingFormState(
       loading: false,
       status: afterFirst,
@@ -74,6 +90,8 @@ void main() {
         _project('b', 'cien'),
         _project('c', 'arte')
       ],
+      evaluationsLoading: false,
+      categoryProgress: _progressMap('tec'),
     );
     expect(afterFirst.hasVoted, isFalse);
     expect(state.canVote, isFalse);
@@ -84,6 +102,8 @@ void main() {
       status: afterFirst,
       activeCategoryId: 'cien',
       projects: state.projects,
+      evaluationsLoading: false,
+      categoryProgress: _progressMap('cien'),
     );
     expect(inCiencias.visibleProjects.map((p) => p.id), ['b']);
     expect(inCiencias.canVote, isTrue);

@@ -9,15 +9,21 @@ class _Refresher implements AuthRefresher {
   int logouts = 0;
 
   RefreshOutcome outcome = RefreshOutcome.invalid;
+  bool shouldThrow = false;
+  bool logoutThrows = false;
 
   @override
   Future<RefreshOutcome> tryRefresh() async {
     refreshes++;
+    if (shouldThrow) throw StateError('almacenamiento seguro bloqueado');
     return outcome;
   }
 
   @override
-  Future<void> logout() async => logouts++;
+  Future<void> logout() async {
+    logouts++;
+    if (logoutThrows) throw StateError('no se pudo borrar la sesión');
+  }
 }
 
 Future<void> _respond401(
@@ -53,6 +59,15 @@ void main() {
     expect(refresher.logouts, 1);
   });
 
+  test('un 401 de organizaciones con INVALID_TOKEN cierra la sesión', () async {
+    await _respond401(
+      interceptor,
+      '/api/organizations/48b838f6-1c97-4132-827b-5f0056d1430e',
+    );
+    expect(refresher.refreshes, 1);
+    expect(refresher.logouts, 1);
+  });
+
   test('un 401 sin sesión no dispara refresh ni logout', () async {
     await _respond401(interceptor, '/api/projects/mine', withToken: false);
     expect(refresher.refreshes, 0);
@@ -70,5 +85,26 @@ void main() {
     await _respond401(interceptor, '/api/fairs/my-assignments');
     expect(refresher.refreshes, 1);
     expect(refresher.logouts, 0);
+  });
+
+  test('una excepción al renovar no se filtra ni bloquea el siguiente 401',
+      () async {
+    refresher.shouldThrow = true;
+    await _respond401(interceptor, '/api/fairs/my-assignments');
+    expect(refresher.refreshes, 1);
+    expect(refresher.logouts, 0);
+
+    // Si los waiters no se completaran en el finally, este segundo refresh
+    // nunca llegaría a ejecutarse.
+    refresher.shouldThrow = false;
+    await _respond401(interceptor, '/api/fairs/my-assignments');
+    expect(refresher.refreshes, 2);
+  });
+
+  test('un fallo al borrar la sesión no lanza hacia la pantalla', () async {
+    refresher.logoutThrows = true;
+    await _respond401(interceptor, '/api/fairs/my-assignments');
+    expect(refresher.refreshes, 1);
+    expect(refresher.logouts, 1);
   });
 }

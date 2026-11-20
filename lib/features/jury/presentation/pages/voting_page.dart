@@ -10,7 +10,7 @@ import '../../../../core/widgets/organization_panel_app_bar.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_voting_status_provider.dart';
-import '../voting/widgets/voting_body.dart';
+import '../voting/widgets/body/voting_body.dart';
 
 /// `/jury/fair/:fairId/vote` — voto anónimo, uno por jurado.
 ///

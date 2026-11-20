@@ -1,29 +1,30 @@
-// voting/widgets/voting_body.dart
+// voting_body.dart
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../../core/theme/app_icons.dart';
-import '../../../../../core/theme/app_dimensions.dart';
-import '../../../../../core/widgets/app_button.dart';
-import '../../../../../core/widgets/app_motion.dart';
-import '../../../../../core/widgets/app_card.dart';
-import '../../../../../core/widgets/app_notice.dart';
-import '../../../../../core/widgets/app_status_chip.dart';
-import '../../../../settings/presentation/settings_copy.dart';
-import '../../providers/forms/jury_voting_provider.dart';
-import '../../providers/jury_state.dart';
-import '../../widgets/voting_widgets.dart';
-import 'voting_ranking.dart';
-import 'vote_confirm_dialog.dart';
-
-part 'voting_body/voting_projects.dart';
+import 'package:campusvote_flutter/core/theme/app_icons.dart';
+import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
+import 'package:campusvote_flutter/core/widgets/app_button.dart';
+import 'package:campusvote_flutter/core/widgets/app_motion.dart';
+import 'package:campusvote_flutter/core/widgets/app_notice.dart';
+import 'package:campusvote_flutter/core/widgets/app_status_chip.dart';
+import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
+import 'package:campusvote_flutter/features/jury/presentation/state/jury_state.dart'
+    show VotingFormState;
+import 'package:campusvote_flutter/features/jury/presentation/providers/forms/voting/voting_controller.dart'
+    show VotingFormController;
+import 'package:campusvote_flutter/features/jury/presentation/voting/widgets/projects/voting_projects.dart'
+    show buildVotingProjects;
+import 'voting_submit_bar.dart';
+import '../voting_widgets.dart';
+import 'voting_hero_section.dart';
 
 /// Cuerpo de la votación con el estado ya cargado.
 ///
 /// Tres salidas posibles, todas reales: comprobante (acaba de votar), estado de
 /// participación (ya votó antes) o el formulario de selección.
-class VotingBody extends StatefulWidget {
+class VotingBody extends StatelessWidget {
   const VotingBody({
     super.key,
     required this.fairName,
@@ -38,37 +39,13 @@ class VotingBody extends StatefulWidget {
   final VoidCallback onSubmitted;
 
   @override
-  State<VotingBody> createState() => _VotingBodyState();
-}
-
-class _VotingBodyState extends State<VotingBody> {
-  bool _returnedToVoting = false;
-
-  @override
-  void didUpdateWidget(covariant VotingBody oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller.fairId != widget.controller.fairId ||
-        oldWidget.state.activeCategoryId != widget.state.activeCategoryId) {
-      _returnedToVoting = false;
-    }
-  }
-
-  String? get fairName => widget.fairName;
-  VotingFormState get state => widget.state;
-  VotingFormController get controller => widget.controller;
-  VoidCallback get onSubmitted => widget.onSubmitted;
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final status = state.status!;
 
     final next = state.nextPendingCategory;
-    if (state.receipt != null && !_returnedToVoting) {
-      final receipt = VoteReceiptView(
-        receipt: state.receipt!,
-        onReturn: () => setState(() => _returnedToVoting = true),
-      );
+    if (state.receipt != null) {
+      final receipt = VoteReceiptView(receipt: state.receipt!);
       if (next == null) return receipt;
       // Jurado con excepción: le falta votar en otra categoría asignada.
       return Column(
@@ -88,7 +65,7 @@ class _VotingBodyState extends State<VotingBody> {
         ],
       );
     }
-    if (state.hasVoted && !_returnedToVoting) {
+    if (state.hasVoted) {
       final voted = VoteParticipationView(status: status);
       if (next == null) return voted;
       // Ya votó en esta categoría; le falta otra asignada (excepción).
@@ -155,15 +132,6 @@ class _VotingBodyState extends State<VotingBody> {
                 ),
               ],
               const SizedBox(height: AppSpacing.xl),
-              if (state.hasVoted) ...[
-                NoticeBanner(
-                  message: SettingsCopy.of(context).t(
-                      'Ya emitiste tu voto en esta feria. No puedes repetirlo.'),
-                  tone: AppTone.success,
-                  icon: PhosphorIconsRegular.lockSimple,
-                ),
-                const SizedBox(height: AppSpacing.l),
-              ],
               if (!status.isOpen)
                 const NoticeBanner(
                   message:
@@ -213,54 +181,34 @@ class _VotingBodyState extends State<VotingBody> {
                   isLoading: state.loading,
                 ),
               ],
+              if (state.evaluationsLoading) ...[
+                const SizedBox(height: AppSpacing.m),
+                const NoticeBanner(
+                  message:
+                      'Verificando estado de tus rúbricas... La votación se habilitará cuando se confirme que todas están completadas.',
+                  tone: AppTone.info,
+                  icon: PhosphorIconsRegular.arrowClockwise,
+                  liveRegion: true,
+                ),
+              ],
               const SizedBox(height: AppSpacing.l),
-              _buildVotingProjects(context, theme, state, controller),
+              buildVotingProjects(context, theme, state, controller),
             ],
           ),
         ),
-        if (!state.hasVoted) _submitBar(context),
+        VotingSubmitBar(
+          state: state,
+          controller: controller,
+          onSubmitted: onSubmitted,
+        ),
       ],
     );
   }
 
-  /// Lista de proyectos votables o el estado vacío real de la asignación.
-  Widget _submitBar(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.l),
-        child: AppButton(
-          label: state.selectedProjectId == null
-              ? 'Selecciona un proyecto para continuar'
-              : 'Revisar y confirmar voto',
-          icon: PhosphorIconsFill.checkSquareOffset,
-          onPressed: state.canVote && state.selectedProjectId != null
-              ? () => _confirmVote(context)
-              : null,
-          isLoading: state.submitting,
-        ),
-      ),
-    );
+  /// Fecha y hora local legible ("10/10/2026 22:00").
+  String _when(BuildContext context, DateTime date) {
+    final local = date.toLocal();
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return DateFormat.yMd(locale).add_Hm().format(local);
   }
-
-  Future<void> _confirmVote(BuildContext context) async {
-    final matches =
-        state.projects.where((item) => item.id == state.selectedProjectId);
-    if (matches.isEmpty) return;
-    final confirmed = await confirmVoteDialog(
-      context,
-      fairName: fairName,
-      project: matches.first,
-    );
-    if (!confirmed) return;
-    await controller.submit();
-    onSubmitted();
-  }
-}
-
-/// Fecha y hora local legible ("10/10/2026 22:00").
-String _when(BuildContext context, DateTime date) {
-  final local = date.toLocal();
-  final locale = Localizations.localeOf(context).toLanguageTag();
-  return DateFormat.yMd(locale).add_Hm().format(local);
 }

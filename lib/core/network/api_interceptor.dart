@@ -94,7 +94,13 @@ class AuthInterceptor extends Interceptor {
           // Fall-through.
         }
       } else if (outcome == RefreshOutcome.invalid) {
-        await _refresher.logout();
+        // Un fallo al borrar la sesión no debe tapar el 401 original ni
+        // lanzarse hacia la pantalla como si fuera un error de red.
+        try {
+          await _refresher.logout();
+        } catch (_) {
+          // La sesión se considera cerrada de todos modos.
+        }
         _onUnauthorized?.call();
       }
     }
@@ -108,16 +114,24 @@ class AuthInterceptor extends Interceptor {
       return c.future;
     }
     _refreshing = true;
-    RefreshOutcome outcome;
+    late final RefreshOutcome outcome;
     try {
       outcome = await _refresher.tryRefresh();
+    } catch (_) {
+      // La renovación nunca debe filtrarse al catch genérico de la pantalla:
+      // eso convertía un 401 vencido en "revisa tu conexión". Si no sabemos
+      // qué pasó, conservamos la sesión y dejamos que la petición original
+      // siga su curso con su propio estado.
+      outcome = RefreshOutcome.unavailable;
     } finally {
       _refreshing = false;
+      // Sin esto, una excepción dejaba a los 401 concurrentes esperando para
+      // siempre en sus Completer y la app parecía congelada al reanudar.
+      for (final w in _waiters) {
+        w.complete(outcome);
+      }
+      _waiters.clear();
     }
-    for (final w in _waiters) {
-      w.complete(outcome);
-    }
-    _waiters.clear();
     return outcome;
   }
 }
