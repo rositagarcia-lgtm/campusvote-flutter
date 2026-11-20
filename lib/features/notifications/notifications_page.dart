@@ -13,8 +13,8 @@ import '../../core/widgets/app_notice.dart';
 import '../../core/widgets/app_status_chip.dart';
 import '../../core/widgets/organization_panel_app_bar.dart';
 import '../settings/presentation/settings_copy.dart';
-import '../auth/domain/entities/auth_role.dart';
 import '../auth/presentation/state/auth_controller.dart';
+import 'notification_destination.dart';
 import 'notification_item.dart';
 import 'notification_presentation.dart';
 import 'notification_widgets.dart';
@@ -168,15 +168,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       NotificationsController controller, NotificationItem item) async {
     if (!item.isRead && !await controller.markRead(item.id)) return;
     if (!mounted) return;
-    final fairId = item.metadata['fair_id']?.toString();
-    if (fairId != null && fairId.isNotEmpty) {
-      final role = ref.read(authControllerProvider).user?.role;
-      if (role == AuthRole.student) {
-        context.push('/teaching/explore/${Uri.encodeComponent(fairId)}');
-      } else if (AuthRole.usesJuryPanel(role)) {
-        context.push('/jury/fair/${Uri.encodeComponent(fairId)}');
-      }
-    }
+    final role = ref.read(authControllerProvider).user?.role;
+    final path = notificationPath(
+      kind: item.kind,
+      role: role,
+      fairId: item.metadata['fair_id']?.toString(),
+      projectId: item.metadata['project_id']?.toString(),
+    );
+    if (path != null) context.push(path);
   }
 }
 

@@ -6,12 +6,10 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../state/auth_providers.dart';
 import '../state/two_factor_controller.dart';
 import '../../../../core/widgets/app_motion.dart';
 import '../widgets/security/account_summary_card.dart';
 import '../widgets/security/security_status.dart';
-import '../widgets/security/disable_totp_dialog.dart';
 import '../widgets/security/two_factor_card.dart';
 import '../../../settings/presentation/settings_copy.dart';
 
@@ -29,30 +27,6 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(twoFactorControllerProvider.notifier).load();
     });
-  }
-
-  Future<void> _onDisableTotp() async {
-    final ok = await DisableTotpDialog.show(context);
-    if (ok == null) return;
-    final result = await ref.read(disableTotpUseCaseProvider)(
-      password: ok.password,
-      code: ok.code,
-    );
-    if (!mounted) return;
-    result.when(
-      success: (_) {
-        ref.read(twoFactorControllerProvider.notifier).markDisabled();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(SettingsCopy.of(context).t('2FA deshabilitado'))),
-        );
-      },
-      failure: (f) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(SettingsCopy.of(context).error(f.message))),
-        );
-      },
-    );
   }
 
   @override
@@ -88,8 +62,6 @@ class _SecurityPageState extends ConsumerState<SecurityPage> {
                 status: tf.status,
                 loading: tf.loading,
                 errorMessage: tf.errorMessage,
-                onSetup: () => context.push('/security/totp/setup'),
-                onDisable: _onDisableTotp,
               ),
             ],
           ),

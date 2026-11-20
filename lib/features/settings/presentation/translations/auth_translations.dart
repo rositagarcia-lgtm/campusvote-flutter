@@ -106,6 +106,8 @@ const authTranslations = <String, String>{
       '2FA is enabled. When signing in, enter a 6-digit code from your authenticator app in addition to your password.',
   'Agrega una capa extra de seguridad. Al iniciar sesión, además de tu contraseña deberás ingresar un código de tu aplicación autenticadora.':
       'Add another layer of security. When signing in, enter a code from your authenticator app along with your password.',
+  'La verificación en dos pasos está desactivada en esta cuenta.':
+      'Two-factor authentication is off on this account.',
   'Deshabilitar 2FA': 'Disable 2FA',
   'Configurar 2FA': 'Set up 2FA',
   '2FA deshabilitado': '2FA disabled',
