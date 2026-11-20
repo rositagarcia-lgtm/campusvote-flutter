@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Encabezado de un grupo de avisos por día: la etiqueta del grupo y su
 /// contador alineados a la línea base.
@@ -32,7 +33,7 @@ class NotificationDateHeader extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              label,
+              SettingsCopy.of(context).t(label),
               style: theme.textTheme.labelSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.8,

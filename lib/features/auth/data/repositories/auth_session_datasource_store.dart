@@ -5,6 +5,8 @@ extension AuthSessionStore on AuthSessionDataSource {
   Future<AuthUser?> currentUser() => _persister.readUser();
 
   Future<bool> hasSession() async {
+    final refresh = await _client.storage.readRefreshToken();
+    if (refresh != null && refresh.isNotEmpty) return true;
     final token = await _client.storage.readAccessToken();
     return token != null && token.isNotEmpty;
   }
@@ -15,8 +17,8 @@ extension AuthSessionStore on AuthSessionDataSource {
     required String refreshToken,
   }) async {
     await _persister.persistUser(user);
-    await _client.storage.writeAccessToken(accessToken);
     await _client.storage.writeRefreshToken(refreshToken);
+    await _client.storage.writeAccessToken(accessToken);
   }
 
   Future<void> persistUser(AuthUser user) async {

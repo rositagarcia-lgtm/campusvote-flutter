@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_motion.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Cifra del resumen del jurado: ícono, valor y etiqueta.
 class JuryOverviewMetric extends StatelessWidget {
@@ -44,7 +45,7 @@ class JuryOverviewMetric extends StatelessWidget {
             ),
           ),
           Text(
-            label,
+            SettingsCopy.of(context).t(label),
             maxLines: 2,
             style: theme.textTheme.labelSmall?.copyWith(
               color: colors.onSurfaceVariant,

@@ -5,6 +5,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/widgets/app_button.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 
 /// Primer paso del jurado en una feria: firmar la declaración de
 /// imparcialidad. Hasta entonces la rúbrica y el voto quedan bloqueados.
@@ -16,6 +17,7 @@ class DeclarationGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final scheme = theme.colorScheme;
     return Semantics(
       liveRegion: true,
@@ -37,7 +39,7 @@ class DeclarationGate extends StatelessWidget {
                 const SizedBox(width: AppSpacing.s),
                 Expanded(
                   child: Text(
-                    'PASO 1 · ANTES DE CALIFICAR',
+                    copy.t('PASO 1 · ANTES DE CALIFICAR'),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: AppColors.juryAccessInk,
                       fontWeight: FontWeight.w800,
@@ -49,15 +51,15 @@ class DeclarationGate extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.s),
             Text(
-              'Firma tu declaración de imparcialidad',
+              copy.t('Firma tu declaración de imparcialidad'),
               style: theme.textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Confirmas que no tienes conflictos de interés con los proyectos '
-              'que evaluarás. Hasta firmarla, la rúbrica y la votación quedan '
-              'bloqueadas.',
+              copy.t(
+                'Confirmas que no tienes conflictos de interés con los proyectos que evaluarás. Hasta firmarla, la rúbrica y la votación quedan bloqueadas.',
+              ),
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: AppSpacing.m),

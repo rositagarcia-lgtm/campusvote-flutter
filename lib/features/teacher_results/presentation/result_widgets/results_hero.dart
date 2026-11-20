@@ -18,10 +18,14 @@ class ResultsHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final average = results.overallAverage;
     return Semantics(
-      label: 'Promedio general ${_score(average)} de 5. '
-          '${results.totalResponses} evaluaciones.',
+      label: copy.isEnglish
+          ? 'Overall average ${_score(average)} out of 5. '
+              '${results.totalResponses} evaluations.'
+          : 'Promedio general ${_score(average)} de 5. '
+              '${results.totalResponses} evaluaciones.',
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -36,7 +40,7 @@ class ResultsHero extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('TU DESEMPEÑO DOCENTE',
+            Text(copy.t('TU DESEMPEÑO DOCENTE'),
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: scheme.primary,
                   fontWeight: FontWeight.w800,
@@ -49,12 +53,12 @@ class ResultsHero extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Promedio general',
+                      Text(copy.t('Promedio general'),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                           )),
                       const SizedBox(height: AppSpacing.xs),
-                      Text('Todos tus cursos y periodos',
+                      Text(copy.t('Todos tus cursos y periodos'),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: scheme.onSurfaceVariant,
                           )),
@@ -113,13 +117,16 @@ class ResultsHero extends StatelessWidget {
               children: [
                 _Fact(
                   icon: PhosphorIconsRegular.usersThree,
-                  text: '${results.totalResponses} evaluaciones',
+                  text: copy.isEnglish
+                      ? '${results.totalResponses} evaluations'
+                      : '${results.totalResponses} evaluaciones',
                 ),
                 if (results.overallRating != null)
                   _Fact(
                     icon: PhosphorIconsRegular.star,
-                    text: 'Calificación general '
-                        '${_score(results.overallRating!)} de 5',
+                    text: copy.isEnglish
+                        ? 'Overall rating ${_score(results.overallRating!)} out of 5'
+                        : 'Calificación general ${_score(results.overallRating!)} de 5',
                   ),
               ],
             ),

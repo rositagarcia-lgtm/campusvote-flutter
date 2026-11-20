@@ -5,6 +5,7 @@ import '../theme/app_dimensions.dart';
 import 'app_palette.dart';
 import 'panel_hero_org_badge.dart';
 import 'panel_overview_number.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Encabezado de trabajo para los paneles del jurado y del estudiante.
 /// La identidad de la organización viene del branding cargado en la sesión.
@@ -128,7 +129,7 @@ class AppPanelIntro extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Flexible(
                       child: Text(
-                        contextLabel!,
+                        SettingsCopy.of(context).t(contextLabel!).toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -146,7 +147,7 @@ class AppPanelIntro extends StatelessWidget {
           Semantics(
             header: true,
             child: Text(
-              title,
+              SettingsCopy.of(context).t(title),
               style: theme.textTheme.headlineLarge?.copyWith(
                 fontWeight: FontWeight.w700,
                 height: 1.15,
@@ -156,7 +157,7 @@ class AppPanelIntro extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s),
           Text(
-            subtitle,
+            SettingsCopy.of(context).t(subtitle),
             style: theme.textTheme.bodyLarge?.copyWith(
               color: muted,
               height: 1.45,

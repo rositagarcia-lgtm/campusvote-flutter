@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../theme/app_dimensions.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 import 'app_palette.dart';
 
 /// Campo de formulario del sistema.
@@ -66,6 +67,8 @@ class AppTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final copy = SettingsCopy.of(context);
+    final shownLabel = copy.t(label);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,9 +77,9 @@ class AppTextField extends StatelessWidget {
           children: [
             Expanded(
               child: Semantics(
-                label: label,
+                label: shownLabel,
                 child: Text(
-                  label.toUpperCase(),
+                  shownLabel.toUpperCase(),
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: appMuted(isDark),
                     fontWeight: FontWeight.w700,
@@ -104,13 +107,18 @@ class AppTextField extends StatelessWidget {
           textInputAction: textInputAction,
           autofillHints: autofillHints?.toList(),
           inputFormatters: inputFormatters,
-          validator: validator,
+          validator: validator == null
+              ? null
+              : (value) {
+                  final message = validator!(value);
+                  return message == null ? null : copy.t(message);
+                },
           maxLines: maxLines,
           maxLength: maxLength,
           style: theme.textTheme.bodyLarge,
           decoration: InputDecoration(
-            hintText: hint,
-            errorText: errorText,
+            hintText: hint == null ? null : copy.t(hint!),
+            errorText: errorText == null ? null : copy.t(errorText!),
             prefixIcon: prefixIcon == null
                 ? null
                 : Icon(prefixIcon, size: AppDimensions.iconMedium),
@@ -123,7 +131,7 @@ class AppTextField extends StatelessWidget {
         if (helperText != null && errorText == null) ...[
           const SizedBox(height: AppSpacing.xs),
           Text(
-            helperText!,
+            copy.t(helperText!),
             style: theme.textTheme.bodySmall?.copyWith(
               color: appMuted(isDark),
             ),

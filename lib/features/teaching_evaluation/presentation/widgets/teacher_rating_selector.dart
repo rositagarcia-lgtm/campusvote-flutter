@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/brand_colors.dart';
+import '../../../../core/widgets/translatable_text.dart';
 import '../../../settings/presentation/settings_copy.dart';
 
 const _ratingTapTarget = 48.0;
@@ -37,16 +38,23 @@ class TeacherRatingSelector extends StatelessWidget {
       children: [
         Semantics(
           header: true,
-          child: Text(
-            title ?? text.t('Calificación general'),
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          child: title == null
+              ? Text(
+                  text.t('Calificación general'),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              : TranslatableText(
+                  title!,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
         ),
         if (description != null) ...[
           const SizedBox(height: AppSpacing.xs),
-          Text(description!, style: theme.textTheme.bodyMedium),
+          TranslatableText(description!, style: theme.textTheme.bodyMedium),
         ],
         const SizedBox(height: AppSpacing.xs),
         Text(

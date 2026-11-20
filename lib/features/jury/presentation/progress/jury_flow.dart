@@ -82,10 +82,11 @@ class JuryFlow {
   factory JuryFlow.fromProgress(
     JuryProgressModel progress, {
     DateTime? votedAt,
+    bool english = false,
   }) =>
       JuryFlow(
         progress: progress,
-        stages: JuryFlowStages.of(progress, votedAt: votedAt),
+        stages: JuryFlowStages.of(progress, votedAt: votedAt, english: english),
       );
 
   final JuryProgressModel progress;
@@ -129,10 +130,11 @@ class JuryFlow {
       };
 
   /// Situación actual en una frase. Nunca inventa un porcentaje combinado.
-  String? get hint => switch (nextStage?.key) {
-        'evaluation' when progress.pendingProjects > 0 =>
-          'Te faltan ${JuryFlowStages.projects(progress.pendingProjects)} por '
-              'calificar con rúbrica.',
+  String? hint({bool english = false}) => switch (nextStage?.key) {
+        'evaluation' when progress.pendingProjects > 0 => english
+            ? '${JuryFlowStages.projects(progress.pendingProjects, english: true)} still need a rubric score.'
+            : 'Te faltan ${JuryFlowStages.projects(progress.pendingProjects)} por '
+                'calificar con rúbrica.',
         'evaluation' => 'Aún no registras ninguna evaluación.',
         'voting' => 'Tu voto oficial sigue pendiente.',
         'declaration' => 'Tu declaración de jurado sigue sin firmar.',

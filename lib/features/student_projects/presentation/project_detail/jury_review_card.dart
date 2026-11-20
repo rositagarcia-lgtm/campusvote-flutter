@@ -13,9 +13,9 @@ class _ReviewCard extends StatelessWidget {
     final date = voice.date;
     final comment = voice.comment;
     final scheme = theme.colorScheme;
-    final jury = voice.who == 'Jurado';
-    final named = !jury && voice.who != 'Compañero';
-    final label = named ? voice.who : text.t(voice.who);
+    final jury = voice.jury;
+    final anonymous = voice.who == 'Jurado' || voice.who == 'Compañero';
+    final label = anonymous ? text.t(voice.who) : voice.who;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
       child: AppCard(
@@ -41,25 +41,38 @@ class _ReviewCard extends StatelessWidget {
                       ),
                       if (date != null)
                         Text(
-                          _reviewDate(date.toLocal()),
+                          _reviewDate(context, date.toLocal()),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: scheme.onSurfaceVariant,
                           ),
                         ),
                     ],
                   ),
+                  if (jury && !anonymous)
+                    Text(
+                      text.t('Jurado'),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   if (voice.rating != null) ...[
                     const SizedBox(height: AppSpacing.xs),
                     _Stars(rating: voice.rating!.toDouble(), size: 16),
                   ],
                   const SizedBox(height: AppSpacing.s),
-                  Text(
-                    comment ?? text.t('Calificación sin comentario'),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      height: 1.4,
-                      color: comment == null ? scheme.onSurfaceVariant : null,
-                    ),
-                  ),
+                  comment == null
+                      ? Text(
+                          text.t('Calificación sin comentario'),
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            height: 1.4,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        )
+                      : TranslatableText(
+                          comment,
+                          style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
+                        ),
                 ],
               ),
             ),
@@ -75,8 +88,18 @@ const _reviewMonths = [
   'jul.', 'ago.', 'sep.', 'oct.', 'nov.', 'dic.',
 ];
 
-String _reviewDate(DateTime date) =>
-    '${date.day} ${_reviewMonths[date.month - 1]} ${date.year}';
+const _reviewMonthsEn = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+String _reviewDate(BuildContext context, DateTime date) {
+  final english = SettingsCopy.of(context).isEnglish;
+  final month = (english ? _reviewMonthsEn : _reviewMonths)[date.month - 1];
+  return english
+      ? '$month ${date.day}, ${date.year}'
+      : '${date.day} $month ${date.year}';
+}
 
 class _ReviewAvatar extends StatelessWidget {
   const _ReviewAvatar({

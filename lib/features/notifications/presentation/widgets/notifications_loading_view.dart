@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_skeleton.dart';
+import '../../../settings/presentation/settings_copy.dart';
 
 /// Mantiene la forma de la bandeja mientras llegan los avisos del servidor.
 class NotificationsLoadingView extends StatelessWidget {
@@ -11,7 +12,7 @@ class NotificationsLoadingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      label: 'Cargando avisos',
+      label: SettingsCopy.of(context).t('Cargando avisos'),
       liveRegion: true,
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.l),

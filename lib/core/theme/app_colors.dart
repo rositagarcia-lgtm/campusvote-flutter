@@ -4,32 +4,35 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._();
 
-  // Light
-  static const Color primary = Color(0xFF00695C);
-  static const Color primaryDark = Color(0xFF004D40);
-  static const Color primaryLight = Color(0xFF00796B);
-  static const Color primaryLighter = Color(0xFF26A69A);
-  static const Color primarySoft = Color(0xFFE0F2F1);
-  static const Color primarySubtle = Color(0xFFF2FAF9);
+  // Claro. Verde oscuro de la app. El azul del docente es el cian tenue
+  // de la página pública (#59D8EE).
+  static const Color primary = Color(0xFF14532D);
+  static const Color primaryDark = Color(0xFF0C3B22);
+  static const Color primaryLight = Color(0xFF1F6B45);
+  static const Color primaryLighter = Color(0xFF3D9A6A);
+  static const Color primarySoft = Color(0xFFE7F3EC);
+  static const Color primarySubtle = Color(0xFFF4F8F6);
 
-  static const Color accent = Color(0xFFD4AF37);
-  static const Color accentLight = Color(0xFFF3E5AB);
-  static const Color accentSoft = Color(0xFFFBF6E7);
+  static const Color accent = Color(0xFFFF7189);
+  static const Color accentLight = Color(0xFF59D8EE);
+  static const Color accentSoft = Color(0xFFFFF0F3);
 
-  // Acentos de los dos accesos de la bienvenida. No sustituyen el branding
+  // Acentos de los accesos de la bienvenida. No sustituyen el branding
   // institucional de los paneles autenticados.
-  static const Color studentAccess = Color(0xFF0D7377);
-  static const Color juryAccess = Color(0xFFFF9F43);
-  static const Color juryAccessInk = Color(0xFF8A4600);
+  static const Color studentAccess = Color(0xFF14532D);
+  static const Color teacherAccess = Color(0xFF59D8EE);
+  static const Color teacherAccessInk = Color(0xFF006C7A);
+  static const Color juryAccess = Color(0xFFFF7189);
+  static const Color juryAccessInk = Color(0xFF17112E);
 
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color background = Color(0xFFF6F8F8);
-  static const Color border = Color(0xFFE2E8F0);
-  static const Color borderStrong = Color(0xFFCBD5E1);
+  static const Color background = Color(0xFFF4F7F5);
+  static const Color border = Color(0xFFD4E2DA);
+  static const Color borderStrong = Color(0xFFB4C9BE);
 
-  static const Color ink = Color(0xFF1E293B);
-  static const Color inkMuted = Color(0xFF475569);
-  static const Color inkFaint = Color(0xFF94A3B8);
+  static const Color ink = Color(0xFF14241C);
+  static const Color inkMuted = Color(0xFF4E6158);
+  static const Color inkFaint = Color(0xFF6E8178);
   static const Color inkInverse = Color(0xFFFFFFFF);
 
   static const Color success = Color(0xFF16A34A);
@@ -42,16 +45,16 @@ class AppColors {
   static const Color infoSoft = Color(0xFFDBEAFE);
 
   // Dark overrides
-  static const Color darkSurface = Color(0xFF162322);
-  static const Color darkBackground = Color(0xFF0D1514);
-  static const Color darkBorder = Color(0xFF29403D);
-  static const Color darkBorderStrong = Color(0xFF3A5752);
-  static const Color darkInk = Color(0xFFE6F1EF);
-  static const Color darkInkMuted = Color(0xFFB4C8C4);
-  static const Color darkInkFaint = Color(0xFF829B95);
-  static const Color darkInkInverse = Color(0xFF09201C);
-  static const Color darkPrimarySoft = Color(0xFF173D38);
-  static const Color darkPrimarySubtle = Color(0xFF102C29);
+  static const Color darkSurface = Color(0xFF16241E);
+  static const Color darkBackground = Color(0xFF0E1713);
+  static const Color darkBorder = Color(0xFF2C4036);
+  static const Color darkBorderStrong = Color(0xFF3D5649);
+  static const Color darkInk = Color(0xFFF3F7F4);
+  static const Color darkInkMuted = Color(0xFFC3D4CB);
+  static const Color darkInkFaint = Color(0xFF96AFA4);
+  static const Color darkInkInverse = Color(0xFF14241C);
+  static const Color darkPrimarySoft = Color(0xFF1C332A);
+  static const Color darkPrimarySubtle = Color(0xFF15261F);
   static const Color darkDangerSoft = Color(0xFF4A2023);
   static const Color darkWarningSoft = Color(0xFF4A3918);
   static const Color darkInfoSoft = Color(0xFF1F3559);

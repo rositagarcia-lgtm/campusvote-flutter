@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/config/app_env.dart';
 import '../../../core/errors/error_mapper.dart';
+import '../../auth/presentation/state/auth_controller.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_loader.dart';

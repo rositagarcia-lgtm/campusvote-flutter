@@ -71,7 +71,7 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
         context,
         title: 'Evaluar docente',
         leading: IconButton(
-          tooltip: 'Volver a mis docentes',
+          tooltip: SettingsCopy.of(context).t('Volver a mis docentes'),
           icon: const Icon(PhosphorIconsRegular.arrowLeft),
           onPressed: () => context.go('/teaching'),
         ),
@@ -115,7 +115,9 @@ class _TeacherEvaluationPageState extends ConsumerState<TeacherEvaluationPage> {
             ? 'La evaluación aún no empieza'
             : 'La jornada de evaluación terminó',
         message: assignment.opensLater && day != null
-            ? 'Podrás evaluar a este docente el ${evaluationDayLabel(day)}.'
+            ? (SettingsCopy.of(context).isEnglish
+                ? 'You can evaluate this teacher on ${evaluationDayLabel(day, english: true)}.'
+                : 'Podrás evaluar a este docente el ${evaluationDayLabel(day)}.')
             : 'Ya no se reciben evaluaciones para este curso en el periodo.',
       );
     }

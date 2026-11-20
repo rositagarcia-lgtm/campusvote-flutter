@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/app_env.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../../core/widgets/app_appbar.dart';
@@ -11,6 +12,8 @@ import '../../../../core/widgets/app_loader.dart';
 import '../../data/models/jury_models.dart';
 import '../providers/jury_providers.dart';
 import '../../../../core/widgets/app_notice.dart';
+import '../../../../core/widgets/translatable_text.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../providers/jury_voting_status_provider.dart';
 
@@ -40,11 +43,15 @@ class JuryProjectDetailPage extends ConsumerWidget {
                   onRetry: () => ref.invalidate(fairProjectsProvider(fairId)),
                 )
               : project == null
-                  ? const Center(
+                  ? Center(
                       child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.l),
+                        padding: const EdgeInsets.all(AppSpacing.l),
                         child: Text(
-                            'Este proyecto no está asignado a tus categorías.'),
+                          SettingsCopy.of(context).t(
+                            'Este proyecto no está asignado a tus categorías.',
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     )
                   : _ProjectContent(fairId: fairId, project: project),
@@ -61,6 +68,7 @@ class _ProjectContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final progress = ref.watch(juryProgressProvider(fairId));
     final evaluations = ref.watch(myEvaluationsProvider(fairId));
     final voting = ref.watch(juryVotingStatusProvider(fairId));
@@ -79,6 +87,7 @@ class _ProjectContent extends ConsumerWidget {
 
     return RefreshIndicator.adaptive(
       onRefresh: () async {
+        await ref.read(authControllerProvider.notifier).refreshBranding();
         ref.invalidate(fairProjectsProvider(fairId));
         ref.invalidate(myEvaluationsProvider(fairId));
         ref.invalidate(juryProgressProvider(fairId));
@@ -113,24 +122,29 @@ class _ProjectContent extends ConsumerWidget {
             if (project.standCode != null)
               _Fact(
                   icon: PhosphorIconsRegular.storefront,
-                  text: 'Stand ${project.standCode}'),
+                  text: '${copy.t('Stand')} ${project.standCode}'),
           ]),
           if (project.description.trim().isNotEmpty) ...[
             const SizedBox(height: AppSpacing.l),
-            Text(project.description,
+            TranslatableText(project.description,
                 style: theme.textTheme.bodyLarge?.copyWith(height: 1.5)),
           ],
           const SizedBox(height: AppSpacing.xl),
           _StatusCard(
-            title: 'Tu rúbrica',
+            title: copy.t('Tu rúbrica'),
             icon: PhosphorIconsRegular.checkSquareOffset,
             detail: evaluations.isLoading
-                ? 'Consultando tu evaluación…'
+                ? copy.t('Consultando tu evaluación…')
                 : evaluations.hasError
-                    ? 'No pudimos consultar tu evaluación.'
+                    ? copy.t('No pudimos consultar tu evaluación.')
                     : ownRubric?.submitted == true
-                        ? 'Registrada${ownRubric?.checkedCount == null || ownRubric?.criteriaCount == null ? '' : ' · ${ownRubric!.checkedCount} de ${ownRubric.criteriaCount} criterios'}'
-                        : 'Pendiente',
+                        ? (ownRubric?.checkedCount == null ||
+                                ownRubric?.criteriaCount == null
+                            ? copy.t('Registrada')
+                            : copy.isEnglish
+                                ? 'Recorded · ${ownRubric!.checkedCount} of ${ownRubric.criteriaCount} criteria'
+                                : 'Registrada · ${ownRubric!.checkedCount} de ${ownRubric.criteriaCount} criterios')
+                        : copy.t('Pendiente'),
           ),
           const SizedBox(height: AppSpacing.s),
           if (ref.watch(juryFairInPreviewProvider(fairId)))
@@ -145,44 +159,46 @@ class _ProjectContent extends ConsumerWidget {
             TextButton.icon(
               onPressed: () => ref.invalidate(juryProgressProvider(fairId)),
               icon: const Icon(PhosphorIconsRegular.arrowClockwise),
-              label: const Text('Reintentar estado de declaración'),
+              label: Text(copy.t('Reintentar estado de declaración')),
             )
           else if (!signed)
             FilledButton.icon(
               onPressed: () => context.push('/jury/fair/$fairId/declaration'),
               icon: const Icon(PhosphorIconsRegular.signature),
-              label: const Text('Firmar declaración para evaluar'),
+              label: Text(copy.t('Firmar declaración para evaluar')),
             )
           else
             FilledButton.icon(
               onPressed: () => context
                   .push('/jury/fair/$fairId/project/${project.id}/rubric'),
               icon: const Icon(PhosphorIconsRegular.notePencil),
-              label: Text(ownRubric?.submitted == true
+              label: Text(copy.t(ownRubric?.submitted == true
                   ? 'Ver mi rúbrica registrada'
-                  : 'Completar mi rúbrica'),
+                  : 'Completar mi rúbrica')),
             ),
           const SizedBox(height: AppSpacing.l),
           _StatusCard(
-            title: 'Voto de tu categoría',
+            title: copy.t('Voto de tu categoría'),
             icon: PhosphorIconsRegular.checkCircle,
             detail: voting.isLoading
-                ? 'Consultando estado del voto…'
+                ? copy.t('Consultando estado del voto…')
                 : voting.hasError
-                    ? 'No pudimos consultar tu voto.'
+                    ? copy.t('No pudimos consultar tu voto.')
                     : voted == true
-                        ? 'Emitido'
-                        : 'Pendiente',
+                        ? copy.t('Emitido')
+                        : copy.t('Pendiente'),
           ),
           const SizedBox(height: AppSpacing.s),
           if (signed)
             OutlinedButton.icon(
               onPressed: () => context.push('/jury/fair/$fairId/vote'),
               icon: const Icon(PhosphorIconsRegular.arrowRight),
-              label: const Text('Ir a la votación oficial'),
+              label: Text(copy.t('Ir a la votación oficial')),
             ),
           Text(
-            'El voto es anónimo. Aquí solo aparece si ya votaste en esta categoría.',
+            copy.t(
+              'El voto es anónimo. Aquí solo aparece si ya votaste en esta categoría.',
+            ),
             style: theme.textTheme.bodySmall,
           ),
         ],

@@ -72,7 +72,7 @@ class _Highlight extends StatelessWidget {
             Icon(icon, color: color, size: 20),
             const SizedBox(width: AppSpacing.s),
             Expanded(
-              child: Text(label,
+              child: Text(SettingsCopy.of(context).t(label),
                   style: theme.textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   )),

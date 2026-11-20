@@ -4,6 +4,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_motion.dart';
+import '../../../core/widgets/translatable_text.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../domain/teacher_results.dart';
 
 part 'result_widgets/results_hero.dart';

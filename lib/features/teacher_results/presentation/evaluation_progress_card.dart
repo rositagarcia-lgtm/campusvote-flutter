@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_status_chip.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../data/teacher_results_repository.dart';
 import '../domain/evaluation_progress.dart';
 
@@ -40,14 +41,18 @@ class _ScheduleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final (label, tone) = switch (schedule.state) {
       JornadaState.open => ('Jornada abierta', AppTone.success),
       JornadaState.closed => ('Jornada cerrada', AppTone.neutral),
       JornadaState.upcoming => ('Jornada próxima', AppTone.info),
     };
     final left = schedule.daysLeft;
-    final range = 'Del ${_day(schedule.startDate)} al ${_day(schedule.endDate)}'
-        '${schedule.state == JornadaState.open && left != null ? (left == 1 ? ' · último día' : ' · quedan $left días') : ''}';
+    final range = copy.isEnglish
+        ? 'From ${_day(schedule.startDate)} to ${_day(schedule.endDate)}'
+            '${schedule.state == JornadaState.open && left != null ? (left == 1 ? ' · last day' : ' · $left days left') : ''}'
+        : 'Del ${_day(schedule.startDate)} al ${_day(schedule.endDate)}'
+            '${schedule.state == JornadaState.open && left != null ? (left == 1 ? ' · último día' : ' · quedan $left días') : ''}';
     final total = schedule.eligible;
     final done = schedule.evaluated;
 
@@ -66,7 +71,7 @@ class _ScheduleCard extends StatelessWidget {
               Icon(PhosphorIconsRegular.usersThree, color: scheme.primary),
               const SizedBox(width: AppSpacing.s),
               Expanded(
-                child: Text('Avance de tu evaluación',
+                child: Text(copy.t('Avance de tu evaluación'),
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w800)),
               ),
@@ -80,7 +85,10 @@ class _ScheduleCard extends StatelessWidget {
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.m),
-          Text('$done de $total alumnos ya te evaluaron',
+          Text(
+              copy.isEnglish
+                  ? '$done of $total students have already evaluated you'
+                  : '$done de $total alumnos ya te evaluaron',
               style: theme.textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.w800)),
           const SizedBox(height: AppSpacing.xs),
@@ -105,19 +113,20 @@ class _ScheduleCard extends StatelessWidget {
                             style: theme.textTheme.bodyMedium
                                 ?.copyWith(fontWeight: FontWeight.w600)),
                         if (course.cycle != null)
-                          Text('Ciclo ${course.cycle}',
+                          Text(copy.term(course.cycle!),
                               style: theme.textTheme.bodySmall),
                       ],
                     ),
                   ),
-                  Text('${course.evaluated} de ${course.eligible}',
+                  Text(copy.selectedCriteria(course.evaluated, course.eligible),
                       style: theme.textTheme.bodyMedium
                           ?.copyWith(fontWeight: FontWeight.w700)),
                 ],
               ),
             ),
           Text(
-            'Solo ves cuántos te evaluaron, nunca quién ni qué respondió.',
+            copy.t(
+                'Solo ves cuántos te evaluaron, nunca quién ni qué respondió.'),
             style: theme.textTheme.bodySmall,
           ),
         ],

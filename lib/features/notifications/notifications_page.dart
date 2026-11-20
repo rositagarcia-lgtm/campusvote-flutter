@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/branding/refresh_pull.dart';
 import '../../core/theme/app_icons.dart';
 import '../../core/routing/role_landing.dart';
 import '../../core/branding/branding_controller.dart';
@@ -11,6 +12,7 @@ import '../../core/widgets/app_empty_view.dart';
 import '../../core/widgets/app_notice.dart';
 import '../../core/widgets/app_status_chip.dart';
 import '../../core/widgets/organization_panel_app_bar.dart';
+import '../settings/presentation/settings_copy.dart';
 import '../auth/domain/entities/auth_role.dart';
 import '../auth/presentation/state/auth_controller.dart';
 import 'notification_item.dart';
@@ -47,7 +49,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         actions: [
           if (state.unreadCount > 0)
             IconButton(
-              tooltip: 'Marcar todas como leídas',
+              tooltip: SettingsCopy.of(context).t('Marcar todas como leídas'),
               onPressed:
                   state.updatingId != 'all' ? controller.markAllRead : null,
               icon: const Icon(PhosphorIconsRegular.checks),
@@ -91,9 +93,10 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           .add(item);
     }
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
 
     return RefreshIndicator.adaptive(
-      onRefresh: controller.load,
+      onRefresh: () => refreshPull(ref, controller.load),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.fromLTRB(
@@ -103,14 +106,17 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           AppSpacing.xxl + MediaQuery.paddingOf(context).bottom,
         ),
         children: [
-          Text('TUS AVISOS',
+          Text(copy.t('TUS AVISOS'),
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.1,
               )),
           const SizedBox(height: AppSpacing.xs),
-          Text('Mostrando ${state.items.length} de ${state.total} avisos',
+          Text(
+              copy.isEnglish
+                  ? 'Showing ${state.items.length} of ${state.total} notices'
+                  : 'Mostrando ${state.items.length} de ${state.total} avisos',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               )),

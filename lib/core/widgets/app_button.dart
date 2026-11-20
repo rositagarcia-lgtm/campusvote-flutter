@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 enum AppButtonVariant { primary, secondary, outlined, danger, ghost }
 
@@ -105,7 +106,7 @@ class AppButton extends StatelessWidget {
           if (isLoading || icon != null) const SizedBox(width: AppSpacing.s),
           Flexible(
             child: Text(
-              label,
+              SettingsCopy.of(context).t(label),
               maxLines: 2,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,

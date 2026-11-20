@@ -129,7 +129,7 @@ class _PodiumColumnState extends State<_PodiumColumn> with SingleTickerProviderS
                     if (widget.entry.isMine)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text('Tu proyecto',
+                        child: Text(SettingsCopy.of(context).t('Tu proyecto'),
                             style: theme.textTheme.labelSmall?.copyWith(
                                 color: const Color(0xFF16A34A), fontWeight: FontWeight.w800)),
                       ),

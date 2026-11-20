@@ -5,6 +5,7 @@ import '../theme/app_dimensions.dart';
 import 'app_button.dart';
 import 'app_page_layout.dart';
 import 'app_palette.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Estado vacío: explica por qué no hay contenido y ofrece la acción que
 /// corresponde, sin inventar datos.
@@ -38,6 +39,7 @@ class AppEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final copy = SettingsCopy.of(context);
     final muted = appMuted(isDark);
 
     return SingleChildScrollView(
@@ -60,7 +62,7 @@ class AppEmptyView extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      overline,
+                      copy.t(overline),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: muted,
                         fontWeight: FontWeight.w700,
@@ -70,7 +72,7 @@ class AppEmptyView extends StatelessWidget {
                     if (title != null) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        title!,
+                        copy.t(title!),
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w800,
@@ -82,14 +84,14 @@ class AppEmptyView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.s),
               Text(
-                message,
+                copy.t(message),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
               ),
               if (onAction != null && actionLabel != null) ...[
                 const SizedBox(height: AppSpacing.xl),
                 AppButton.outlined(
-                  label: actionLabel!,
+                  label: copy.t(actionLabel!),
                   onPressed: onAction,
                 ),
               ],

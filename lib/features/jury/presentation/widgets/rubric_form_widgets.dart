@@ -7,6 +7,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_motion.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../../core/widgets/app_status_chip.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../providers/jury_providers.dart';
 import '../providers/jury_state.dart';
 
@@ -74,7 +75,9 @@ class RubricScoreCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  evaluation.submitted ? 'Puntaje final' : 'Puntaje marcado',
+                  SettingsCopy.of(context).t(
+                    evaluation.submitted ? 'Puntaje final' : 'Puntaje marcado',
+                  ),
                   style: theme.textTheme.labelMedium,
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -88,7 +91,7 @@ class RubricScoreCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  '$checked de $total criterios marcados',
+                  SettingsCopy.of(context).checkedCriteria(checked, total),
                   style: theme.textTheme.bodySmall,
                 ),
                 if (evaluation.submittedAt != null) ...[

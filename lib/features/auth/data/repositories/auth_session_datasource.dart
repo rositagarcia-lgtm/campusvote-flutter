@@ -80,8 +80,8 @@ class AuthSessionDataSource {
           message: 'Respuesta inesperada al refrescar token',
         ));
       }
-      await _client.storage.writeAccessToken(token);
       await _client.storage.writeRefreshToken(newRefresh);
+      await _client.storage.writeAccessToken(token);
       return Success(TokenPair(token: token, refreshToken: newRefresh));
     } catch (e) {
       return FailureResult(mapExceptionToFailure(e));

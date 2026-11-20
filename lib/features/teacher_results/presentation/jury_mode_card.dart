@@ -5,6 +5,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/translatable_text.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../../../core/widgets/app_motion.dart';
 import '../../jury/data/models/jury_models.dart';
 
@@ -13,10 +15,17 @@ const _months = [
   'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
 
-String _day(DateTime? date) {
-  if (date == null) return 'próximamente';
+const _monthsEn = [
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', //
+  'August', 'September', 'October', 'November', 'December',
+];
+
+String _day(DateTime? date, {required bool english}) {
+  if (date == null) return english ? 'coming soon' : 'próximamente';
   final local = date.toLocal();
-  return 'el ${local.day} de ${_months[local.month - 1]}';
+  return english
+      ? 'on ${_monthsEn[local.month - 1]} ${local.day}'
+      : 'el ${local.day} de ${_months[local.month - 1]}';
 }
 
 /// Rol de jurado del docente según el momento de cada feria asignada.
@@ -35,6 +44,7 @@ class JuryModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final copy = SettingsCopy.of(context);
     final open = fairs.where((f) => f.isOpen).toList();
     final upcoming = fairs.where((f) => f.status == FairStatus.draft).toList();
     final closed = fairs.where((f) => f.isClosed).toList();
@@ -47,15 +57,18 @@ class JuryModeCard extends StatelessWidget {
         : upcoming.isNotEmpty
             ? (
                 'Serás jurado',
-                '${upcoming.first.name} · ${_day(upcoming.first.startsAt)}. '
+                '${upcoming.first.name} · ${_day(upcoming.first.startsAt, english: false)}. '
                     'El acceso se habilita cuando la feria abra.',
                 true,
               )
             : closed.isNotEmpty
                 ? (
                     'Historial de jurado',
-                    '${closed.length} feria${closed.length == 1 ? '' : 's'} '
-                        'terminada${closed.length == 1 ? '' : 's'}. Consulta lo que calificaste.',
+                    copy.isEnglish
+                        ? '${closed.length} finished fair${closed.length == 1 ? '' : 's'}. '
+                            'Review what you scored.'
+                        : '${closed.length} feria${closed.length == 1 ? '' : 's'} '
+                            'terminada${closed.length == 1 ? '' : 's'}. Consulta lo que calificaste.',
                     true,
                   )
                 : (
@@ -70,6 +83,7 @@ class JuryModeCard extends StatelessWidget {
           : PhosphorIconsRegular.gavel,
       title: title,
       subtitle: subtitle,
+      content: upcoming.isNotEmpty && !loading,
       onTap: enabled ? () => context.go('/jury') : null,
     );
   }
@@ -85,6 +99,7 @@ class _ActiveJury extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final single = fairs.length == 1;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.l),
@@ -103,7 +118,7 @@ class _ActiveJury extends StatelessWidget {
                   size: 16, color: AppColors.juryAccessInk),
               const SizedBox(width: AppSpacing.s),
               Text(
-                'HOY ERES JURADO',
+                copy.t('HOY ERES JURADO'),
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: AppColors.juryAccessInk,
                   fontWeight: FontWeight.w800,
@@ -113,15 +128,24 @@ class _ActiveJury extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.s),
-          Text(
-            single ? fairs.first.name : '${fairs.length} ferias abiertas',
-            style: theme.textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w800),
-          ),
+          single
+              ? TranslatableText(
+                  fairs.first.name,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                )
+              : Text(
+                  copy.isEnglish
+                      ? '${fairs.length} open fairs'
+                      : '${fairs.length} ferias abiertas',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Califica los proyectos de tus categorías y emite tu voto. No '
-            'verás los proyectos que asesoras.',
+            copy.t(
+              'Califica los proyectos de tus categorías y emite tu voto. No verás los proyectos que asesoras.',
+            ),
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.m),
@@ -144,23 +168,28 @@ class _QuietCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.content = false,
     this.onTap,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
+
+  /// El subtítulo incluye el nombre de la feria y se traduce completo.
+  final bool content;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final enabled = onTap != null;
     return Semantics(
       button: enabled,
-      label: '$title. $subtitle',
-      excludeSemantics: true,
+      label: content ? null : '${copy.t(title)}. ${copy.t(subtitle)}',
+      excludeSemantics: !content,
       child: Pressable(
         onTap: onTap,
         child: Container(
@@ -179,11 +208,15 @@ class _QuietCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
+                    Text(copy.t(title),
                         style: theme.textTheme.titleSmall
                             ?.copyWith(fontWeight: FontWeight.w800)),
                     const SizedBox(height: 2),
-                    Text(subtitle, style: theme.textTheme.bodySmall),
+                    content
+                        ? TranslatableText(subtitle,
+                            style: theme.textTheme.bodySmall)
+                        : Text(copy.t(subtitle),
+                            style: theme.textTheme.bodySmall),
                   ],
                 ),
               ),

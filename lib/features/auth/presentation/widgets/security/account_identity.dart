@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/config/app_env.dart';
@@ -7,6 +10,9 @@ import '../../../../../core/theme/brand_colors.dart';
 import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/app_palette.dart';
 import '../../../../settings/presentation/settings_copy.dart';
+
+/// Foto elegida que todavía se está guardando en el servidor.
+final pendingAvatarProvider = StateProvider<File?>((ref) => null);
 
 /// Cabecera tipo "carnet": avatar, nombre, correo, rol y acción de foto.
 ///
@@ -187,7 +193,7 @@ class AccountIdentityHeader extends StatelessWidget {
 ///
 /// El respaldo nunca es un hueco: si la foto no llega o falla, se muestra la
 /// inicial sobre el acento de la cuenta.
-class AccountAvatar extends StatelessWidget {
+class AccountAvatar extends ConsumerWidget {
   const AccountAvatar({
     super.key,
     required this.avatarUrl,
@@ -204,7 +210,7 @@ class AccountAvatar extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final name = displayName.trim();
     final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
     final fallback = Container(
@@ -223,6 +229,19 @@ class AccountAvatar extends StatelessWidget {
             ),
       ),
     );
+
+    final pending = ref.watch(pendingAvatarProvider);
+    if (pending != null) {
+      return ClipOval(
+        child: Image.file(
+          pending,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => fallback,
+        ),
+      );
+    }
 
     final url = AppEnv.mediaUrl(avatarUrl);
     if (url == null) return fallback;

@@ -6,7 +6,7 @@ import '../theme/app_colors.dart';
 ///
 /// El backend entrega `logo`, `primary_color`, `secondary_color` por
 /// organización. Mientras esos campos no lleguen, se usa el fallback
-/// `CampusVote` (teal + dorado).
+/// `CampusVote` (violeta y coral).
 class OrganizationBranding {
   final String id;
   final String name;

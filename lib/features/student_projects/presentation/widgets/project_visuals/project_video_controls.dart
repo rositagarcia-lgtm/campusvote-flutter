@@ -6,12 +6,16 @@ class _VideoControls extends StatelessWidget {
     required this.controller,
     required this.loading,
     required this.onToggle,
+    required this.expanded,
+    required this.onResize,
   });
 
   /// Nulo mientras el video no se cargó (solo se muestra «Reproducir»).
   final VideoPlayerController? controller;
   final bool loading;
   final VoidCallback onToggle;
+  final bool expanded;
+  final VoidCallback onResize;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +89,21 @@ class _VideoControls extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.s),
                     _TimeLabel(_videoTime(value.duration)),
+                    IconButton(
+                      tooltip: text.t(expanded ? 'Achicar video' : 'Agrandar video'),
+                      onPressed: onResize,
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+                      style: IconButton.styleFrom(
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        minimumSize: Size.zero,
+                      ),
+                      icon: CustomPaint(
+                        size: const Size.square(18),
+                        painter: _CornersPainter(inward: expanded),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -167,4 +186,48 @@ class _VideoMessage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Cuatro esquinas, el mismo control de agrandar del reproductor.
+class _CornersPainter extends CustomPainter {
+  const _CornersPainter({required this.inward});
+
+  final bool inward;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final side = size.shortestSide;
+    final arm = side * 0.34;
+    final weight = side * 0.1;
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = weight
+      ..strokeCap = StrokeCap.square
+      ..strokeJoin = StrokeJoin.miter;
+    final inset = weight;
+    final reach = inward ? side * 0.28 : 0.0;
+    const corners = <(double, double, double, double)>[
+      (1.0, 1.0, 1.0, 1.0),
+      (-1.0, 1.0, -1.0, 1.0),
+      (1.0, -1.0, 1.0, -1.0),
+      (-1.0, -1.0, -1.0, -1.0),
+    ];
+    for (final (sx, sy, dx, dy) in corners) {
+      final x = sx > 0 ? inset : side - inset;
+      final y = sy > 0 ? inset : side - inset;
+      final originX = x + dx * reach;
+      final originY = y + dy * reach;
+      final dirX = inward ? -dx : dx;
+      final dirY = inward ? -dy : dy;
+      final path = Path()
+        ..moveTo(originX + dirX * arm, originY)
+        ..lineTo(originX, originY)
+        ..lineTo(originX, originY + dirY * arm);
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CornersPainter oldDelegate) => oldDelegate.inward != inward;
 }

@@ -75,11 +75,36 @@ class AuthRepositoryImpl implements AuthRepository, AuthRefresher {
       _session.refresh(refreshToken: refreshToken);
 
   @override
-  Future<bool> tryRefresh() async {
+  Future<RefreshOutcome> tryRefresh() async {
     final refreshToken = await _session.currentRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) return false;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return RefreshOutcome.invalid;
+    }
     final result = await _session.refresh(refreshToken: refreshToken);
-    return result.isSuccess;
+    if (result.isSuccess) return RefreshOutcome.refreshed;
+    final failure = result.failureOrNull;
+    if (failure == null) return RefreshOutcome.unavailable;
+    if (failure.code == 'REFRESH_IN_PROGRESS') {
+      final saved = await _session.currentRefreshToken();
+      if (saved != null && saved.isNotEmpty && saved != refreshToken) {
+        return RefreshOutcome.refreshed;
+      }
+      return RefreshOutcome.unavailable;
+    }
+    if (failure is NetworkFailure ||
+        failure is TimeoutFailure ||
+        failure is RateLimitFailure ||
+        failure is ServerFailure) {
+      return RefreshOutcome.unavailable;
+    }
+    if (failure is UnauthorizedFailure || failure is ForbiddenFailure) {
+      return RefreshOutcome.invalid;
+    }
+    final code = failure.code ?? '';
+    if (code == 'UNAUTHORIZED' || code == 'FORBIDDEN') {
+      return RefreshOutcome.invalid;
+    }
+    return RefreshOutcome.unavailable;
   }
 
   @override

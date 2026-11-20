@@ -45,16 +45,13 @@ void main() {
         ProjectStage.finished);
   });
 
-  test('las reseñas del jurado se ven durante la feria y 7 días después', () {
+  test('las reseñas del jurado se quedan con la feria abierta y después del cierre', () {
     expect(StudentProject.fromJson(_json()).hasFeedback, isTrue);
     expect(StudentProject.fromJson(_json(fair: 'DRAFT')).hasFeedback, isFalse);
     final closed = _json(fair: 'CLOSED');
     (closed['fair'] as Map)['ends_at'] =
-        DateTime.now().subtract(const Duration(days: 2)).toIso8601String();
-    expect(StudentProject.fromJson(closed).hasFeedback, isTrue);
-    (closed['fair'] as Map)['ends_at'] =
         DateTime.now().subtract(const Duration(days: 8)).toIso8601String();
-    expect(StudentProject.fromJson(closed).hasFeedback, isFalse);
+    expect(StudentProject.fromJson(closed).hasFeedback, isTrue);
     expect(StudentProject.fromJson(_json(status: 'SUBMITTED')).hasFeedback,
         isFalse);
   });

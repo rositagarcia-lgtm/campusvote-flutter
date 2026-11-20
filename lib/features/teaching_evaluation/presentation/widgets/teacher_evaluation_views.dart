@@ -6,6 +6,7 @@ import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../settings/presentation/settings_copy.dart';
 import '../../domain/entities/teaching_assignment.dart';
 
 class TeacherEvaluationReviewLine extends StatelessWidget {
@@ -41,16 +42,17 @@ class TeacherEvaluationHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final courseMetadata = [
       if (assignment.courseCode.trim().isNotEmpty) assignment.courseCode,
-      if (assignment.cycle > 0) 'Ciclo ${assignment.cycle}',
+      if (assignment.cycle > 0) copy.term(assignment.cycle),
     ].join(' · ');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'DOCENTE A EVALUAR',
+          copy.t('DOCENTE A EVALUAR'),
           style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.primary,
             fontWeight: FontWeight.w800,

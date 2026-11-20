@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icons.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../data/models/jury_models.dart';
 import 'fair_phase_badge.dart';
@@ -39,7 +40,9 @@ class FairCardHeader extends StatelessWidget {
           Image.network(
             imageUrl,
             fit: BoxFit.cover,
-            semanticLabel: 'Portada de ${fair.name}',
+            semanticLabel: SettingsCopy.of(context).isEnglish
+                ? 'Cover of ${fair.name}'
+                : 'Portada de ${fair.name}',
             errorBuilder: (_, __, ___) => ColoredBox(
               color: scheme.primaryContainer,
               child: Icon(PhosphorIconsRegular.imageBroken,
@@ -100,7 +103,7 @@ class _StatusRow extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.s),
         Expanded(
-          child: Text('FERIA ASIGNADA',
+          child: Text(SettingsCopy.of(context).t('FERIA ASIGNADA'),
               style: theme.textTheme.labelSmall?.copyWith(
                 color: labelColor,
                 fontWeight: FontWeight.w800,

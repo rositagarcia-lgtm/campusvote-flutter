@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/branding/branding_controller.dart';
+import '../../../../core/config/constants.dart';
+import '../../../../core/di/core_providers.dart';
 import '../../../../core/branding/organization_branding.dart';
 import '../../../../core/branding/organization_branding_repository.dart';
 import '../../../../core/push/push_sync.dart';
@@ -23,6 +25,7 @@ class AuthController extends StateNotifier<AuthState> {
     // Escucha logout forzado (401 → refresh fallido).
     _ref.listen<AuthEvents?>(authEventsProvider, (prev, next) {
       if (next != null && prev != null && next.logoutCount > prev.logoutCount) {
+        unawaited(_ref.read(localStorageProvider).remove(AppConstants.prefsIntroSeen));
         _resetBranding();
         state = const AuthState(initializing: false, authenticated: false);
         clearAccountState(_ref);
@@ -176,6 +179,9 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
+  /// Vuelve a pedir los colores de la institución. Lo usa el jalón para actualizar.
+  Future<void> refreshBranding() => _loadBranding(state.user?.organizationId);
+
   /// Vuelve a la identidad de CampusVote.
   ///
   /// Sin esto los colores y el nombre de la organización de la sesión anterior
@@ -203,6 +209,7 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     await unregisterPushDevice(_ref);
+    await _ref.read(localStorageProvider).remove(AppConstants.prefsIntroSeen);
     await _ref.read(logoutUseCaseProvider)();
     _resetBranding();
     state = const AuthState(initializing: false, authenticated: false);

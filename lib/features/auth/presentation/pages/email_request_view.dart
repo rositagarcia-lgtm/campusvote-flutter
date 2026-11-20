@@ -43,7 +43,7 @@ class EmailRequestView extends StatelessWidget {
     final theme = Theme.of(context);
     final text = SettingsCopy.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    const accent = AppColors.studentAccess;
+    final accent = teacher ? AppColors.teacherAccessInk : AppColors.studentAccess;
     final error = errorMessage == null ? null : text.error(errorMessage!);
 
     return Scaffold(
@@ -181,7 +181,7 @@ class EmailRequestView extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
+                            Icon(
                               PhosphorIconsRegular.shield,
                               size: AppDimensions.iconMedium,
                               color: accent,

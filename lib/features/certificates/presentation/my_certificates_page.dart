@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/branding/refresh_pull.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/theme/app_icons.dart';
@@ -10,6 +11,8 @@ import '../../../core/widgets/app_empty_view.dart';
 import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loader.dart';
 import '../../../core/widgets/app_motion.dart';
+import '../../../core/widgets/translatable_text.dart';
+import '../../settings/presentation/settings_copy.dart';
 import '../data/certificates_repository.dart';
 import '../../../core/analytics/app_analytics.dart';
 
@@ -28,7 +31,7 @@ class MyCertificatesPage extends ConsumerWidget {
     return Scaffold(
       appBar: buildCampusVoteAppBar(context, title: 'Mis certificados'),
       body: RefreshIndicator.adaptive(
-        onRefresh: reload,
+        onRefresh: () => refreshPull(ref, reload),
         child: certificates.when(
           loading: () => const AppLoader(),
           error: (error, _) => AppErrorView(
@@ -56,8 +59,9 @@ class MyCertificatesPage extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.m),
                         child: Text(
-                          'Puedes consultar tus certificados. La descarga estará '
-                          'disponible cuando terminen las pruebas.',
+                          SettingsCopy.of(context).t(
+                            'Puedes consultar tus certificados. La descarga estará disponible cuando terminen las pruebas.',
+                          ),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
@@ -86,6 +90,7 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
 
   Future<void> _download() async {
     if (!certificateDownloadsEnabled) return;
+    final english = SettingsCopy.of(context).isEnglish;
     setState(() => _busy = true);
     try {
       final file = await ref
@@ -95,7 +100,9 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
           {'type': widget.certificate.winner ? 'winner' : 'participation'});
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path, mimeType: 'application/pdf')],
-        subject: 'Certificado · ${widget.certificate.fairName}',
+        subject: english
+            ? 'Certificate · ${widget.certificate.fairName}'
+            : 'Certificado · ${widget.certificate.fairName}',
       ));
     } catch (error) {
       if (!mounted) return;
@@ -111,6 +118,7 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final copy = SettingsCopy.of(context);
     final c = widget.certificate;
     final color = switch (c.rank) {
       1 => const Color(0xFFD4A017),
@@ -118,12 +126,12 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
       3 => const Color(0xFFB0703C),
       _ => scheme.primary,
     };
-    final label = switch (c.rank) {
+    final label = copy.t(switch (c.rank) {
       1 => 'Primer puesto',
       2 => 'Segundo puesto',
       3 => 'Tercer puesto',
       _ => 'Certificado',
-    };
+    });
     final date = c.issuedAt?.toLocal();
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.m),
@@ -159,13 +167,19 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
                       Text(c.projectName,
                           style: theme.textTheme.titleSmall
                               ?.copyWith(fontWeight: FontWeight.w800)),
-                      Text(
-                        [
-                          c.fairName,
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          TranslatableText(
+                            c.fairName,
+                            style: theme.textTheme.bodySmall,
+                          ),
                           if (date != null)
-                            '${date.day}/${date.month}/${date.year}',
-                        ].join(' · '),
-                        style: theme.textTheme.bodySmall,
+                            Text(
+                              ' · ${date.day}/${date.month}/${date.year}',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -183,11 +197,11 @@ class _CertificateCardState extends ConsumerState<_CertificateCard> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(PhosphorIconsRegular.downloadSimple),
-              label: Text(_busy
+              label: Text(copy.t(_busy
                   ? 'Descargando…'
                   : certificateDownloadsEnabled
                       ? 'Descargar PDF'
-                      : 'Descarga en pruebas'),
+                      : 'Descarga en pruebas')),
             ),
           ],
         ),

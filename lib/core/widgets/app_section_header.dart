@@ -43,6 +43,7 @@ class SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final copy = SettingsCopy.of(context);
     final muted = appMuted(isDark);
     final rule = appBorder(isDark);
 
@@ -57,7 +58,7 @@ class SectionHeader extends StatelessWidget {
                 child: Semantics(
                   header: true,
                   child: Text(
-                    label.toUpperCase(),
+                    copy.t(label).toUpperCase(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelSmall?.copyWith(
@@ -81,7 +82,7 @@ class SectionHeader extends StatelessWidget {
           if (title != null) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(
-              title!,
+              copy.t(title!),
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -90,7 +91,7 @@ class SectionHeader extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(
-              subtitle!,
+              copy.t(subtitle!),
               style: theme.textTheme.bodySmall?.copyWith(color: muted),
             ),
           ],

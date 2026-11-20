@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/branding/branding_controller.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/organization_panel_app_bar.dart';
+import '../../../auth/presentation/state/auth_controller.dart';
+import '../../../settings/presentation/settings_copy.dart';
 import '../../data/models/jury_models.dart';
 import '../progress/widgets/jury_progress_skeleton.dart';
 import '../progress/widgets/jury_progress_view.dart';
@@ -66,6 +68,7 @@ Future<void> reloadJuryProgress(
 ) async {
   final before = ref.read(juryProgressProvider(fairId)).valueOrNull;
   try {
+    await ref.read(authControllerProvider.notifier).refreshBranding();
     ref.invalidate(juryVotingStatusProvider(fairId));
     await ref.read(juryProgressProvider(fairId).notifier).reload();
   } catch (_) {
@@ -75,20 +78,29 @@ Future<void> reloadJuryProgress(
   final message = completedMessage(
     before,
     ref.read(juryProgressProvider(fairId)).valueOrNull,
+    english: SettingsCopy.of(context).isEnglish,
   );
   if (message == null) return;
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
 }
 
 /// Resumen de lo que cambió tras una acción: solo hechos del modelo.
-String? completedMessage(JuryProgressModel? before, JuryProgressModel? after) {
+String? completedMessage(
+  JuryProgressModel? before,
+  JuryProgressModel? after, {
+  required bool english,
+}) {
   if (before == null || after == null) return null;
   final done = <String>[
-    if (!before.isComplete && after.isComplete) 'Evaluaciones finalizadas',
-    if (!before.hasVoted && after.hasVoted) 'Voto oficial registrado',
+    if (!before.isComplete && after.isComplete)
+      english ? 'Completed evaluations' : 'Evaluaciones finalizadas',
+    if (!before.hasVoted && after.hasVoted)
+      english ? 'Official vote recorded' : 'Voto oficial registrado',
     if (before.declaration == null && after.declaration != null)
-      'Declaración registrada',
+      english ? 'Recorded declaration' : 'Declaración registrada',
   ];
   if (done.isEmpty) return null;
-  return '${done.join(' · ')}. Tu progreso está actualizado.';
+  return english
+      ? '${done.join(' · ')}. Your progress is up to date.'
+      : '${done.join(' · ')}. Tu progreso está actualizado.';
 }

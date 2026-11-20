@@ -134,7 +134,7 @@ class _ProjectImageViewerState extends State<ProjectImageViewer> {
             child: Align(
               alignment: Alignment.topLeft,
               child: IconButton(
-                tooltip: 'Cerrar',
+                tooltip: SettingsCopy.of(context).t('Cerrar'),
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(
                   PhosphorIconsRegular.x,

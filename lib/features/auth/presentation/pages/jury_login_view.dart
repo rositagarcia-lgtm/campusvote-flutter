@@ -152,7 +152,7 @@ class JuryLoginView extends StatelessWidget {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: submitting ? null : onForgotPassword,
-                                child: const Text('¿Olvidaste tu contraseña?'),
+                                child: Text(text.t('¿Olvidaste tu contraseña?')),
                               ),
                             ),
                             if (message != null) ...[

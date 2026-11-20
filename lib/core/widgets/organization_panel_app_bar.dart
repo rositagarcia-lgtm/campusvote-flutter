@@ -4,6 +4,7 @@ import '../theme/app_icons.dart';
 import '../branding/organization_branding.dart';
 import '../theme/app_dimensions.dart';
 import 'app_logo.dart';
+import '../../features/settings/presentation/settings_copy.dart';
 
 /// Barra para áreas autenticadas: muestra la organización activa del servidor.
 class OrganizationPanelAppBar extends StatelessWidget
@@ -28,7 +29,10 @@ class OrganizationPanelAppBar extends StatelessWidget
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final name = branding.name.trim().isEmpty ? 'Organización' : branding.name;
+    final copy = SettingsCopy.of(context);
+    final name = branding.name.trim().isEmpty
+        ? copy.t('Organización')
+        : branding.name;
     return AppBar(
       toolbarHeight: 68,
       backgroundColor: colors.surface,
@@ -42,7 +46,7 @@ class OrganizationPanelAppBar extends StatelessWidget
               child: Center(
                 child: Semantics(
                   image: true,
-                  label: 'Logo de $name',
+                  label: copy.logoLabel(name),
                   child: AppLogo.organization(
                     logoUrl: branding.logoUrl,
                     organizationCode: name,
@@ -52,7 +56,7 @@ class OrganizationPanelAppBar extends StatelessWidget
               ),
             )
           : IconButton(
-              tooltip: 'Volver',
+              tooltip: copy.t('Volver'),
               onPressed: onBack,
               icon: const Icon(PhosphorIconsRegular.arrowLeft),
             ),
@@ -104,7 +108,7 @@ class _IdentityText extends StatelessWidget {
           ),
         ),
         Text(
-          section,
+          SettingsCopy.of(context).t(section),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.labelSmall?.copyWith(

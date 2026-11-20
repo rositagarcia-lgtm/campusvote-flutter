@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_palette.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
 
 /// Avance de la evaluación en la feria.
@@ -23,8 +24,11 @@ class FairProgressBanner extends StatelessWidget {
     final ratio = total > 0 ? (done / total).clamp(0.0, 1.0) : 0.0;
     final muted = appMuted(theme.brightness == Brightness.dark);
 
+    final copy = SettingsCopy.of(context);
     return Semantics(
-      label: 'Progreso de evaluación: $done de $total proyectos',
+      label: copy.isEnglish
+          ? 'Evaluation progress: $done of $total projects'
+          : 'Progreso de evaluación: $done de $total proyectos',
       excludeSemantics: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -33,13 +37,13 @@ class FairProgressBanner extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Tu progreso',
+                  copy.t('Tu progreso'),
                   style: theme.textTheme.titleMedium
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Text(
-                '$done de $total',
+                copy.selectedCriteria(done, total),
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: muted,
                   fontWeight: FontWeight.w700,

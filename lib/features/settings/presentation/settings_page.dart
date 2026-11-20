@@ -1,11 +1,13 @@
 // settings_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/widgets/app_appbar.dart';
 import '../../../core/widgets/app_page_layout.dart';
+import '../../auth/presentation/state/auth_controller.dart';
 import 'sections/settings_appearance_section.dart';
 import 'sections/settings_language_section.dart';
 import 'sections/settings_notifications_section.dart';
@@ -16,11 +18,11 @@ import 'settings_copy.dart';
 ///
 /// Cada control escribe una preferencia real y persistente
 /// (`appPreferencesProvider`); no hay filas decorativas que no hagan nada.
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final text = SettingsCopy.of(context);
     final navigator = Navigator.of(context);
 
@@ -38,21 +40,26 @@ class SettingsPage extends StatelessWidget {
               )
             : null,
       ),
-      body: const SafeArea(
+      body: SafeArea(
         top: false,
-        child: PageScrollBody(
-          maxWidth: kListMaxWidth,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SettingsOrganizationHeader(),
-              SizedBox(height: AppSpacing.xl),
-              SettingsAppearanceSection(),
-              SizedBox(height: AppSpacing.xl),
-              SettingsLanguageSection(),
-              SizedBox(height: AppSpacing.xl),
-              SettingsNotificationsSection(),
-            ],
+        child: RefreshIndicator.adaptive(
+          onRefresh: () =>
+              ref.read(authControllerProvider.notifier).refreshBranding(),
+          child: const PageScrollBody(
+            physics: AlwaysScrollableScrollPhysics(),
+            maxWidth: kListMaxWidth,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SettingsOrganizationHeader(),
+                SizedBox(height: AppSpacing.xl),
+                SettingsAppearanceSection(),
+                SizedBox(height: AppSpacing.xl),
+                SettingsLanguageSection(),
+                SizedBox(height: AppSpacing.xl),
+                SettingsNotificationsSection(),
+              ],
+            ),
           ),
         ),
       ),

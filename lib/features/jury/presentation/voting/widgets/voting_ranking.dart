@@ -6,6 +6,8 @@ import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/brand_colors.dart';
 import '../../../../../core/widgets/app_motion.dart';
+import '../../../../../core/widgets/translatable_text.dart';
+import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
 import '../../widgets/voting_countdown.dart';
 

@@ -4,17 +4,28 @@ part of 'auth_controller.dart';
 extension AuthProfile on AuthController {
   /// Cambia la foto de perfil: sube la imagen, la enlaza al usuario y
   /// refresca el estado de sesión para que toda la app la vea al instante.
-  Future<bool> changeAvatar(File file) async {
-    patch(currentState.copyWith(submitting: true, clearError: true));
+  /// null cuando el perfil ya tiene la foto guardada.
+  Future<String?> changeAvatar(File file, {bool quiet = false}) async {
+    if (!quiet) {
+      patch(currentState.copyWith(submitting: true, clearError: true));
+    }
     final res = await _ref.read(updateAvatarUseCaseProvider)(file);
     return res.when(
       success: (user) {
-        patch(currentState.copyWith(submitting: false, user: user));
-        return true;
+        if (!currentState.authenticated) return null;
+        patch(currentState.copyWith(
+          submitting: false,
+          user: user,
+          clearError: true,
+        ));
+        return null;
       },
       failure: (f) {
-        patch(currentState.copyWith(submitting: false, errorMessage: f.message));
-        return false;
+        patch(quiet
+            ? currentState.copyWith(submitting: false, clearError: true)
+            : currentState.copyWith(
+                submitting: false, errorMessage: f.message));
+        return f.message;
       },
     );
   }

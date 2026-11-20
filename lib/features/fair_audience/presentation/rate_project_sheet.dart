@@ -14,6 +14,8 @@ import '../domain/audience_models.dart';
 import 'audience_widgets.dart';
 import '../../../core/feedback/app_haptics.dart';
 import '../../../core/analytics/app_analytics.dart';
+import '../../../core/widgets/translatable_text.dart';
+import '../../settings/presentation/settings_copy.dart';
 
 /// Hoja para calificar un proyecto como público. Devuelve `true` si guardó.
 Future<bool?> showRateProjectSheet(
@@ -89,6 +91,7 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copy = SettingsCopy.of(context);
     final project = widget.project;
     final editable = widget.canRate && !project.isMine;
     return Padding(
@@ -117,7 +120,7 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
             ),
             if (project.description != null) ...[
               const SizedBox(height: AppSpacing.m),
-              Text(
+              TranslatableText(
                 project.description!,
                 maxLines: 6,
                 overflow: TextOverflow.ellipsis,
@@ -138,7 +141,9 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
                 icon: PhosphorIconsRegular.lockSimple,
                 message: project.myScore == null
                     ? 'La feria ya cerró: las opiniones quedaron congeladas.'
-                    : 'La feria ya cerró. Tu voto fue de ${project.myScore} estrellas.',
+                    : (copy.isEnglish
+                        ? 'The fair has closed. Your vote was ${project.myScore} stars.'
+                        : 'La feria ya cerró. Tu voto fue de ${project.myScore} estrellas.'),
               )
             else ...[
               TeacherRatingSelector(
@@ -180,7 +185,7 @@ class _RateSheetState extends ConsumerState<_RateSheet> {
               ),
               const SizedBox(height: AppSpacing.s),
               Text(
-                'Tu voto no cuenta para la nota del jurado.',
+                copy.t('Tu voto no cuenta para la nota del jurado.'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall,
               ),
