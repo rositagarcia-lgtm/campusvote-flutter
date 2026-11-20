@@ -4,6 +4,24 @@ import 'package:dio/dio.dart';
 
 import '../errors/result.dart';
 
+/// Códigos con los que el backend rechaza una sesión que ya no sirve.
+///
+/// El `INVALID_TOKEN` real aparece en el envelope HTTP 401, no solo en el
+/// endpoint de refresh. Centralizarlo evita que cada repositorio inventor su
+/// propia lista y vuelva a caer en "revisa tu conexión" o en un poll infinito.
+bool isInvalidSessionCode(String? rawCode) {
+  final code = (rawCode ?? '').toUpperCase();
+  if (code.isEmpty) return false;
+  return code == 'UNAUTHORIZED' ||
+      code == 'FORBIDDEN' ||
+      code == 'UNAUTHENTICATED' ||
+      code == 'INVALID_TOKEN' ||
+      code == 'TOKEN_INVALID' ||
+      code.contains('EXPIRED') ||
+      code.contains('REVOKED') ||
+      (code.contains('TOKEN') && code.contains('INVALID'));
+}
+
 /// Mapea cualquier excepción (Dio / red / formato) a [Failure].
 Failure mapExceptionToFailure(Object error) {
   if (error is DioException) {

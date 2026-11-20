@@ -58,6 +58,7 @@ dev_dependencies:
   coverage: ^1.10.0
   flutter_launcher_icons: ^0.14.4
 
+  video_player_platform_interface: any
 flutter:
   uses-material-design: true
   assets:

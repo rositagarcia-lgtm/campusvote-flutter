@@ -44,7 +44,7 @@ class SettingsPage extends ConsumerWidget {
         top: false,
         child: RefreshIndicator.adaptive(
           onRefresh: () =>
-              ref.read(authControllerProvider.notifier).refreshBranding(),
+              ref.read(authControllerProvider.notifier).retryBranding(),
           child: const PageScrollBody(
             physics: AlwaysScrollableScrollPhysics(),
             maxWidth: kListMaxWidth,

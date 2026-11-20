@@ -5,10 +5,16 @@ extension AuthSessionStore on AuthSessionDataSource {
   Future<AuthUser?> currentUser() => _persister.readUser();
 
   Future<bool> hasSession() async {
-    final refresh = await _client.storage.readRefreshToken();
-    if (refresh != null && refresh.isNotEmpty) return true;
-    final token = await _client.storage.readAccessToken();
-    return token != null && token.isNotEmpty;
+    try {
+      final refresh = await _client.storage.readRefreshToken();
+      if (refresh != null && refresh.trim().isNotEmpty) {
+        return true;
+      }
+    } catch (_) {
+      // Si el almacenamiento seguro falla al leer, se purga la sesión local.
+    }
+    await clearSession();
+    return false;
   }
 
   Future<void> persistSession({
@@ -17,8 +23,8 @@ extension AuthSessionStore on AuthSessionDataSource {
     required String refreshToken,
   }) async {
     await _persister.persistUser(user);
-    await _client.storage.writeRefreshToken(refreshToken);
-    await _client.storage.writeAccessToken(accessToken);
+    await _client.storage.writeRefreshToken(refreshToken.trim());
+    await _client.storage.writeAccessToken(accessToken.trim());
   }
 
   Future<void> persistUser(AuthUser user) async {
@@ -26,8 +32,14 @@ extension AuthSessionStore on AuthSessionDataSource {
   }
 
   Future<void> clearSession() async {
-    await _client.storage.clearAll();
-    await _persister.clearUser();
+    try {
+      await _client.storage.clearAll();
+    } catch (_) {
+      // No impedir la limpieza del perfil local si falla el keystore.
+    }
+    try {
+      await _persister.clearUser();
+    } catch (_) {}
   }
 
   Future<String?> currentAccessToken() => _client.storage.readAccessToken();

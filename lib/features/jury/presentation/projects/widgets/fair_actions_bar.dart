@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:campusvote_flutter/core/theme/app_icons.dart';
 import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
 import 'package:campusvote_flutter/core/widgets/app_button.dart';
-import 'package:campusvote_flutter/core/widgets/app_notice.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 import 'package:campusvote_flutter/features/jury/presentation/state/jury_state.dart'
     show CategoryRubricProgress;
@@ -152,8 +151,9 @@ class _ActionsBarContent extends StatelessWidget {
       onPressed: () => context.push('/jury/fair/$fairId/progress'),
     );
 
-    // Determinar si hay alguna categoría con rúbricas pendientes
-    final hasAnyPending = categoryProgress.values.any((p) => !p.allSubmitted);
+    // Determinar si hay alguna categoría con rúbricas pendientes o sin proyectos
+    final hasAnyPending = categoryProgress.isEmpty ||
+        categoryProgress.values.any((p) => !p.allSubmitted);
     final pendingCategories = categoryProgress.entries
         .where((e) => !e.value.allSubmitted)
         .map((e) => e.value)
@@ -168,8 +168,11 @@ class _ActionsBarContent extends StatelessWidget {
       voteIcon = PhosphorIconsRegular.lockSimple;
       voteOnPressed = null;
     } else if (hasAnyPending) {
-      final totalPending = pendingCategories.fold<int>(0, (sum, p) => sum + p.pendingCount);
-      voteLabel = copy.t('Completa $totalPending rúbrica(s) para votar');
+      final totalPending =
+          pendingCategories.fold<int>(0, (sum, p) => sum + p.pendingCount);
+      voteLabel = totalPending > 0
+          ? copy.t('Completa $totalPending rúbrica(s) para votar')
+          : copy.t('Sin rúbricas completadas para votar');
       voteIcon = PhosphorIconsRegular.lockSimple;
       voteOnPressed = null;
     } else {

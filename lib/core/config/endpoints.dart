@@ -127,6 +127,7 @@ class NotificationEndpoints {
   static const String unreadCount = '/api/notifications/unread-count';
   static const String markAllRead = '/api/notifications/mark-all-read';
   static const String devices = '/api/notifications/devices';
+  static const String devicesOnLogout = '/api/notifications/devices/on-logout';
   static const String devicesTest = '/api/notifications/devices/test';
   static String markRead(String id) => '/api/notifications/$id';
 }

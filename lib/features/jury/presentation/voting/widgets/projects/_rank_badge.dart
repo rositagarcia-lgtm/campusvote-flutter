@@ -3,8 +3,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:campusvote_flutter/core/theme/app_icons.dart';
-import 'package:campusvote_flutter/core/theme/app_dimensions.dart'
-    show AppRadii, AppSpacing;
 
 /// Badge de posición (rank) para proyectos en la lista de votación.
 class RankBadge extends StatelessWidget {

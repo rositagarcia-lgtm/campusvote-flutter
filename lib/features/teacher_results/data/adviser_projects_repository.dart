@@ -98,7 +98,8 @@ class AdviserProjectsRepository {
   static const _path = '/api/projects/assisted/mine';
 
   Future<List<AdvisedProject>> mine() async {
-    final response = await _client.get(_path, query: {'limit': 50});
+    const limit = 50;
+    final response = await _client.get(_path, query: {'limit': limit});
     if ((response.statusCode ?? 500) >= 400) {
       throw DioException(
         requestOptions: RequestOptions(path: _path),
@@ -107,12 +108,37 @@ class AdviserProjectsRepository {
       );
     }
     final body = response.data;
-    final data = body is Map ? body['data'] : body;
-    return [
-      for (final p in data is List ? data : const [])
-        if (p is Map) AdvisedProject.fromJson(Map<String, dynamic>.from(p)),
+    final projects = <AdvisedProject>[
+      ..._parse(body is Map ? body['data'] : body),
     ];
+    // `/projects/assisted/mine` devuelve `meta.pagination`. Tomar solo la
+    // primera página ocultaba borradores cuando el docente asesoraba más de
+    // 50 proyectos.
+    final meta = body is Map ? body['meta'] : null;
+    final pagination = meta is Map ? meta['pagination'] : null;
+    final totalPages = pagination is Map
+        ? (pagination['totalPages'] as num?)?.toInt() ?? 1
+        : 1;
+    for (var page = 2; page <= totalPages; page++) {
+      final next =
+          await _client.get(_path, query: {'limit': limit, 'page': page});
+      if ((next.statusCode ?? 500) >= 400) {
+        throw DioException(
+          requestOptions: RequestOptions(path: _path),
+          response: next,
+          type: DioExceptionType.badResponse,
+        );
+      }
+      final nextBody = next.data;
+      projects.addAll(_parse(nextBody is Map ? nextBody['data'] : nextBody));
+    }
+    return projects;
   }
+
+  static List<AdvisedProject> _parse(Object? data) => [
+        for (final p in data is List ? data : const [])
+          if (p is Map) AdvisedProject.fromJson(Map<String, dynamic>.from(p)),
+      ];
 }
 
 final adviserProjectsRepositoryProvider = Provider<AdviserProjectsRepository>(

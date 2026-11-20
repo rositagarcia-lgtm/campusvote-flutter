@@ -42,7 +42,7 @@ class FairProgressBanner extends ConsumerWidget {
 }
 
 class ProgressBannerError extends StatelessWidget {
-  const ProgressBannerError();
+  const ProgressBannerError({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +59,7 @@ class ProgressBannerError extends StatelessWidget {
 
 class ProgressBannerContent extends StatelessWidget {
   const ProgressBannerContent({
+    super.key,
     required this.copy,
     required this.theme,
     required this.categoryProgress,
@@ -83,6 +84,8 @@ class ProgressBannerContent extends StatelessWidget {
         .fold<int>(0, (sum, p) => sum + p.completedRubrics);
     final totalPending = categoryProgress.values
         .fold<int>(0, (sum, p) => sum + p.pendingCount);
+    final totalDrafts = categoryProgress.values
+        .fold<int>(0, (sum, p) => sum + p.draftCount);
     final globalRatio = totalProjects > 0
         ? (totalCompleted / totalProjects).clamp(0.0, 1.0)
         : 0.0;
@@ -130,7 +133,8 @@ class ProgressBannerContent extends StatelessWidget {
           children: [
             for (final entry in categoryProgress.entries)
               CategoryProgressChip(
-                categoryName: entry.key == 'default' ? copy.t('General') : entry.key,
+                categoryName: entry.value.categoryName ??
+                    (entry.key == 'default' ? copy.t('General') : entry.key),
                 progress: entry.value,
                 theme: theme,
                 copy: copy,
@@ -149,9 +153,13 @@ class ProgressBannerContent extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
-                  copy.t(
-                    'Debes completar $totalPending rúbrica(s) pendiente(s) para habilitar la votación oficial.',
-                  ),
+                  totalDrafts > 0
+                      ? copy.t(
+                          'Debes finalizar $totalPending rúbrica(s) pendiente(s) ($totalDrafts en borrador sin enviar) para habilitar la votación oficial.',
+                        )
+                      : copy.t(
+                          'Debes completar $totalPending rúbrica(s) pendiente(s) para habilitar la votación oficial.',
+                        ),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     height: 1.4,

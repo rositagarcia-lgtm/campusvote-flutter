@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,11 +34,11 @@ void bindPushSync(
     if (token == null || !ref.read(authControllerProvider).authenticated) {
       return;
     }
-    await ref
-        .read(apiClientProvider)
-        .post(NotificationEndpoints.devices,
-            body: {'token': token, 'platform': AppPush.platform})
-        .then((_) {}, onError: (_) {});
+    await ref.read(apiClientProvider).post(NotificationEndpoints.devices,
+        body: {
+          'token': token,
+          'platform': AppPush.platform
+        }).then((_) {}, onError: (_) {});
   }
 
   void openInbox() => router.go('/notifications');
@@ -64,7 +65,8 @@ void bindPushSync(
         content: Text(title),
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
-          label: SettingsCopy(ref.read(appPreferencesProvider).language).t('Ver'),
+          label:
+              SettingsCopy(ref.read(appPreferencesProvider).language).t('Ver'),
           onPressed: openInbox,
         ),
       ));
@@ -72,14 +74,34 @@ void bindPushSync(
 }
 
 /// Quita este celular de la cuenta. Nunca bloquea el cierre de sesión.
-Future<void> unregisterPushDevice(Ref ref) async {
+///
+/// En logout forzado el access token puede estar expirado: se usa la ruta
+/// dedicada del backend y se marca `skipAuthRefresh` para que un 401 no
+/// vuelva a disparar refresh → logout → este mismo desregistro.
+Future<void> unregisterPushDevice(Ref ref, {bool forced = false}) async {
   final token = await AppPush.currentToken();
   if (token == null) return;
+  final dio = ref.read(apiClientProvider).dio;
+
+  Future<void> remove(String path) => dio
+      .delete(
+        path,
+        data: {'token': token},
+        options: Options(extra: const {'skipAuthRefresh': true}),
+      )
+      .timeout(const Duration(seconds: 4));
+
   try {
-    await ref
-        .read(apiClientProvider)
-        .dio
-        .delete(NotificationEndpoints.devices, data: {'token': token})
-        .timeout(const Duration(seconds: 4));
+    await remove(forced
+        ? NotificationEndpoints.devicesOnLogout
+        : NotificationEndpoints.devices);
+  } on DioException catch (e) {
+    // Backend anterior sin la ruta de logout: se mantiene compatibilidad con
+    // la instalación actual mientras el token siga siendo válido.
+    if (forced && e.response?.statusCode == 404) {
+      try {
+        await remove(NotificationEndpoints.devices);
+      } catch (_) {}
+    }
   } catch (_) {}
 }

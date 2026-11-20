@@ -77,21 +77,28 @@ class RubricFormController extends StateNotifier<RubricFormState> {
     }
     state = state.copyWith(saving: true, clearError: true, clearSuccess: true);
     try {
+      final previous = state.evaluation;
       final saved = await _repo.saveProjectRubric(
         args.fairId,
         args.projectId,
         answers: state.answers,
         finalize: finalize,
       );
+      final merged = previous == null
+          ? saved
+          : saved.copyWith(
+              rubric: saved.rubric.criteria.isEmpty ? previous.rubric : saved.rubric,
+              projectName: saved.projectName ?? previous.projectName,
+              projectStatus: saved.projectStatus ?? previous.projectStatus,
+              categoryName: saved.categoryName ?? previous.categoryName,
+            );
       state = state.copyWith(
         saving: false,
-        evaluation: saved,
-        successMessage:
-            finalize ? 'Evaluación finalizada.' : 'Borrador guardado.',
+        evaluation: merged,
+        successMessage: finalize ? 'Evaluación finalizada.' : 'Borrador guardado.',
       );
-      // Finalizar una rúbrica cambia "Mi progreso" y el listado de evaluaciones.
       if (finalize) _ref.invalidate(juryProgressProvider(args.fairId));
-      if (finalize) _ref.invalidate(myEvaluationsProvider(args.fairId));
+      _ref.invalidate(myEvaluationsProvider(args.fairId));
       AppAnalytics.event(finalize ? 'jury_rubric_finalized' : 'jury_rubric_draft_saved');
       AppHaptics.success();
       return true;

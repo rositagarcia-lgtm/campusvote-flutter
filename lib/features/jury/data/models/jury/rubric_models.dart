@@ -169,4 +169,6 @@ class RubricEvaluationModel {
           .toList(),
     );
   }
+
+  RubricEvaluationModel copyWith({RubricModel? rubric, String? projectName, String? projectStatus, String? categoryName}) { return RubricEvaluationModel(fairId: fairId, projectId: projectId, projectName: projectName ?? this.projectName, projectStatus: projectStatus ?? this.projectStatus, categoryName: categoryName ?? this.categoryName, rubric: rubric ?? this.rubric, submitted: submitted, submittedAt: submittedAt, checkedCount: checkedCount, criteriaCount: criteriaCount, score: score, responses: responses); }
 }

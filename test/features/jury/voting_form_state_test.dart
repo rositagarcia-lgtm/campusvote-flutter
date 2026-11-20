@@ -28,7 +28,7 @@ void main() {
       expect(baseState.canVote, isTrue);
       expect(
         baseState.copyWith(
-          status: VotingStatusModel(
+          status: const VotingStatusModel(
             fairId: 'fair-1',
             fairStatus: FairStatus.closed,
             hasVoted: false,

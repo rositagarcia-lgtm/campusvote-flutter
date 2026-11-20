@@ -2,7 +2,29 @@ import 'package:campusvote_flutter/core/network/api_client.dart';
 import 'package:campusvote_flutter/core/network/api_interceptor.dart';
 import 'package:campusvote_flutter/core/storage/secure_storage.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+class _CaptureAdapter implements HttpClientAdapter {
+  RequestOptions? captured;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    captured = options;
+    return ResponseBody.fromString(
+      '{}',
+      200,
+      headers: {'content-type': ['application/json']},
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
 
 class _Refresher implements AuthRefresher {
   int refreshes = 0;
@@ -42,6 +64,8 @@ Future<void> _respond401(
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late _Refresher refresher;
   late AuthInterceptor interceptor;
 
@@ -87,12 +111,13 @@ void main() {
     expect(refresher.logouts, 0);
   });
 
-  test('una excepción al renovar no se filtra ni bloquea el siguiente 401',
+  test('una excepción al renovar fuerza logout y no bloquea el siguiente 401',
       () async {
     refresher.shouldThrow = true;
     await _respond401(interceptor, '/api/fairs/my-assignments');
     expect(refresher.refreshes, 1);
-    expect(refresher.logouts, 0);
+    // Antes se conservaba la sesión y el poll seguía enviando el token muerto.
+    expect(refresher.logouts, 1);
 
     // Si los waiters no se completaran en el finally, este segundo refresh
     // nunca llegaría a ejecutarse.
@@ -106,5 +131,47 @@ void main() {
     await _respond401(interceptor, '/api/fairs/my-assignments');
     expect(refresher.refreshes, 1);
     expect(refresher.logouts, 1);
+  });
+
+  test('una petición pública ignora tokens viejos y su 401', () async {
+    const channel =
+        MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+      return switch (call.method) {
+        'read' => 'token-viejo',
+        _ => null,
+      };
+    });
+    addTearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+    });
+
+    final options = RequestOptions(
+      path: '/api/fair-jury-invitations/accept/new',
+      extra: const {'skipAuth': true},
+    );
+    await interceptor.onRequest(options, RequestInterceptorHandler());
+    expect(options.headers.containsKey('Authorization'), isFalse);
+
+    await interceptor.onResponse(
+      Response(requestOptions: options, statusCode: 401),
+      ResponseInterceptorHandler(),
+    );
+    expect(refresher.refreshes, 0);
+    expect(refresher.logouts, 0);
+  });
+
+  test('postPublic marca la petición como pública', () async {
+    final api = ApiClient(storage: SecureStorage());
+    final adapter = _CaptureAdapter();
+    api.dio.httpClientAdapter = adapter;
+
+    await api.postPublic('/api/fair-jury-invitations/accept/new', body: {
+      'token': 'x',
+    });
+
+    expect(adapter.captured?.extra['skipAuth'], isTrue);
   });
 }

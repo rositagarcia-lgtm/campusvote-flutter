@@ -65,6 +65,19 @@ class ApiClient {
     );
   }
 
+  /// Petición pública: ni adjunta token ni deja que el interceptor reaccione
+  /// a un 401. La usa la invitación de jurado, que debe funcionar aunque el
+  /// navegador tenga credenciales viejas de otra sesión.
+  Future<Response<dynamic>> postPublic(String path,
+      {Object? body, Map<String, dynamic>? query}) {
+    return _dio.post(
+      path,
+      data: body,
+      queryParameters: query,
+      options: Options(extra: const {'skipAuth': true}),
+    );
+  }
+
   Future<Response<dynamic>> patch(String path, {Object? body}) {
     return _dio.patch(path, data: body);
   }

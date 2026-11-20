@@ -42,7 +42,12 @@ class _CampusVoteAppState extends ConsumerState<CampusVoteApp> {
     bindLocaleSync(ref);
     bindPushSync(ref, _router, _messenger);
     _brandPoll = Timer.periodic(const Duration(seconds: 5), (_) {
-      ref.read(authControllerProvider.notifier).refreshBranding();
+      // Sin sesión no hay branding que consultar. Sin este guard, un 401 no
+      // cerrado dejaba al cliente golpeando /api/organizations/:id cada cinco
+      // segundos con un token inválido durante minutos.
+      if (ref.read(authControllerProvider).authenticated) {
+        ref.read(authControllerProvider.notifier).refreshBranding();
+      }
     });
   }
 

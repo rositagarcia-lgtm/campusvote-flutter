@@ -36,7 +36,10 @@ class MyCertificate {
     return winner && place == null;
   }
 
-  int get rank => place ?? (winner ? 1 : 0);
+  /// 0 = sin puesto conocido. Antes se inventaba el 1 para cualquier ganador
+  /// sin `place`, y la tarjeta decía "Primer puesto" con un premio que el
+  /// servidor nunca confirmó.
+  int get rank => place ?? 0;
 
   factory MyCertificate.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> map(Object? v) =>
@@ -45,7 +48,8 @@ class MyCertificate {
     final project = map(json['project']);
     final category = '${project['category'] ?? ''}'.trim();
     final rawPlace = json['place'];
-    final place = rawPlace is num ? rawPlace.toInt() : int.tryParse('$rawPlace');
+    final place =
+        rawPlace is num ? rawPlace.toInt() : int.tryParse('$rawPlace');
     return MyCertificate(
       id: '${json['id'] ?? ''}',
       winner: json['certificate_type'] == 'WINNER',
@@ -70,8 +74,7 @@ class CertificatesRepository {
     final list = data is Map ? data['certificates'] : null;
     return [
       for (final c in list is List ? list : const [])
-        if (c is Map)
-          MyCertificate.fromJson(Map<String, dynamic>.from(c)),
+        if (c is Map) MyCertificate.fromJson(Map<String, dynamic>.from(c)),
     ].where((certificate) => certificate.shown).toList();
   }
 

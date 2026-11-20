@@ -1,3 +1,5 @@
+import 'package:campusvote_flutter/core/di/core_providers.dart';
+import 'package:campusvote_flutter/core/storage/local_storage.dart';
 import 'package:campusvote_flutter/core/theme/app_theme.dart';
 import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart';
 import 'package:campusvote_flutter/features/jury/domain/repositories/jury_repository.dart';
@@ -6,6 +8,7 @@ import 'package:campusvote_flutter/features/jury/presentation/providers/data/jur
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('muestra proyecto asignado, rúbrica y estado anónimo del voto',
@@ -13,9 +16,13 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(400, 1100));
     addTearDown(() async => tester.binding.setSurfaceSize(null));
 
+    SharedPreferences.setMockInitialValues({});
+    final storage = await LocalStorage.create();
+
     await tester.pumpWidget(ProviderScope(
       overrides: [
         juryRepositoryProvider.overrideWithValue(_Repository()),
+        localStorageProvider.overrideWithValue(storage),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),

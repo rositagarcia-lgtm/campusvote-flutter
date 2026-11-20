@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:campusvote_flutter/core/theme/app_icons.dart';
 import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
-import 'package:campusvote_flutter/core/widgets/app_button.dart';
 import 'package:campusvote_flutter/core/widgets/app_card.dart';
-import 'package:campusvote_flutter/core/widgets/app_notice.dart';
-import 'package:campusvote_flutter/core/widgets/app_status_chip.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart'
     show VotingStatusModel, VoteReceiptModel;

@@ -2,6 +2,7 @@ import 'package:campusvote_flutter/core/theme/app_theme.dart';
 import 'package:campusvote_flutter/features/jury/presentation/projects/widgets/declaration_gate.dart';
 import 'package:campusvote_flutter/features/jury/presentation/projects/widgets/fair_actions_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,7 +14,7 @@ Widget _app(Widget child) {
       builder: (_, __) => const Scaffold(body: Text('DECLARACIÓN')),
     ),
   ]);
-  return MaterialApp.router(theme: AppTheme.light(), routerConfig: router);
+  return ProviderScope(child: MaterialApp.router(theme: AppTheme.light(), routerConfig: router));
 }
 
 void main() {

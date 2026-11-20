@@ -44,6 +44,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     _avatarTicket++;
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -85,75 +86,76 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           top: false,
           child: RefreshIndicator.adaptive(
             onRefresh: () =>
-                ref.read(authControllerProvider.notifier).refreshBranding(),
+                ref.read(authControllerProvider.notifier).retryBranding(),
             child: PageScrollBody(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(AppSpacing.l),
-            maxWidth: kFormMaxWidth,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AccountIdentityHeader(
-                  accent: accent,
-                  avatarUrl: user?.avatarUrl,
-                  displayName: user?.displayName ?? text.t('Usuario'),
-                  email: user?.email ?? '',
-                  roleLabel: text.t(AuthRole.label(user?.role)),
-                  uploading: auth.submitting,
-                  onPickPhoto: _pickPhoto,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                AccountSection(
-                  overline: text.t('Institución'),
-                  child: AccountOrganizationRow(branding: branding),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                SectionHeader(label: text.t('Ajustes')),
-                AccountSettingsGroup(
-                  items: [
-                    // Certificados de feria: el alumno participa con su proyecto.
-                    if (AppFeatures.studentCertificates &&
-                        user?.role == AuthRole.student)
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppSpacing.l),
+              maxWidth: kFormMaxWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AccountIdentityHeader(
+                    accent: accent,
+                    avatarUrl: user?.avatarUrl,
+                    displayName: user?.displayName ?? text.t('Usuario'),
+                    email: user?.email ?? '',
+                    roleLabel: text.t(AuthRole.label(user?.role)),
+                    uploading: auth.submitting,
+                    onPickPhoto: _pickPhoto,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  AccountSection(
+                    overline: text.t('Institución'),
+                    child: AccountOrganizationRow(branding: branding),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  SectionHeader(label: text.t('Ajustes')),
+                  AccountSettingsGroup(
+                    items: [
+                      // Certificados de feria: el alumno participa con su proyecto.
+                      if (AppFeatures.studentCertificates &&
+                          user?.role == AuthRole.student)
+                        AccountSettingsItem(
+                          icon: PhosphorIconsRegular.certificate,
+                          title: text.t('Mis certificados'),
+                          subtitle:
+                              text.t('Consulta tus certificados de feria'),
+                          onTap: () => context.push('/certificados'),
+                        ),
                       AccountSettingsItem(
-                        icon: PhosphorIconsRegular.certificate,
-                        title: text.t('Mis certificados'),
-                        subtitle: text.t('Consulta tus certificados de feria'),
-                        onTap: () => context.push('/certificados'),
+                        icon: PhosphorIconsRegular.shieldCheck,
+                        title: text.t('Seguridad'),
+                        subtitle: text.t(security.hint),
+                        trailing: security == SecurityLevel.loading
+                            ? null
+                            : AccountStatusPill(
+                                label: text.t(security == SecurityLevel.strong
+                                    ? 'Protegida'
+                                    : 'Básica'),
+                                color: security.color,
+                              ),
+                        onTap: () => context.push('/security'),
                       ),
-                    AccountSettingsItem(
-                      icon: PhosphorIconsRegular.shieldCheck,
-                      title: text.t('Seguridad'),
-                      subtitle: text.t(security.hint),
-                      trailing: security == SecurityLevel.loading
-                          ? null
-                          : AccountStatusPill(
-                              label: text.t(security == SecurityLevel.strong
-                                  ? 'Protegida'
-                                  : 'Básica'),
-                              color: security.color,
-                            ),
-                      onTap: () => context.push('/security'),
-                    ),
-                    AccountSettingsItem(
-                      icon: PhosphorIconsRegular.gear,
-                      title: text.t('Preferencias'),
-                      subtitle: text.t('Tema, idioma y tamaño de texto'),
-                      onTap: () => context.push('/settings'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                AppButton.danger(
-                  label: text.t('Cerrar sesión'),
-                  icon: PhosphorIconsRegular.signOut,
-                  onPressed: () {
-                    _avatarTicket++;
-                    ref.read(pendingAvatarProvider.notifier).state = null;
-                    confirmAndLogout(context, ref);
-                  },
-                ),
-              ],
-            ),
+                      AccountSettingsItem(
+                        icon: PhosphorIconsRegular.gear,
+                        title: text.t('Preferencias'),
+                        subtitle: text.t('Tema, idioma y tamaño de texto'),
+                        onTap: () => context.push('/settings'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  AppButton.danger(
+                    label: text.t('Cerrar sesión'),
+                    icon: PhosphorIconsRegular.signOut,
+                    onPressed: () {
+                      _avatarTicket++;
+                      ref.read(pendingAvatarProvider.notifier).state = null;
+                      confirmAndLogout(context, ref);
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

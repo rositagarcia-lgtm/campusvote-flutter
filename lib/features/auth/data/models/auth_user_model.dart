@@ -11,6 +11,7 @@ class AuthUserModel extends AuthUser {
     super.role,
     super.organizationId,
     super.avatarUrl,
+    super.mustChangePassword,
   });
 
   static String _str(dynamic v) => (v ?? '').toString();
@@ -18,6 +19,15 @@ class AuthUserModel extends AuthUser {
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
     final avatar =
         json['avatar_url'] as String? ?? json['avatarUrl'] as String?;
+    // `/me` envía el flag en la raíz; las respuestas de acceso lo anidan en
+    // `user`. Se aceptan ambas grafías para no depender de la versión del
+    // backend ni del endpoint.
+    dynamic rawFlag =
+        json['must_change_password'] ?? json['mustChangePassword'];
+    final nested = json['user'];
+    if (rawFlag is! bool && nested is Map) {
+      rawFlag = nested['must_change_password'] ?? nested['mustChangePassword'];
+    }
     return AuthUserModel(
       id: _str(json['id'] ?? json['userId']),
       email: _str(json['email']),
@@ -27,6 +37,7 @@ class AuthUserModel extends AuthUser {
       organizationId: json['organization_id'] as String? ??
           json['organizationId'] as String?,
       avatarUrl: (avatar == null || avatar.isEmpty) ? null : avatar,
+      mustChangePassword: rawFlag is bool && rawFlag,
     );
   }
 
@@ -38,6 +49,7 @@ class AuthUserModel extends AuthUser {
         role: u.role,
         organizationId: u.organizationId,
         avatarUrl: u.avatarUrl,
+        mustChangePassword: u.mustChangePassword,
       );
 
   AuthUser toEntity() => AuthUser(
@@ -48,5 +60,6 @@ class AuthUserModel extends AuthUser {
         role: role,
         organizationId: organizationId,
         avatarUrl: avatarUrl,
+        mustChangePassword: mustChangePassword,
       );
 }

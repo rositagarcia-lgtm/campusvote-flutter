@@ -24,6 +24,9 @@ class SharedPrefsAuthUserPersister implements AuthUserPersister {
           // Sin esto la foto de perfil se perdía al reabrir la app aunque el
           // servidor sí la tuviera guardada.
           'avatarUrl': user.avatarUrl,
+          // La barrera de contraseña temporal vive en el cliente; sin
+          // guardarla, reabrir la app dejaba al jurado usar la clave temporal.
+          'mustChangePassword': user.mustChangePassword,
         }));
   }
 
@@ -41,6 +44,7 @@ class SharedPrefsAuthUserPersister implements AuthUserPersister {
         role: map['role'] as String?,
         organizationId: map['organizationId'] as String?,
         avatarUrl: map['avatarUrl'] as String?,
+        mustChangePassword: map['mustChangePassword'] == true,
       );
     } catch (_) {
       return null;

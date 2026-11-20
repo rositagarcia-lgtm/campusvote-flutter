@@ -48,6 +48,12 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // Rutas públicas (aceptar invitación, crear cuenta): un token viejo en el
+    // navegador no debe convertirlas en una sesión caducada.
+    if (options.extra['skipAuth'] == true) {
+      options.headers.remove('Authorization');
+      return handler.next(options);
+    }
     // Respeta un Authorization preestablecido por la capa de datos (por
     // ejemplo, un tempToken de TOTP durante login-verify).
     if (options.path.contains('/auth/refresh') ||
@@ -73,12 +79,20 @@ class AuthInterceptor extends Interceptor {
     // bucle de POST /auth/logout varias veces por segundo.
     final isAuthCall = options.path.contains('/auth/refresh') ||
         options.path.contains('/auth/login') ||
-        options.path.contains('/auth/logout');
+        options.path.contains('/auth/logout') ||
+        // Estos desafíos usan un `tempToken` en Authorization, no la sesión
+        // definitiva. Un 401 por código expirado no debe renovar ni cerrar la
+        // sesión almacenada (y menos reintentar con el access token nuevo).
+        options.path.contains('/auth/totp/login-verify') ||
+        options.path.contains('/auth/email/login-verify') ||
+        options.path.contains('/auth/email/resend');
     final hadSession = options.headers.containsKey('Authorization');
 
     if (response.statusCode == 401 &&
         !alreadyRetried &&
         !isAuthCall &&
+        options.extra['skipAuth'] != true &&
+        options.extra['skipAuthRefresh'] != true &&
         hadSession) {
       final outcome = await _refreshTokenSafely();
       if (outcome == RefreshOutcome.refreshed) {
@@ -118,11 +132,12 @@ class AuthInterceptor extends Interceptor {
     try {
       outcome = await _refresher.tryRefresh();
     } catch (_) {
-      // La renovación nunca debe filtrarse al catch genérico de la pantalla:
-      // eso convertía un 401 vencido en "revisa tu conexión". Si no sabemos
-      // qué pasó, conservamos la sesión y dejamos que la petición original
-      // siga su curso con su propio estado.
-      outcome = RefreshOutcome.unavailable;
+      // Si no pudimos siquiera leer el refresh token (storage bloqueado,
+      // clave corrupta, plugin no disponible) no hay forma de recuperar la
+      // sesión. Conservarla deja al cliente enviando el mismo token muerto
+      // cada 5 segundos: por eso aquí se fuerza logout. Los fallos de red
+      // del POST sí se clasifican como `unavailable` dentro de tryRefresh().
+      outcome = RefreshOutcome.invalid;
     } finally {
       _refreshing = false;
       // Sin esto, una excepción dejaba a los 401 concurrentes esperando para

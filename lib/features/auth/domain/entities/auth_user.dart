@@ -8,6 +8,11 @@ class AuthUser {
   final String? organizationId;
   final String? avatarUrl;
 
+  /// El backend lo envía en `/me` y en las respuestas de acceso. Sin
+  /// persistirlo, reabrir la app perdía la obligación de cambiar la clave
+  /// temporal y el router dejaba de exigirla.
+  final bool mustChangePassword;
+
   const AuthUser({
     required this.id,
     required this.email,
@@ -16,6 +21,7 @@ class AuthUser {
     this.role,
     this.organizationId,
     this.avatarUrl,
+    this.mustChangePassword = false,
   });
 
   String get displayName {
@@ -34,6 +40,7 @@ class AuthUser {
     String? role,
     String? organizationId,
     String? avatarUrl,
+    bool? mustChangePassword,
   }) {
     return AuthUser(
       id: id,
@@ -43,6 +50,7 @@ class AuthUser {
       role: role ?? this.role,
       organizationId: organizationId ?? this.organizationId,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      mustChangePassword: mustChangePassword ?? this.mustChangePassword,
     );
   }
 }

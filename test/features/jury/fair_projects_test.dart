@@ -1,3 +1,5 @@
+import 'package:campusvote_flutter/core/di/core_providers.dart';
+import 'package:campusvote_flutter/core/storage/local_storage.dart';
 import 'package:campusvote_flutter/core/theme/app_theme.dart';
 import 'package:campusvote_flutter/core/widgets/app_card.dart';
 import 'package:campusvote_flutter/core/widgets/app_segmented_option.dart';
@@ -6,7 +8,9 @@ import 'package:campusvote_flutter/features/jury/presentation/projects/fair_proj
 import 'package:campusvote_flutter/features/jury/presentation/projects/widgets/fair_project_card.dart';
 import 'package:campusvote_flutter/features/jury/presentation/projects/widgets/fair_project_filter_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const alpha = FairProjectModel(
   id: 'a',
@@ -139,7 +143,9 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(MaterialApp(
+      SharedPreferences.setMockInitialValues({});
+      final storage = await LocalStorage.create();
+      await tester.pumpWidget(ProviderScope(overrides: [localStorageProvider.overrideWithValue(storage)], child: MaterialApp(
         theme: AppTheme.light(),
         home: Scaffold(body: FairProjectFilterBar(
           selected: selected,
@@ -147,7 +153,7 @@ void main() {
           submittedIds: submittedIds,
           onSelected: onSelected ?? (_) {},
         )),
-      ));
+      )));
       await tester.pumpAndSettle();
     }
 
@@ -202,14 +208,16 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(MaterialApp(
+      SharedPreferences.setMockInitialValues({});
+      final storage = await LocalStorage.create();
+      await tester.pumpWidget(ProviderScope(overrides: [localStorageProvider.overrideWithValue(storage)], child: MaterialApp(
         theme: AppTheme.light(),
         home: Scaffold(body: FairProjectCard(
           fairId: 'f1',
           project: alpha,
           evaluationSubmitted: submitted,
         )),
-      ));
+      )));
       await tester.pumpAndSettle();
     }
 
@@ -255,7 +263,9 @@ void main() {
   group('control segmentado compartido', () {
     testWidgets('el contador no se pega al nombre y marca selección',
         (tester) async {
-      await tester.pumpWidget(MaterialApp(
+      SharedPreferences.setMockInitialValues({});
+      final storage = await LocalStorage.create();
+      await tester.pumpWidget(ProviderScope(overrides: [localStorageProvider.overrideWithValue(storage)], child: MaterialApp(
         theme: AppTheme.light(),
         home: const Scaffold(body: AppSegmentOption(
           label: 'Todos',
@@ -264,7 +274,7 @@ void main() {
           onTap: _noop,
           style: AppSegmentStyle.filled,
         )),
-      ));
+      )));
       await tester.pumpAndSettle();
       expect(find.text('Todos'), findsOneWidget);
       expect(find.text('12'), findsOneWidget);

@@ -87,7 +87,7 @@ class _ProjectContent extends ConsumerWidget {
 
     return RefreshIndicator.adaptive(
       onRefresh: () async {
-        await ref.read(authControllerProvider.notifier).refreshBranding();
+        await ref.read(authControllerProvider.notifier).retryBranding();
         ref.invalidate(fairProjectsProvider(fairId));
         ref.invalidate(myEvaluationsProvider(fairId));
         ref.invalidate(juryProgressProvider(fairId));
@@ -151,7 +151,8 @@ class _ProjectContent extends ConsumerWidget {
             const NoticeBanner(
               tone: AppTone.warning,
               icon: PhosphorIconsRegular.eye,
-              message: 'Vista previa: estudia el proyecto. Podrás completar la rúbrica y votar cuando empiece la feria.',
+              message:
+                  'Vista previa: estudia el proyecto. Podrás completar la rúbrica y votar cuando empiece la feria.',
             )
           else if (progress.isLoading)
             const Center(child: CircularProgressIndicator.adaptive())

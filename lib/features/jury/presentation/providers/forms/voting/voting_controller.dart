@@ -3,7 +3,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../data/models/jury_models.dart';
-import '../../../../data/datasources/jury_remote_datasource.dart';
+import '../../../../domain/repositories/jury_repository.dart';
 import '../../data/jury_dependencies.dart'
     show describeJuryError, juryRepositoryProvider;
 import '../../../state/jury_state.dart';
@@ -26,6 +26,40 @@ class VotingFormController extends StateNotifier<VotingFormState> {
   final Ref _ref;
   final String fairId;
 
+  Future<List<FairProjectModel>> _fetchAllProjects(JuryRepository repo) async {
+    final first = await repo.getFairProjects(fairId);
+    if (first.totalPages <= 1) return first.items;
+
+    final rest = await Future.wait([
+      for (var page = 2; page <= first.totalPages; page++)
+        repo.getFairProjects(fairId, page: page),
+    ]);
+    return [
+      ...first.items,
+      for (final p in rest) ...p.items,
+    ];
+  }
+
+  Future<List<JuryEvaluationSummaryModel>> _fetchAllEvaluations(
+    JuryRepository repo,
+  ) async {
+    final first = await repo.getMyEvaluations(
+      fairId: fairId,
+      page: 1,
+      limit: 100,
+    );
+    if (first.totalPages <= 1) return first.items;
+
+    final rest = await Future.wait([
+      for (var page = 2; page <= first.totalPages; page++)
+        repo.getMyEvaluations(fairId: fairId, page: page, limit: 100),
+    ]);
+    return [
+      ...first.items,
+      for (final e in rest) ...e.items,
+    ];
+  }
+
   Future<void> load() async {
     state = state.copyWith(
       loading: true,
@@ -37,31 +71,22 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       final repo = _ref.read(juryRepositoryProvider);
       final results = await Future.wait([
         repo.getVotingStatus(fairId),
-        repo.getFairProjects(fairId),
-        repo.getMyEvaluations(fairId: fairId, page: 1, limit: 200),
+        _fetchAllProjects(repo),
+        _fetchAllEvaluations(repo),
       ]);
-      // El repositorio entrega los proyectos paginados: tratarlos como
-      // `List` lanzaba un TypeError y la pantalla mostraba "No se pudo
-      // completar la operación" sin llegar a cargar la votación.
-      final firstProjects = results[1] as PaginatedResult<FairProjectModel>;
-      final allProjects = [...firstProjects.items];
-      for (var page = 2; page <= firstProjects.totalPages; page++) {
-        allProjects.addAll(
-            (await repo.getFairProjects(fairId, page: page)).items);
-      }
-      final status = results[0] as VotingStatusModel;
-      final firstEvals = results[2] as PaginatedResult<JuryEvaluationSummaryModel>;
-      final allEvals = [...firstEvals.items];
-      for (var page = 2; page <= firstEvals.totalPages; page++) {
-        allEvals.addAll(
-          (await repo.getMyEvaluations(fairId: fairId, page: page, limit: 200))
-              .items,
-        );
-      }
+      if (!mounted) return;
 
-      // Calcular progreso de rúbricas por categoría
+      final status = results[0] as VotingStatusModel;
+      final allProjects = results[1] as List<FairProjectModel>;
+      final allEvals = results[2] as List<JuryEvaluationSummaryModel>;
+
+      // El servidor solo acepta votos por proyectos aprobados.
+      final approvedProjects = allProjects
+          .where((p) => p.status == 'APPROVED')
+          .toList(growable: false);
+
       final categoryProgress = calculateCategoryProgress(
-        projects: allProjects.where((p) => p.status == 'APPROVED').toList(),
+        projects: approvedProjects,
         evaluations: allEvals,
         categories: status.categories,
       );
@@ -72,19 +97,16 @@ class VotingFormController extends StateNotifier<VotingFormState> {
         evaluationsLoading: false,
         scores: extractMyScores(allEvals),
         status: status,
-        // El jurado vota solo en su categoría.
-        // Empieza por la primera categoría sin voto (excepción: varias).
         activeCategoryId: status.categories.isEmpty
             ? null
             : (status.categories.where((c) => !c.hasVoted).firstOrNull ??
                     status.categories.first)
                 .id,
-        // El servidor solo acepta votos por proyectos aprobados.
-        projects:
-            allProjects.where((p) => p.status == 'APPROVED').toList(growable: false),
+        projects: approvedProjects,
         categoryProgress: categoryProgress,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         loading: false,
         evaluationsLoading: false,
@@ -93,10 +115,7 @@ class VotingFormController extends StateNotifier<VotingFormState> {
     }
   }
 
-  /// Reconciliación ligera tras una respuesta ambigua del voto: no vuelve a
-  /// solicitar proyectos para desbloquear una selección ya cargada, pero sí
-  /// recalcula el progreso con las evaluaciones vigentes en el servidor.
-  /// [preserveMessage] conserva el motivo del rechazo mientras se refresca.
+  /// Reconciliación ligera tras una respuesta ambigua del voto.
   Future<void> refreshStatus({String? preserveMessage}) async {
     state = state.copyWith(
       loading: true,
@@ -108,17 +127,12 @@ class VotingFormController extends StateNotifier<VotingFormState> {
       final repo = _ref.read(juryRepositoryProvider);
       final results = await Future.wait([
         repo.getVotingStatus(fairId),
-        repo.getMyEvaluations(fairId: fairId, page: 1, limit: 200),
+        _fetchAllEvaluations(repo),
       ]);
+      if (!mounted) return;
+
       final status = results[0] as VotingStatusModel;
-      final firstEvals = results[1] as PaginatedResult<JuryEvaluationSummaryModel>;
-      final allEvals = [...firstEvals.items];
-      for (var page = 2; page <= firstEvals.totalPages; page++) {
-        allEvals.addAll(
-          (await repo.getMyEvaluations(fairId: fairId, page: page, limit: 200))
-              .items,
-        );
-      }
+      final allEvals = results[1] as List<JuryEvaluationSummaryModel>;
 
       final categoryProgress = calculateCategoryProgress(
         projects: state.projects,
@@ -136,6 +150,7 @@ class VotingFormController extends StateNotifier<VotingFormState> {
         clearError: status.hasVoted,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         loading: false,
         evaluationsLoading: false,
@@ -172,6 +187,8 @@ class VotingFormController extends StateNotifier<VotingFormState> {
     try {
       final receipt =
           await _ref.read(juryRepositoryProvider).castVote(fairId, projectId);
+      if (!mounted) return true;
+
       state = state.copyWith(
         submitting: false,
         receipt: receipt,
@@ -183,22 +200,18 @@ class VotingFormController extends StateNotifier<VotingFormState> {
             ),
         clearSelection: true,
       );
-      // "Mi progreso" resume la participación: sin invalidarlo seguiría
-      // mostrando el voto como pendiente al volver a esa pantalla.
       _ref.invalidate(juryProgressProvider(fairId));
       AppAnalytics.event('jury_vote_cast');
       AppHaptics.success();
       return true;
     } catch (e) {
+      if (!mounted) return false;
       final message = describeJuryError(e);
       state = state.copyWith(
         submitting: false,
         requiresStatusRefresh: true,
         errorMessage: message,
       );
-      // El POST pudo llegar al servidor aunque la respuesta se haya perdido.
-      // Reconsultamos participación Y rúbricas antes de habilitar un reintento:
-      // el backend es la autoridad y su progreso puede haber cambiado.
       await refreshStatus(preserveMessage: message);
       return false;
     }

@@ -40,7 +40,8 @@ extension AuthProfile on AuthController {
         return true;
       },
       failure: (f) {
-        patch(currentState.copyWith(submitting: false, errorMessage: f.message));
+        patch(
+            currentState.copyWith(submitting: false, errorMessage: f.message));
         return false;
       },
     );
@@ -57,11 +58,16 @@ extension AuthProfile on AuthController {
     );
     return res.when(
       success: (_) {
-        patch(currentState.copyWith(submitting: false, mustChangePassword: false));
+        patch(currentState.copyWith(
+            submitting: false, mustChangePassword: false));
+        // El flag también vive en la copia persistida; `/me` ya devuelve
+        // `must_change_password: false` y la actualiza sin bloquear la UI.
+        unawaited(_hydrateProfile());
         return true;
       },
       failure: (f) {
-        patch(currentState.copyWith(submitting: false, errorMessage: f.message));
+        patch(
+            currentState.copyWith(submitting: false, errorMessage: f.message));
         return false;
       },
     );

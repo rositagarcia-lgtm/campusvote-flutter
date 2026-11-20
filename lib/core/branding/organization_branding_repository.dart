@@ -35,11 +35,19 @@ class OrganizationBrandingRepository {
       );
       final data = r.data;
       if (!r.success || data == null || !data.containsKey('id')) {
+        final error = r.error;
+        final message = error?.message ??
+            r.message ??
+            'No se pudo cargar la organización';
+        if (error != null && isInvalidSessionCode(error.code)) {
+          return FailureResult(UnauthorizedFailure(
+            message: message,
+            code: error.code,
+          ));
+        }
         return FailureResult(UnknownFailure(
-          message: r.error?.message ??
-              r.message ??
-              'No se pudo cargar la organización',
-          code: r.error?.code,
+          message: message,
+          code: error?.code,
         ));
       }
       return Success(OrganizationBranding.fromOrganizationJson(data));

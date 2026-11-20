@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:campusvote_flutter/core/theme/app_icons.dart';
 import 'package:campusvote_flutter/core/theme/app_dimensions.dart'
     show AppRadii, AppSpacing;
-import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 
 /// Chip que indica que la rúbrica del proyecto está pendiente.
 class RubricPendingChip extends StatelessWidget {

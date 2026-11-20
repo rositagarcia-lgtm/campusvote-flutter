@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:campusvote_flutter/core/theme/app_icons.dart';
 import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
-import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart'
-    show VotingStatusModel;
 
 /// Encabezado del ranking de votación: muestra cuántas rúbricas se han finalizado
 /// y cómo se ordenan los proyectos según el criterio propio del jurado.

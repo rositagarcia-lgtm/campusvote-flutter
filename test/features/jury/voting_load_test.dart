@@ -58,20 +58,19 @@ class _Repo implements JuryRepository {
     String? fairId,
   }) async {
     final items = <JuryEvaluationSummaryModel>[
-      JuryEvaluationSummaryModel(
+      const JuryEvaluationSummaryModel(
         id: 'eval-1',
         fairId: 'f-1',
         projectId: 'a',
         submitted: true,
       ),
-      JuryEvaluationSummaryModel(
+      const JuryEvaluationSummaryModel(
         id: 'eval-2',
         fairId: 'f-1',
         projectId: 'c',
         submitted: true,
       ),
     ];
-    final totalPages = (items.length + limit - 1) ~/ limit;
     final start = (page - 1) * limit;
     final end = start + limit;
     final pageItems = items.getRange(start, end.clamp(0, items.length)).toList();

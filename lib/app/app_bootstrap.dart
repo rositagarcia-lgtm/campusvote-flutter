@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/di/core_providers.dart';
 import '../core/network/api_interceptor.dart';
+import '../core/push/push_sync.dart';
 import '../core/storage/local_storage.dart';
 import '../features/auth/data/datasources/auth_user_persister.dart';
 import '../features/auth/data/repositories/auth_repository_impl.dart';
@@ -38,6 +39,7 @@ Future<List<Override>> appBootstrapOverrides() async {
       // AuthRepositoryImpl implementa AuthRefresher (ver auth_repository_impl.dart),
       // por eso el cast es válido.
       return _ForcedLogoutAdapter(
+        ref,
         () => ref.read(authRepositoryProvider) as AuthRefresher,
         events,
       );
@@ -46,10 +48,9 @@ Future<List<Override>> appBootstrapOverrides() async {
 }
 
 class _ForcedLogoutAdapter implements AuthRefresher {
-  _ForcedLogoutAdapter(
-      AuthRefresher Function() inner, AuthEventsController events)
-      : _inner = inner,
-        _events = events;
+  _ForcedLogoutAdapter(this._ref, this._inner, this._events);
+
+  final Ref _ref;
 
   /// Se llama en el momento del refresh, no al arrancar la app.
   final AuthRefresher Function() _inner;
@@ -60,8 +61,22 @@ class _ForcedLogoutAdapter implements AuthRefresher {
 
   @override
   Future<void> logout() async {
-    await _inner().logout();
-    _events.notifyForcedLogout();
+    try {
+      // Antes de borrar el access token: el endpoint dedicado acepta el JWT
+      // expirado y borra solo el FCM token de este usuario. `skipAuthRefresh`
+      // evita que su 401 vuelva a entrar aquí.
+      await unregisterPushDevice(_ref, forced: true);
+    } catch (_) {
+      // No debe impedir el cierre de sesión local si falla Firebase o la red.
+    }
+    try {
+      await _inner().logout();
+    } catch (_) {
+      // Garantiza que el evento de logout forzado se dispare incluso si
+      // falla la llamada remota al endpoint /auth/logout.
+    } finally {
+      _events.notifyForcedLogout();
+    }
   }
 }
 

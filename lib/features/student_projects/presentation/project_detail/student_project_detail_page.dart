@@ -62,7 +62,7 @@ class StudentProjectDetailPage extends ConsumerWidget {
             )
           : null,
       onRefresh: () async {
-        await ref.read(authControllerProvider.notifier).refreshBranding();
+        await ref.read(authControllerProvider.notifier).retryBranding();
         ref.invalidate(projectFeedbackProvider(project));
         if (fair != null) {
           ref.invalidate(
@@ -97,8 +97,8 @@ class _StandProjectDetail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = SettingsCopy.of(context);
-    final sheet = ref.watch(
-        audienceProjectProvider((fairId: fairId, projectId: projectId)));
+    final sheet = ref
+        .watch(audienceProjectProvider((fairId: fairId, projectId: projectId)));
 
     return sheet.when(
       loading: () => Scaffold(appBar: AppBar(), body: const AppLoader()),
@@ -118,10 +118,12 @@ class _StandProjectDetail extends ConsumerWidget {
           showStar: false,
           starTooltip: text.t('Reseñas'),
           onStar: () {},
-          onRate: data.canRate ? () => _rateStand(context, ref, fairId, data) : null,
+          onRate: data.canRate
+              ? () => _rateStand(context, ref, fairId, data)
+              : null,
           rateTooltip: data.myScore == null ? 'Calificar' : 'Editar tu opinión',
           onRefresh: () async {
-            await ref.read(authControllerProvider.notifier).refreshBranding();
+            await ref.read(authControllerProvider.notifier).retryBranding();
             ref.invalidate(audienceProjectProvider(
                 (fairId: fairId, projectId: projectId)));
           },
@@ -160,8 +162,9 @@ Future<void> _rateStand(
   ref.invalidate(audienceBoardProvider(fairId));
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(SettingsCopy.of(context).t('¡Gracias! Tu opinión quedó guardada.'))),
+      SnackBar(
+          content: Text(SettingsCopy.of(context)
+              .t('¡Gracias! Tu opinión quedó guardada.'))),
     );
   }
 }
-

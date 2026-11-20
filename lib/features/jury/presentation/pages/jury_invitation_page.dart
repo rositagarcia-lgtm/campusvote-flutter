@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/core_providers.dart';
 import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/result.dart';
 import '../../../../core/routing/deep_links.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_icons.dart';
@@ -15,9 +16,39 @@ import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/state/auth_controller.dart';
 import '../../../settings/presentation/settings_copy.dart';
+import '../providers/jury_providers.dart';
 
 const _acceptNew = '/api/fair-jury-invitations/accept/new';
 const _acceptExisting = '/api/fair-jury-invitations/accept';
+
+/// La invitación nunca debe caer en el error genérico de las pantallas de
+/// datos: cada fallo tiene una acción concreta para quien abrió el enlace.
+String describeInvitationError(Object error) {
+  final failure = mapExceptionToFailure(error);
+  final code = (failure.code ?? '').toUpperCase();
+
+  if (failure is NetworkFailure || failure is TimeoutFailure) {
+    return 'No pudimos contactar al servidor. Revisa tu conexión e inténtalo de nuevo.';
+  }
+  if (failure is UnauthorizedFailure || failure is ForbiddenFailure) {
+    return 'Inicia sesión con el correo invitado para aceptar esta invitación.';
+  }
+  if (failure is ConflictFailure ||
+      code.contains('ALREADY') ||
+      code.contains('USED')) {
+    return 'Esta invitación ya fue aceptada. Ingresa con tu cuenta de jurado.';
+  }
+  if (failure is ValidationFailure ||
+      failure is NotFoundFailure ||
+      code.contains('INVALID') ||
+      code.contains('EXPIRED')) {
+    return 'El enlace de la invitación no es válido o ya venció. Pide una nueva invitación.';
+  }
+  if (failure is ServerFailure || failure is RateLimitFailure) {
+    return 'El servicio no está disponible por el momento. Inténtalo más tarde.';
+  }
+  return 'No pudimos procesar la invitación. Inténtalo de nuevo.';
+}
 
 /// `/j/invitacion?token=…` — el jurado externo acepta su invitación en la app.
 ///
@@ -47,8 +78,15 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
     super.dispose();
   }
 
-  Future<void> _post(String path, Map<String, dynamic> body) async {
-    final response = await ref.read(apiClientProvider).post(path, body: body);
+  Future<void> _post(
+    String path,
+    Map<String, dynamic> body, {
+    bool public = false,
+  }) async {
+    final api = ref.read(apiClientProvider);
+    final response = public
+        ? await api.postPublic(path, body: body)
+        : await api.post(path, body: body);
     if ((response.statusCode ?? 500) >= 400) {
       throw DioException(
         requestOptions: RequestOptions(path: path),
@@ -67,7 +105,7 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
       await action();
     } catch (error) {
       if (mounted) {
-        setState(() => _error = mapExceptionToFailure(error).message);
+        setState(() => _error = describeInvitationError(error));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -76,6 +114,11 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
 
   Future<void> _acceptWithSession() => _run(() async {
         await _post(_acceptExisting, {'token': widget.token});
+        // El backend puede haber cambiado el rol al aceptar: actualizar el
+        // perfil y limpiar el dashboard evita caer en "No pudimos cargar" al
+        // entrar al panel con datos/rol anteriores a la invitación.
+        await ref.read(authControllerProvider.notifier).refreshProfile();
+        ref.invalidate(juryDashboardProvider);
         if (mounted) context.go('/jury');
       });
 
@@ -91,7 +134,10 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
     }
     await _run(() async {
       await _post(
-          _acceptNew, {'token': widget.token, 'password': _password.text});
+        _acceptNew,
+        {'token': widget.token, 'password': _password.text},
+        public: true,
+      );
       if (mounted) {
         setState(() => _done =
             'Listo: tu cuenta de jurado quedó creada. Ingresa con tu correo y la contraseña que acabas de elegir.');

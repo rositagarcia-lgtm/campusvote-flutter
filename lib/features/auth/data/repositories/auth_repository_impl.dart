@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/result.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_interceptor.dart';
@@ -181,23 +182,4 @@ class AuthRepositoryImpl implements AuthRepository, AuthRefresher {
   @override
   Future<Result<AuthUser>> updateAvatar(File file) =>
       _profile.updateAvatar(file);
-}
-
-/// El backend puede rechazar el refresh con códigos propios
-/// (`REFRESH_TOKEN_EXPIRED`, `INVALID_REFRESH_TOKEN`, …) en vez de con un 401.
-/// Sin esto se clasificaban como "servidor no disponible": no se cerraba la
-/// sesión y el usuario se quedaba en la pantalla con un error de red falso.
-bool isInvalidSessionCode(String? rawCode) {
-  final code = (rawCode ?? '').toUpperCase();
-  if (code.isEmpty) return false;
-  return code == 'UNAUTHORIZED' ||
-      code == 'FORBIDDEN' ||
-      code == 'UNAUTHENTICATED' ||
-      // El backend real responde 401 con `INVALID_TOKEN`; el patrón genérico
-      // `TOKEN` + `INVALID` no lo cubría por el orden de las palabras.
-      code == 'INVALID_TOKEN' ||
-      code == 'TOKEN_INVALID' ||
-      code.contains('EXPIRED') ||
-      code.contains('REVOKED') ||
-      (code.contains('TOKEN') && code.contains('INVALID'));
 }

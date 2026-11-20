@@ -11,7 +11,9 @@ import '../domain/teacher_results.dart';
 /// (`/api/academic/evaluation-results/teacher/:id/*`).
 ///
 /// El backend devuelve 409 mientras la jornada está abierta y `data: null`
-/// si hay menos respuestas que el mínimo.
+/// si hay menos respuestas que el mínimo. El 409 es global de la jornada
+/// (misma guarda para summary/criteria/distribution/comments/evolution), no
+/// un bloque por sección: no se reintenta por separado ni se mezclan estados.
 class TeacherResultsRepository {
   TeacherResultsRepository(this._client);
   final ApiClient _client;

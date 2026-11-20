@@ -6,7 +6,7 @@ import '../../../../../../core/theme/app_dimensions.dart';
 
 /// Skeleton del banner de progreso mientras carga.
 class ProgressBannerSkeleton extends StatelessWidget {
-  const ProgressBannerSkeleton();
+  const ProgressBannerSkeleton({super.key});
 
   @override
   Widget build(BuildContext context) {

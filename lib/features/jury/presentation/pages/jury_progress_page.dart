@@ -68,7 +68,7 @@ Future<void> reloadJuryProgress(
 ) async {
   final before = ref.read(juryProgressProvider(fairId)).valueOrNull;
   try {
-    await ref.read(authControllerProvider.notifier).refreshBranding();
+    await ref.read(authControllerProvider.notifier).retryBranding();
     ref.invalidate(juryVotingStatusProvider(fairId));
     await ref.read(juryProgressProvider(fairId).notifier).reload();
   } catch (_) {

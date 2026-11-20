@@ -53,6 +53,7 @@ extension AuthEmailLogin on AuthController {
       },
     );
     if (data == null) return false;
+    _resetBrandingFetch();
     final user = await _ref.read(authRepositoryProvider).currentUser();
     patch(currentState.copyWith(
       submitting: false,

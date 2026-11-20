@@ -10,8 +10,6 @@ import 'package:campusvote_flutter/core/widgets/app_motion.dart'
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart'
     show FairProjectModel;
-import 'package:campusvote_flutter/features/jury/presentation/state/jury_state.dart'
-    show CategoryRubricProgress, VotingFormState;
 import '_rubric_pending_chip.dart';
 import '_rank_badge.dart';
 import '_thumb.dart';

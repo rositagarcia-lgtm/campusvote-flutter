@@ -1,6 +1,5 @@
 // voting_ranking.dart
 
-import 'package:flutter/material.dart';
 
 import 'package:campusvote_flutter/features/jury/presentation/voting/widgets/voting_ranking/voting_ranking_header.dart';
 import 'package:campusvote_flutter/features/jury/presentation/voting/widgets/voting_ranking/ranked_project_option.dart';

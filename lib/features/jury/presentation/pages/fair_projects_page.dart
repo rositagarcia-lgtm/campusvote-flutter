@@ -28,7 +28,7 @@ class FairProjectsPage extends ConsumerWidget {
     final projects = ref.watch(fairProjectsProvider(fairId));
     final branding = ref.watch(brandingControllerProvider);
     Future<void> reload() async {
-      await ref.read(authControllerProvider.notifier).refreshBranding();
+      await ref.read(authControllerProvider.notifier).retryBranding();
       ref.invalidate(fairProjectsProvider(fairId));
       ref.invalidate(myEvaluationsProvider(fairId));
       ref.invalidate(juryProgressProvider(fairId));

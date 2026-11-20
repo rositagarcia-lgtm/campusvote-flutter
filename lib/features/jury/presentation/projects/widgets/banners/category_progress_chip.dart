@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:campusvote_flutter/core/theme/app_icons.dart';
 import 'package:campusvote_flutter/core/theme/app_dimensions.dart';
-import 'package:campusvote_flutter/core/widgets/app_palette.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
 import 'package:campusvote_flutter/features/jury/presentation/state/jury_state.dart'
     show CategoryRubricProgress;

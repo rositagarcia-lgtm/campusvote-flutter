@@ -9,26 +9,36 @@ class CategoryRubricProgress {
     required this.totalProjects,
     required this.completedRubrics,
     required this.pendingRubricProjectIds,
+    this.categoryName,
+    this.draftCount = 0,
   });
 
   final String categoryId;
+  final String? categoryName;
   final int totalProjects;
   final int completedRubrics;
+  final int draftCount;
   final List<String> pendingRubricProjectIds;
 
-  bool get allSubmitted => totalProjects > 0 && completedRubrics == totalProjects;
+  bool get allSubmitted =>
+      totalProjects > 0 && completedRubrics == totalProjects;
   int get pendingCount => pendingRubricProjectIds.length;
 
   CategoryRubricProgress copyWith({
+    String? categoryName,
     int? totalProjects,
     int? completedRubrics,
+    int? draftCount,
     List<String>? pendingRubricProjectIds,
   }) =>
       CategoryRubricProgress(
         categoryId: categoryId,
+        categoryName: categoryName ?? this.categoryName,
         totalProjects: totalProjects ?? this.totalProjects,
         completedRubrics: completedRubrics ?? this.completedRubrics,
-        pendingRubricProjectIds: pendingRubricProjectIds ?? this.pendingRubricProjectIds,
+        draftCount: draftCount ?? this.draftCount,
+        pendingRubricProjectIds:
+            pendingRubricProjectIds ?? this.pendingRubricProjectIds,
       );
 }
 
@@ -140,17 +150,16 @@ class VotingFormState {
   final String? errorMessage;
 
   /// Regla 5: bloqueada si la feria no está abierta o ya voted.
-  /// REGLA NUEVA: requiere 100% rúbricas finalizadas en la categoría activa.
+  /// Requiere 100% rúbricas finalizadas (submitted == true) en la categoría activa.
   bool get canVote {
     final baseCanVote = categories.isEmpty
         ? (status?.canVote ?? false)
         : (status?.windowOpen ?? false) && !(activeCategory?.hasVoted ?? true);
 
-    // Verificar progreso de rúbricas: si hay categoría activa, usar su progreso;
-    // si no hay categorías (legacy), buscar progreso en 'default'.
     final rubricsComplete = activeCategoryId != null
         ? activeCategoryAllRubricsSubmitted
-        : (categoryProgress['default']?.allSubmitted ?? false);
+        : categoryProgress.isNotEmpty &&
+            categoryProgress.values.every((p) => p.allSubmitted);
 
     return baseCanVote &&
         rubricsComplete &&
