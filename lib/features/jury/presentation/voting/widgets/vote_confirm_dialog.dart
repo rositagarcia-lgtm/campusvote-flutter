@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_icons.dart';
 import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/app_card.dart';
 import '../../../../../core/widgets/translatable_text.dart';
 import '../../../../settings/presentation/settings_copy.dart';
 import '../../../data/models/jury_models.dart';
@@ -22,79 +23,140 @@ Future<bool> confirmVoteDialog(
     builder: (dialogContext) {
       final copy = SettingsCopy.of(dialogContext);
       return AlertDialog(
-      scrollable: true,
-      title: Text(copy.t('Confirma tu voto oficial')),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        scrollable: true,
+        backgroundColor: Theme.of(dialogContext).colorScheme.surface,
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.rXLarge),
+        title: Column(
           children: [
-            Text(
-              copy.t(
-                'Revisa la selección. Después de enviarlo, no podrás cambiar ni repetir tu voto.',
-              ),
-            ),
-            if (fairName != null) ...[
-              const SizedBox(height: AppSpacing.l),
-              Text(
-                copy.t('Feria'),
-                style: Theme.of(dialogContext).textTheme.labelMedium,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              TranslatableText(
-                fairName,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-            const SizedBox(height: AppSpacing.l),
-            Text(
-              copy.t('Proyecto'),
-              style: Theme.of(dialogContext).textTheme.labelMedium,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              project.name,
-              style: Theme.of(dialogContext)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            if (project.description.trim().isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.s),
-              TranslatableText(
-                project.description,
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-            if (project.categoryName != null) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(project.categoryName!),
-            ],
-            const SizedBox(height: AppSpacing.m),
-            Text(
-              copy.t(
-                'El comprobante confirma tu participación; no revela tu selección.',
-              ),
-            ),
+            Icon(PhosphorIconsRegular.checkSquareOffset,
+                size: 40, color: Theme.of(dialogContext).colorScheme.primary),
+            const SizedBox(height: AppSpacing.s),
+            Text(copy.t('Confirma tu voto oficial'),
+                textAlign: TextAlign.center),
           ],
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(copy.t('Volver')),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                copy.t(
+                  'Revisa la selección. Después de enviarlo, no podrás cambiar ni repetir tu voto.',
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.l),
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (fairName != null) ...[
+                      _DetailRow(
+                        icon: PhosphorIconsRegular.calendarCheck,
+                        label: copy.t('Feria'),
+                        child: TranslatableText(fairName),
+                      ),
+                      const Divider(height: AppSpacing.xl),
+                    ],
+                    _DetailRow(
+                      icon: PhosphorIconsRegular.folderOpen,
+                      label: copy.t('Proyecto'),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            project.name,
+                            style: Theme.of(dialogContext)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          if (project.description.trim().isNotEmpty) ...[
+                            const SizedBox(height: AppSpacing.s),
+                            TranslatableText(
+                              project.description,
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (project.categoryName != null) ...[
+                      const Divider(height: AppSpacing.xl),
+                      _DetailRow(
+                        icon: PhosphorIconsRegular.squaresFour,
+                        label: copy.isEnglish ? 'Category' : 'Categoría',
+                        child: Text(project.categoryName!),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.m),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(PhosphorIconsRegular.info,
+                      size: AppDimensions.iconMedium,
+                      color: Theme.of(dialogContext).colorScheme.primary),
+                  const SizedBox(width: AppSpacing.s),
+                  Expanded(
+                    child: Text(copy.t(
+                      'El comprobante confirma tu participación; no revela tu selección.',
+                    )),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        FilledButton.icon(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          icon: const Icon(PhosphorIconsRegular.lockSimple),
-          label: Text(copy.t('Confirmar voto')),
-        ),
-      ],
-    );
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(copy.t('Volver')),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            icon: const Icon(PhosphorIconsRegular.lockSimple),
+            label: Text(copy.t('Confirmar voto')),
+          ),
+        ],
+      );
     },
   );
   return confirmed == true;
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow(
+      {required this.icon, required this.label, required this.child});
+
+  final IconData icon;
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon,
+            size: AppDimensions.iconMedium, color: theme.colorScheme.primary),
+        const SizedBox(width: AppSpacing.s),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: theme.textTheme.labelMedium),
+              const SizedBox(height: AppSpacing.xs),
+              child,
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

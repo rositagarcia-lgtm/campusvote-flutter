@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icons.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_motion.dart';
@@ -13,71 +15,93 @@ import '../../../settings/presentation/settings_copy.dart';
 /// Comprobante del voto: confirma que quedó registrado y muestra el código
 /// para copiarlo.
 class VoteReceiptView extends StatelessWidget {
-  const VoteReceiptView({super.key, required this.receipt});
+  const VoteReceiptView(
+      {super.key, required this.receipt, required this.onReturn});
 
   final VoteReceiptModel receipt;
+  final VoidCallback onReturn;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return PageScrollBody(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: AppSpacing.xxl),
-          const Center(child: SuccessMark()),
-          const SizedBox(height: AppSpacing.l),
-          Semantics(
-            header: true,
-            child: Text(
-              SettingsCopy.of(context).t('Voto registrado'),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
+    final copy = SettingsCopy.of(context);
+    return Column(
+      children: [
+        Expanded(
+          child: PageScrollBody(
+            child: AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: AppSpacing.l),
+                  const Center(child: SuccessMark(color: AppColors.success)),
+                  const SizedBox(height: AppSpacing.l),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      copy.t('Voto registrado'),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s),
+                  Text(
+                    copy.isEnglish
+                        ? 'Your vote was recorded successfully.'
+                        : 'Tu voto fue registrado correctamente.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(copy.t('Comprobante'),
+                            style: theme.textTheme.labelMedium),
+                        const SizedBox(height: AppSpacing.s),
+                        Semantics(
+                          label: copy.receiptCode(receipt.receiptCode),
+                          excludeSemantics: true,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: SelectableText(
+                              receipt.receiptCode,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.l),
+                  Center(
+                    child: StatusChip(
+                      label: copy.t('Voto anónimo'),
+                      tone: AppTone.success,
+                      icon: PhosphorIconsRegular.lockSimple,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.l),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.s),
-          Text(
-            SettingsCopy.of(context).t(
-                'Guarda este comprobante. No muestra por quién votaste, solo que participaste.'),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium,
+        ),
+        ActionFooter(
+          child: AppButton(
+            label: copy.isEnglish ? 'Back to voting' : 'Volver a la votación',
+            icon: PhosphorIconsRegular.arrowLeft,
+            onPressed: onReturn,
           ),
-          const SizedBox(height: AppSpacing.l),
-          AppCard(
-            child: Column(
-              children: [
-                Text(SettingsCopy.of(context).t('Comprobante'),
-                    style: theme.textTheme.labelMedium),
-                const SizedBox(height: AppSpacing.xs),
-                Semantics(
-                  label:
-                      SettingsCopy.of(context).receiptCode(receipt.receiptCode),
-                  excludeSemantics: true,
-                  child: SelectableText(
-                    receipt.receiptCode,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.m),
-          Center(
-            child: StatusChip(
-              label: SettingsCopy.of(context).t('Voto anónimo'),
-              tone: AppTone.success,
-              icon: PhosphorIconsRegular.lockSimple,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

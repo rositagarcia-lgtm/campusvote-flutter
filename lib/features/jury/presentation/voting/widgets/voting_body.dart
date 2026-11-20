@@ -23,7 +23,7 @@ part 'voting_body/voting_projects.dart';
 ///
 /// Tres salidas posibles, todas reales: comprobante (acaba de votar), estado de
 /// participación (ya votó antes) o el formulario de selección.
-class VotingBody extends StatelessWidget {
+class VotingBody extends StatefulWidget {
   const VotingBody({
     super.key,
     required this.fairName,
@@ -38,13 +38,37 @@ class VotingBody extends StatelessWidget {
   final VoidCallback onSubmitted;
 
   @override
+  State<VotingBody> createState() => _VotingBodyState();
+}
+
+class _VotingBodyState extends State<VotingBody> {
+  bool _returnedToVoting = false;
+
+  @override
+  void didUpdateWidget(covariant VotingBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller.fairId != widget.controller.fairId ||
+        oldWidget.state.activeCategoryId != widget.state.activeCategoryId) {
+      _returnedToVoting = false;
+    }
+  }
+
+  String? get fairName => widget.fairName;
+  VotingFormState get state => widget.state;
+  VotingFormController get controller => widget.controller;
+  VoidCallback get onSubmitted => widget.onSubmitted;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final status = state.status!;
 
     final next = state.nextPendingCategory;
-    if (state.receipt != null) {
-      final receipt = VoteReceiptView(receipt: state.receipt!);
+    if (state.receipt != null && !_returnedToVoting) {
+      final receipt = VoteReceiptView(
+        receipt: state.receipt!,
+        onReturn: () => setState(() => _returnedToVoting = true),
+      );
       if (next == null) return receipt;
       // Jurado con excepción: le falta votar en otra categoría asignada.
       return Column(
@@ -64,7 +88,7 @@ class VotingBody extends StatelessWidget {
         ],
       );
     }
-    if (state.hasVoted) {
+    if (state.hasVoted && !_returnedToVoting) {
       final voted = VoteParticipationView(status: status);
       if (next == null) return voted;
       // Ya votó en esta categoría; le falta otra asignada (excepción).
@@ -131,6 +155,15 @@ class VotingBody extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: AppSpacing.xl),
+              if (state.hasVoted) ...[
+                NoticeBanner(
+                  message: SettingsCopy.of(context).t(
+                      'Ya emitiste tu voto en esta feria. No puedes repetirlo.'),
+                  tone: AppTone.success,
+                  icon: PhosphorIconsRegular.lockSimple,
+                ),
+                const SizedBox(height: AppSpacing.l),
+              ],
               if (!status.isOpen)
                 const NoticeBanner(
                   message:
@@ -185,7 +218,7 @@ class VotingBody extends StatelessWidget {
             ],
           ),
         ),
-        _submitBar(context),
+        if (!state.hasVoted) _submitBar(context),
       ],
     );
   }
