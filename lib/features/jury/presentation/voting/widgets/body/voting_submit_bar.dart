@@ -16,11 +16,13 @@ import '../vote_confirm_dialog.dart';
 class VotingSubmitBar extends StatelessWidget {
   const VotingSubmitBar({
     super.key,
+    required this.fairName,
     required this.state,
     required this.controller,
     required this.onSubmitted,
   });
 
+  final String? fairName;
   final VotingFormState state;
   final VotingFormController controller;
   final VoidCallback onSubmitted;
@@ -70,7 +72,7 @@ class VotingSubmitBar extends StatelessWidget {
     if (matches.isEmpty) return;
     final confirmed = await confirmVoteDialog(
       context,
-      fairName: null,
+      fairName: fairName,
       project: matches.first,
     );
     if (!confirmed) return;

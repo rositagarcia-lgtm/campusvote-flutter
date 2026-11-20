@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_icons.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -35,7 +34,7 @@ class VoteReceiptView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: AppSpacing.l),
-                  const Center(child: SuccessMark(color: AppColors.success)),
+                  Center(child: SuccessMark(color: theme.colorScheme.primary)),
                   const SizedBox(height: AppSpacing.l),
                   Semantics(
                     header: true,
@@ -60,8 +59,19 @@ class VoteReceiptView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(copy.t('Comprobante'),
-                            style: theme.textTheme.labelMedium),
+                        Row(
+                          children: [
+                            Icon(PhosphorIconsRegular.clipboardText,
+                                size: AppDimensions.iconMedium,
+                                color: theme.colorScheme.primary),
+                            const SizedBox(width: AppSpacing.s),
+                            Text(copy.t('Comprobante'),
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w700,
+                                )),
+                          ],
+                        ),
                         const SizedBox(height: AppSpacing.s),
                         Semantics(
                           label: copy.receiptCode(receipt.receiptCode),

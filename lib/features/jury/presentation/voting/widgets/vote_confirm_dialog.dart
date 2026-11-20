@@ -22,14 +22,22 @@ Future<bool> confirmVoteDialog(
     context: context,
     builder: (dialogContext) {
       final copy = SettingsCopy.of(dialogContext);
+      final primary = Theme.of(dialogContext).colorScheme.primary;
       return AlertDialog(
         scrollable: true,
         backgroundColor: Theme.of(dialogContext).colorScheme.surface,
         shape: const RoundedRectangleBorder(borderRadius: AppRadii.rXLarge),
         title: Column(
           children: [
-            Icon(PhosphorIconsRegular.checkSquareOffset,
-                size: 40, color: Theme.of(dialogContext).colorScheme.primary),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.m),
+              decoration: BoxDecoration(
+                color: primary.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              child:
+                  Icon(PhosphorIconsFill.checkCircle, size: 40, color: primary),
+            ),
             const SizedBox(height: AppSpacing.s),
             Text(copy.t('Confirma tu voto oficial'),
                 textAlign: TextAlign.center),
@@ -113,14 +121,32 @@ Future<bool> confirmVoteDialog(
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(copy.t('Volver')),
-          ),
-          FilledButton.icon(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            icon: const Icon(PhosphorIconsRegular.lockSimple),
-            label: Text(copy.t('Confirmar voto')),
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: primary,
+                      side: BorderSide(color: primary),
+                    ),
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                    child: Text(copy.t('Volver')),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.s),
+                Expanded(
+                  flex: 3,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(true),
+                    child: Text(copy.t('Confirmar voto'),
+                        maxLines: 2, textAlign: TextAlign.center),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       );
@@ -150,7 +176,11 @@ class _DetailRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: theme.textTheme.labelMedium),
+              Text(label,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  )),
               const SizedBox(height: AppSpacing.xs),
               child,
             ],

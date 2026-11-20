@@ -10,6 +10,8 @@ import 'package:campusvote_flutter/core/widgets/app_motion.dart';
 import 'package:campusvote_flutter/core/widgets/app_notice.dart';
 import 'package:campusvote_flutter/core/widgets/app_status_chip.dart';
 import 'package:campusvote_flutter/features/settings/presentation/settings_copy.dart';
+import 'package:campusvote_flutter/features/jury/data/models/jury_models.dart'
+    show VoteReceiptModel;
 import 'package:campusvote_flutter/features/jury/presentation/state/jury_state.dart'
     show VotingFormState;
 import 'package:campusvote_flutter/features/jury/presentation/providers/forms/voting/voting_controller.dart'
@@ -24,7 +26,7 @@ import 'voting_hero_section.dart';
 ///
 /// Tres salidas posibles, todas reales: comprobante (acaba de votar), estado de
 /// participación (ya votó antes) o el formulario de selección.
-class VotingBody extends StatelessWidget {
+class VotingBody extends StatefulWidget {
   const VotingBody({
     super.key,
     required this.fairName,
@@ -39,13 +41,58 @@ class VotingBody extends StatelessWidget {
   final VoidCallback onSubmitted;
 
   @override
+  State<VotingBody> createState() => _VotingBodyState();
+}
+
+class _VotingBodyState extends State<VotingBody> {
+  bool _returnedToVoting = false;
+
+  // Solo para la vista inmediata: conserva el comprobante recibido si una
+  // reconstrucción refresca el estado antes de que el jurado lo vea.
+  VoteReceiptModel? _recentReceipt;
+
+  @override
+  void initState() {
+    super.initState();
+    _recentReceipt = widget.state.receipt;
+  }
+
+  @override
+  void didUpdateWidget(covariant VotingBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller) ||
+        oldWidget.controller.fairId != widget.controller.fairId ||
+        oldWidget.state.activeCategoryId != widget.state.activeCategoryId) {
+      _returnedToVoting = false;
+      _recentReceipt = null;
+    }
+    if (widget.state.receipt != null &&
+        !identical(widget.state.receipt, oldWidget.state.receipt)) {
+      _recentReceipt = widget.state.receipt;
+      _returnedToVoting = false;
+    }
+  }
+
+  String? get fairName => widget.fairName;
+  VotingFormState get state => widget.state;
+  VotingFormController get controller => widget.controller;
+  VoidCallback get onSubmitted => widget.onSubmitted;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final status = state.status!;
 
     final next = state.nextPendingCategory;
-    if (state.receipt != null) {
-      final receipt = VoteReceiptView(receipt: state.receipt!);
+    final recentReceipt = state.receipt ?? _recentReceipt;
+    if (recentReceipt != null && !_returnedToVoting) {
+      final receipt = VoteReceiptView(
+        receipt: recentReceipt,
+        onReturn: () => setState(() {
+          _returnedToVoting = true;
+          _recentReceipt = null;
+        }),
+      );
       if (next == null) return receipt;
       // Jurado con excepción: le falta votar en otra categoría asignada.
       return Column(
@@ -65,7 +112,7 @@ class VotingBody extends StatelessWidget {
         ],
       );
     }
-    if (state.hasVoted) {
+    if (state.hasVoted && !_returnedToVoting) {
       final voted = VoteParticipationView(status: status);
       if (next == null) return voted;
       // Ya votó en esta categoría; le falta otra asignada (excepción).
@@ -196,11 +243,13 @@ class VotingBody extends StatelessWidget {
             ],
           ),
         ),
-        VotingSubmitBar(
-          state: state,
-          controller: controller,
-          onSubmitted: onSubmitted,
-        ),
+        if (!state.hasVoted)
+          VotingSubmitBar(
+            fairName: fairName,
+            state: state,
+            controller: controller,
+            onSubmitted: onSubmitted,
+          ),
       ],
     );
   }
