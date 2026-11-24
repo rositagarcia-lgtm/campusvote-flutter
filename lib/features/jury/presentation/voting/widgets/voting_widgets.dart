@@ -149,39 +149,151 @@ class VoteParticipationView extends StatelessWidget {
     final theme = Theme.of(context);
     final copy = SettingsCopy.of(context);
     final votedAt = status.votedAt;
+    final primary = theme.colorScheme.primary;
 
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(PhosphorIconsFill.checkCircle, color: theme.colorScheme.tertiary),
-              const SizedBox(width: AppSpacing.s),
-              Text(
+    return PageScrollBody(
+      maxWidth: kFormMaxWidth,
+      child: AppCard(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: primary.withValues(alpha: 0.10),
+                ),
+                child: Icon(PhosphorIconsBold.check, size: 40, color: primary),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.l),
+            Semantics(
+              header: true,
+              child: Text(
                 copy.t('Ya has votado'),
-                style: theme.textTheme.titleMedium?.copyWith(
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.tertiary,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Text(
+              copy.t('Tu voto oficial ya fue emitido en esta categoría.'),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (votedAt != null) ...[
+              const SizedBox(height: AppSpacing.xl),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.l),
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.06),
+                  borderRadius: AppRadii.rLarge,
+                  border: Border.all(color: primary.withValues(alpha: 0.12)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(PhosphorIconsRegular.calendarBlank,
+                        size: AppDimensions.iconLarge, color: primary),
+                    const SizedBox(width: AppSpacing.m),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            copy.isEnglish
+                                ? 'Date and time of vote'
+                                : 'Fecha y hora del voto',
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            copy.isEnglish
+                                ? 'Voted on ${_formatDate(votedAt)}'
+                                : 'Votaste el ${_formatDate(votedAt)}',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.m),
-          Text(
-            copy.t('Tu voto oficial ya fue emitido en esta categoría.'),
-            style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-          ),
-          if (votedAt != null) ...[
-            const SizedBox(height: AppSpacing.m),
+            const SizedBox(height: AppSpacing.xl),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.m, vertical: AppSpacing.s),
+                decoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(PhosphorIconsRegular.lockSimple,
+                        size: AppDimensions.iconMedium, color: primary),
+                    const SizedBox(width: AppSpacing.s),
+                    Flexible(
+                      child: Text(
+                        copy.t('Voto anónimo'),
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s),
             Text(
-              copy.t('Votaste el ${_formatDate(votedAt)}'),
+              copy.isEnglish
+                  ? 'Your selection remains anonymous.'
+                  : 'Tu selección permanece anónima.',
+              textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            const SizedBox(height: AppSpacing.l),
+            const Divider(),
+            const SizedBox(height: AppSpacing.l),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(PhosphorIconsRegular.info,
+                    size: AppDimensions.iconMedium, color: primary),
+                const SizedBox(width: AppSpacing.s),
+                Expanded(
+                  child: Text(
+                    copy.isEnglish
+                        ? 'Your vote was recorded successfully and cannot be changed.'
+                        : 'Tu voto se registró correctamente y no puede ser modificado.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
-        ],
+        ),
       ),
     );
   }
