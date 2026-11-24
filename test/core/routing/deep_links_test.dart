@@ -69,6 +69,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('La contraseña debe tener al menos 10 caracteres.'),
         findsOneWidget);
+
+    final fields = find.byType(TextFormField);
+    final editable = find.byType(EditableText);
+    expect(tester.widget<EditableText>(editable.at(0)).obscureText, isTrue);
+    expect(tester.widget<EditableText>(editable.at(1)).obscureText, isTrue);
+    await tester.enterText(fields.at(0), 'abcdefghij');
+    await tester.enterText(fields.at(1), 'abcdefghik');
+    final confirmFocus = tester.widget<EditableText>(editable.at(1)).focusNode;
+    expect(confirmFocus.hasFocus, isTrue);
+
+    await tester.tap(find.byTooltip('Mostrar contraseña').at(0));
+    await tester.pump();
+    expect(tester.widget<EditableText>(editable.at(0)).obscureText, isFalse);
+    expect(tester.widget<EditableText>(editable.at(1)).obscureText, isTrue);
+    expect(confirmFocus.hasFocus, isTrue);
+
+    await tester.tap(find.byTooltip('Mostrar contraseña'));
+    await tester.pump();
+    expect(tester.widget<EditableText>(editable.at(0)).obscureText, isFalse);
+    expect(tester.widget<EditableText>(editable.at(1)).obscureText, isFalse);
+    await tester.tap(find.byTooltip('Ocultar contraseña').at(0));
+    await tester.pump();
+    expect(tester.widget<EditableText>(editable.at(0)).obscureText, isTrue);
+    expect(tester.widget<EditableText>(editable.at(1)).obscureText, isFalse);
+    expect(tester.widget<TextFormField>(fields.at(0)).controller!.text,
+        'abcdefghij');
+    expect(tester.widget<TextFormField>(fields.at(1)).controller!.text,
+        'abcdefghik');
+    expect(confirmFocus.hasFocus, isTrue);
+
+    await tester.ensureVisible(find.text('Crear mi cuenta y aceptar'));
+    await tester.tap(find.text('Crear mi cuenta y aceptar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Las contraseñas no coinciden.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -5,12 +5,12 @@ import '../../../../core/theme/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_appbar.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_notice.dart';
 import '../../../../core/widgets/app_page_layout.dart';
 import '../../../settings/presentation/settings_copy.dart';
 import '../../../../core/widgets/translatable_text.dart';
-import '../../../../core/widgets/app_palette.dart';
 import '../../../../core/widgets/app_status_chip.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../providers/jury_providers.dart';
@@ -72,36 +72,178 @@ class _BodyState extends State<_Body> {
 
     if (state.signed && state.status?.declaration != null) {
       final declaration = state.status!.declaration!;
+      final primary = theme.colorScheme.primary;
+      final success = appToneColors(AppTone.success, isDark: isDark);
       return PageScrollBody(
+        maxWidth: kFormMaxWidth,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const StatusChip(
-              label: 'Declaración firmada',
-              tone: AppTone.success,
-              icon: PhosphorIconsFill.sealCheck,
+            Center(
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: success.bg,
+                ),
+                child: Icon(PhosphorIconsFill.sealCheck,
+                    size: 48, color: success.fg),
+              ),
             ),
             const SizedBox(height: AppSpacing.l),
-            Text(
-              copy.t('Tu declaración'),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.m),
-            TranslatableText(
-              declaration.statement,
-              style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-            ),
-            if (declaration.signedAt != null) ...[
-              const SizedBox(height: AppSpacing.m),
-              Text(
-                copy.recordedOn(declaration.signedAt!),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: appMuted(isDark),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.l, vertical: AppSpacing.s),
+                decoration: BoxDecoration(
+                  color: success.bg,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(PhosphorIconsFill.sealCheck,
+                        size: AppDimensions.iconMedium, color: success.fg),
+                    const SizedBox(width: AppSpacing.s),
+                    Flexible(
+                      child: Text(
+                        copy.t('Declaración firmada'),
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          color: success.fg,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    copy.t('Tu declaración'),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: primary.withValues(alpha: 0.10),
+                          borderRadius: AppRadii.rLarge,
+                        ),
+                        child: Icon(PhosphorIconsRegular.fileText,
+                            size: AppDimensions.iconLarge, color: primary),
+                      ),
+                      const SizedBox(width: AppSpacing.m),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              copy.t('Declaración'),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            TranslatableText(
+                              declaration.statement,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                                fontWeight: FontWeight.w700,
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (declaration.signedAt != null) ...[
+                    const SizedBox(height: AppSpacing.l),
+                    const Divider(),
+                    const SizedBox(height: AppSpacing.l),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: primary.withValues(alpha: 0.10),
+                            borderRadius: AppRadii.rLarge,
+                          ),
+                          child: Icon(PhosphorIconsRegular.calendarBlank,
+                              size: AppDimensions.iconLarge, color: primary),
+                        ),
+                        const SizedBox(width: AppSpacing.m),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                copy.isEnglish
+                                    ? 'Registered on'
+                                    : 'Registrada el',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                copy.formatDate(declaration.signedAt!),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.xl),
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.l),
+                    decoration: BoxDecoration(
+                      color: primary.withValues(alpha: 0.10),
+                      borderRadius: AppRadii.rLarge,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(PhosphorIconsFill.checkCircle,
+                            size: AppDimensions.iconLarge, color: primary),
+                        const SizedBox(width: AppSpacing.m),
+                        Expanded(
+                          child: Text(
+                            copy.isEnglish
+                                ? 'The declaration was recorded successfully.'
+                                : 'La declaración se registró correctamente.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       );

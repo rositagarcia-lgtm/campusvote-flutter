@@ -67,6 +67,8 @@ class JuryInvitationPage extends ConsumerStatefulWidget {
 class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirm = true;
   bool _busy = false;
   String? _error;
   String? _done;
@@ -221,15 +223,47 @@ class _JuryInvitationPageState extends ConsumerState<JuryInvitationPage> {
                         label: 'Crea tu contraseña',
                         helperText: 'Mínimo 10 caracteres.',
                         controller: _password,
-                        obscureText: true,
+                        obscureText: _obscurePassword,
                         enabled: !_busy,
+                        suffix: IconButton(
+                          tooltip: SettingsCopy.of(context).t(_obscurePassword
+                              ? 'Mostrar contraseña'
+                              : 'Ocultar contraseña'),
+                          icon: Icon(
+                            _obscurePassword
+                                ? PhosphorIconsRegular.eye
+                                : PhosphorIconsRegular.eyeSlash,
+                            size: AppDimensions.iconMedium,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          onPressed: _busy
+                              ? null
+                              : () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.m),
                       AppTextField(
                         label: 'Repite la contraseña',
                         controller: _confirm,
-                        obscureText: true,
+                        obscureText: _obscureConfirm,
                         enabled: !_busy,
+                        suffix: IconButton(
+                          tooltip: SettingsCopy.of(context).t(_obscureConfirm
+                              ? 'Mostrar contraseña'
+                              : 'Ocultar contraseña'),
+                          icon: Icon(
+                            _obscureConfirm
+                                ? PhosphorIconsRegular.eye
+                                : PhosphorIconsRegular.eyeSlash,
+                            size: AppDimensions.iconMedium,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          onPressed: _busy
+                              ? null
+                              : () => setState(
+                                  () => _obscureConfirm = !_obscureConfirm),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.m),
                       AppButton(
