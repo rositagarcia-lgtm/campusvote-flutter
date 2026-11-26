@@ -18,6 +18,19 @@ void main() {
     expect(message, isNot(contains('INTERNAL_DUPLICATE_VOTE')));
   });
 
+  test('antes de que empiece la feria no se muestra un conflicto genérico', () {
+    const early = JuryApiException(
+      'Las evaluaciones empiezan cuando inicia la feria',
+      statusCode: 409,
+      code: 'CONFLICT',
+    );
+
+    expect(
+      describeJuryError(early),
+      'Aún no es el momento. Espera a que la feria empiece.',
+    );
+  });
+
   test('RUBRICS_INCOMPLETE conserva el mensaje claro del backend', () {
     const incomplete = JuryApiException(
       'No puedes emitir tu voto oficial. Te faltan 2 rúbrica(s) por finalizar en esta categoría.',

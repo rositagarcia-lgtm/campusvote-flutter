@@ -39,6 +39,8 @@ String describeJuryError(Object error) {
     if (transportCode == 'rubrics_incomplete' && error.message.isNotEmpty) {
       return error.message;
     }
+    final schedule = _fairScheduleMessage(error.message);
+    if (error.statusCode == 409 && schedule != null) return schedule;
     return switch (error.statusCode) {
       400 =>
         'No pudimos validar la información. Revísala e inténtalo de nuevo.',
@@ -53,4 +55,17 @@ String describeJuryError(Object error) {
     };
   }
   return 'No se pudo completar la operación.';
+}
+
+/// El 409 de horario trae un texto claro. El resto de los 409 sigue oculto.
+String? _fairScheduleMessage(String message) {
+  final text = message.toLowerCase();
+  if (text.contains('cuando inicia la feria') ||
+      text.contains('mientras la feria está abierta')) {
+    return 'Aún no es el momento. Espera a que la feria empiece.';
+  }
+  if (text.contains('período de evaluación') && text.contains('terminó')) {
+    return 'La feria ya terminó. Ya no se puede responder la rúbrica.';
+  }
+  return null;
 }

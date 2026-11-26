@@ -266,6 +266,10 @@ const gapTranslations = <String, String>{
       'Your session expired. Sign in again.',
   'La información ya no está disponible. Actualiza la pantalla.':
       'This information is no longer available. Refresh the screen.',
+  'Aún no es el momento. Espera a que la feria empiece.':
+      'It is not time yet. Wait for the fair to start.',
+  'La feria ya terminó. Ya no se puede responder la rúbrica.':
+      'The fair has ended. The rubric can no longer be answered.',
   'El estado cambió o esta acción ya se registró. Actualiza la información.':
       'The status changed or this action was already recorded. Refresh the information.',
   'El servicio no está disponible por el momento. Inténtalo más tarde.':
